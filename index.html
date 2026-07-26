@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Neural Playground — neural networks explained by building one</title>
+    <meta
+      name="description"
+      content="Invent your own alphabet, draw it, and train a neural network to read your handwriting — free, in your browser. A visual, hands-on introduction to weights, loss, gradient descent and backpropagation, with runnable Python."
+    />
+    <link
+      rel="canonical"
+      href="https://neulearn.welldun.ai/"
+    />
+    <meta
+      name="robots"
+      content="index, follow, max-snippet:-1, max-image-preview:large"
+    />
+    <meta name="author" content="Neural Playground" />
+    <meta name="theme-color" content="#e7e9e1" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Neural Playground" />
+    <meta
+      property="og:title"
+      content="Neural Playground — neural networks explained by building one"
+    />
+    <meta
+      property="og:description"
+      content="Invent an alphabet, draw it, and train a neural network to read it. A visual, interactive introduction to how neural networks actually work."
+    />
+    <meta
+      property="og:url"
+      content="https://neulearn.welldun.ai/"
+    />
+    <meta
+      property="og:image"
+      content="https://neulearn.welldun.ai/og.jpg"
+    />
+    <meta property="og:image:width" content="1483" />
+    <meta property="og:image:height" content="812" />
+    <meta
+      property="og:image:alt"
+      content="Neural networks, explained by building one — beside a 16 by 16 grid of teal and pink squares showing a character emerging from random noise."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:image"
+      content="https://neulearn.welldun.ai/og.jpg"
+    />
+    <meta
+      name="twitter:title"
+      content="Neural Playground — neural networks explained by building one"
+    />
+    <meta
+      name="twitter:description"
+      content="Invent an alphabet, draw it, and train a neural network to read it. A visual, interactive introduction to how neural networks actually work."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://neulearn.welldun.ai/#website",
+            "url": "https://neulearn.welldun.ai/",
+            "name": "Neural Playground",
+            "description": "A hands-on, visual introduction to how neural networks work, built around teaching a network to read an alphabet you invent yourself.",
+            "inLanguage": "en"
+          },
+          {
+            "@type": "LearningResource",
+            "@id": "https://neulearn.welldun.ai/#course",
+            "url": "https://neulearn.welldun.ai/",
+            "name": "Neural networks explained by building one",
+            "description": "A ten-stage interactive walkthrough of a neural network, from raw pixels to backpropagation. You invent your own characters, draw them, watch them become numbers, and train a network to recognise your handwriting — with every number visible at every step.",
+            "learningResourceType": ["Interactive tutorial", "Simulation"],
+            "educationalLevel": "Beginner",
+            "isAccessibleForFree": true,
+            "inLanguage": "en",
+            "teaches": [
+              "What a neural network is",
+              "Weights and parameters",
+              "How images become numbers",
+              "Softmax",
+              "Loss functions and cross-entropy",
+              "Gradient descent",
+              "Backpropagation",
+              "Overfitting and held-out data",
+              "Learning rate",
+              "How this maps onto PyTorch"
+            ],
+            "audience": {
+              "@type": "EducationalAudience",
+              "educationalRole": "Beginner, self-taught programmer, student"
+            }
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://neulearn.welldun.ai/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is a neural network, in simple terms?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "A neural network is not a brain and it is not magic. It is a large pile of numbers, plus a fixed set of steps for pushing your input through those numbers to reach an answer. The numbers start random, so the first answers are nonsense. Each time it answers, it is told how wrong it was, and it nudges its own numbers slightly to be less wrong next time. Do that enough times and the numbers settle into something that works."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is a weight in a neural network?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "A weight is one number saying how much a particular piece of the input counts towards a particular answer. For image recognition, there is one weight for every pixel and every possible answer: how much does ink in this square count towards this character, or against it. Because there is one weight per pixel, a whole set of them can be laid back out as a picture and looked at directly."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How does a neural network learn?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "By being told how wrong it was and adjusting. First a loss function turns the mistake into a single number. Then, for every weight, you work out which direction would make that number smaller, and take a small step that way. For a network with no hidden layer the rule needs no calculus at all: where there was ink, push the right answer's weights up and the wrong answers' down, in proportion to how badly you missed."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is backpropagation?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Backpropagation is how blame reaches layers that the loss cannot see directly. The loss only touches the final layer. That layer works out its own error, then hands each unit behind it a share of the blame, sized by how heavily it was leaning on that unit. The same rule then runs backwards through every layer in turn. A unit that contributed nothing to the answer is blamed for nothing."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is a loss function?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "A loss function is a single number saying how wrong the network currently is, which training then tries to make smaller. The usual choice for classification is cross-entropy, which can be read as surprise: if the network believed the right answer completely the cost is zero, and as its belief in the right answer approaches zero the cost runs away. That is deliberate, because it makes confident mistakes far more expensive than mere uncertainty."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Do I need to know maths to understand neural networks?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No calculus is required to understand the core idea. Multiplication and addition are enough to follow a forward pass, and for a single-layer network the learning rule can be stated in one sentence with no derivatives. Neural Playground teaches it that way first, then names the standard terms — gradient descent, softmax, cross-entropy, backpropagation — only after you have already watched the thing they describe."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How do I get started with PyTorch?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "It helps enormously to have written the pieces by hand first, so that nn.Linear, nn.Parameter, loss.backward() and optimizer.step() each map onto something you have already seen happen. Neural Playground shows the equivalent PyTorch alongside every stage: nn.Linear creates the weights, nn.Parameter means a number the network owns and is allowed to change while it learns, loss.backward() computes the nudge, and optimizer.step() applies it."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is overfitting?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Overfitting is when a network memorises its training examples instead of learning the pattern behind them. You detect it by holding some examples back from training and scoring on those separately. A network that scores perfectly on what it studied and badly on everything else has not learned; it has memorised. That gap is usually the only warning you get."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+
+    <script type="module" src="/src/main.tsx"></script>
+  </head>
+  <body>
+    <!--
+      The article below is the site in static form. It is replaced by the
+      interactive version the moment JavaScript runs, and exists so that
+      readers, search engines and language-model crawlers that do not execute
+      JavaScript still get an accurate account of what is here.
+    -->
+    <div id="root">
+      <main
+        style="
+          max-width: 44rem;
+          margin: 0 auto;
+          padding: 3rem 1.25rem 4rem;
+          font-family: 'Instrument Sans', system-ui, sans-serif;
+          line-height: 1.65;
+        "
+      >
+        <h1 style="font-family: Archivo, system-ui, sans-serif; font-size: 2rem; line-height: 1.15; letter-spacing: -0.02em">
+          Neural networks, explained by building one
+        </h1>
+
+        <p>
+          <strong>Neural Playground</strong> is a free, hands-on introduction to
+          how neural networks actually work. You invent a small alphabet of
+          characters that have never existed, draw them by hand, and train a
+          neural network to read your handwriting — entirely in your browser,
+          with every number visible at every step.
+        </p>
+
+        <p>
+          It is built for people who have never trained a model before. There is
+          no calculus, nothing is hidden behind a library, and every term is
+          demonstrated before it is named.
+        </p>
+
+        <h2>The problem it starts from</h2>
+        <p>
+          Five people write the letter <em>a</em>. How would a computer know they
+          are the same letter? Storing one picture and comparing fails, because
+          no two are alike. Writing rules fails too, because you can recognise an
+          <em>a</em> instantly and cannot say how — and you cannot write down a
+          rule you cannot explain. A neural network takes the opposite approach:
+          it is never told what the letter looks like, only shown examples, and
+          it works out its own numbers by being wrong over and over.
+        </p>
+
+        <h2>What you build, stage by stage</h2>
+        <ol>
+          <li><strong>The problem</strong> — why handwriting cannot be recognised with rules.</li>
+          <li><strong>Your alphabet</strong> — invent characters and draw a dataset of your own.</li>
+          <li><strong>Into numbers</strong> — a grid laid over each drawing turns it into 256 numbers, with runnable Python.</li>
+          <li><strong>The network</strong> — every character gets a scorecard: one number per square saying how much ink there counts for or against it.</li>
+          <li><strong>How wrong is it?</strong> — softmax turns scores into percentages, and cross-entropy loss turns a mistake into one number.</li>
+          <li><strong>Learning</strong> — gradient descent, stated without calculus: where there was ink, push the right character's scorecard up and the wrong ones' down, in proportion to how badly you missed.</li>
+          <li><strong>The whole loop</strong> — the six stations of training as a single circuit you can step around.</li>
+          <li><strong>Read my writing</strong> — draw something it has never seen and watch it read your handwriting.</li>
+          <li><strong>Break it</strong> — starve it, lie to it, and reach in and move a weight by hand, to see how it fails.</li>
+          <li><strong>More layers</strong> — a real two-layer network, and backpropagation shown as blame travelling backwards.</li>
+        </ol>
+
+        <h2>What it teaches</h2>
+        <p>
+          Weights and parameters, how images become numbers, the forward pass,
+          softmax, cross-entropy loss, gradient descent, the learning rate,
+          overfitting and held-out data, ReLU, hidden layers, and
+          backpropagation. Each stage includes an editable Python notebook
+          running real NumPy in the browser, so you can change the code and run
+          it against your own drawings. The equivalent PyTorch is shown
+          alongside, so that <code>nn.Linear</code>, <code>nn.Parameter</code>,
+          <code>loss.backward()</code> and <code>optimizer.step()</code> each map
+          onto something you have already watched happen.
+        </p>
+
+        <h2>Honest about its limits</h2>
+        <p>
+          The network is a single linear layer, chosen so that its weights stay
+          viewable as pictures. That means it does not, by itself, demonstrate
+          backpropagation — so a later stage builds a genuine two-layer network
+          instead of pretending. Where an experiment fails to break the network,
+          the site says so and explains why rather than faking the result.
+        </p>
+
+        <p>
+          <strong
+            >Enable JavaScript to use the interactive version, which is the point
+            of it.</strong
+          >
+        </p>
+      </main>
+    </div>
+  </body>
+</html>

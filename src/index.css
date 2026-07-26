@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+@theme {
+  /* Riso-print specimen plate: cool oatmeal paper, oxidised plotter teal,
+     fluorescent specimen pink reserved for anything live or capturing. */
+  --color-paper: #e7e9e1;
+  --color-paper-deep: #dadecf;
+  --color-paper-raised: #f2f3ed;
+  --color-ink: #15201b;
+  --color-plot: #2e6a5c;
+  --color-plot-soft: #6d9a8e;
+  --color-riso: #ed3f72;
+  --color-graphite: #77806f;
+
+  --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    /* Plotting paper: a 1mm-ish quadrille that sits under everything. */
+    background-image:
+      repeating-linear-gradient(
+        to right,
+        color-mix(in srgb, var(--color-plot) 7%, transparent) 0 1px,
+        transparent 1px 24px
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--color-plot) 7%, transparent) 0 1px,
+        transparent 1px 24px
+      );
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--color-riso);
+    outline-offset: 2px;
+  }
+
+  /* Quantities and identifiers sitting inside prose. Tailwind's reset strips
+     these back to body text, which loses the distinction that matters most on
+     a page full of numbers. */
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    color: var(--color-plot);
+    background-color: color-mix(in srgb, var(--color-plot) 9%, transparent);
+    padding: 0.12em 0.36em;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  pre code {
+    all: unset;
+  }
+
+  button {
+    font-family: inherit;
+  }
+}
+
+@layer utilities {
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-graphite);
+  }
+
+  .hairline {
+    border-color: color-mix(in srgb, var(--color-plot) 22%, transparent);
+  }
+
+  /* Reading column, kept narrower than the diagrams beside it. */
+  .measure {
+    max-width: 34rem;
+  }
+
+  .lede {
+    font-size: 1.1875rem;
+    line-height: 1.6;
+  }
+
+  .body-text {
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+
+  /* A single sentence the section rests on. */
+  .claim {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.3125rem;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    border-left: 2px solid var(--color-riso);
+    padding-left: 1.125rem;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.375rem;
+    letter-spacing: -0.015em;
+  }
+
+  /* A number pulled out of prose so the eye can find it. */
+  .figure-value {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
