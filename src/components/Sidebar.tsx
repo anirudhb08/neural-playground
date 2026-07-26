@@ -75,7 +75,17 @@ export function Sidebar({ stages, current, onSelect, footer }: Props) {
           )}
         </nav>
 
-        <div className="border-t pt-5 hairline">{footer}</div>
+        <div className="border-t pt-5 hairline">
+          {footer}
+          <a
+            href="https://github.com/anirudh-valyx/neural-playground"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-block font-mono text-[0.6875rem] text-plot underline underline-offset-4 hover:text-riso"
+          >
+            Source on GitHub
+          </a>
+        </div>
       </div>
     </div>
   );
