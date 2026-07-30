@@ -58,7 +58,7 @@ export function TouchANumber({ network, sample, glyphs }: Props) {
 
         <div className="min-w-[17rem] flex-1">
           <label className="block">
-            <span className="font-mono text-[0.6875rem] text-graphite">
+            <span className="mono-note text-graphite">
               this square is worth{" "}
               <span className="text-ink">{current.toFixed(4)}</span>
               {current !== original && (
@@ -106,7 +106,7 @@ export function TouchANumber({ network, sample, glyphs }: Props) {
             </ul>
           </div>
 
-          <p className="mt-4 text-sm leading-relaxed">
+          <p className="mt-4 caption">
             {touched === 0
               ? "Drag the slider to any extreme you like and watch the answer barely notice."
               : flipped
@@ -118,7 +118,7 @@ export function TouchANumber({ network, sample, glyphs }: Props) {
             <button
               type="button"
               onClick={() => setEdited({})}
-              className="mt-3 font-mono text-[0.6875rem] text-graphite underline underline-offset-4 hover:text-riso"
+              className="mt-3 mono-note text-graphite underline underline-offset-4 hover:text-riso"
             >
               Put them all back
             </button>

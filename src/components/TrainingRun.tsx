@@ -191,7 +191,7 @@ export function TrainingRun({ start, train, held, glyphs }: Props) {
   return (
     <div className="border bg-paper-raised p-5 hairline">
       <Curve history={history} ceiling={ceiling} logScale={logScale} />
-      <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 font-mono text-[0.6875rem] text-graphite">
+      <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 mono-note text-graphite">
         <span>
           <span className="inline-block h-0.5 w-4 align-middle bg-plot" /> loss
           on the drawings it trains on
@@ -210,7 +210,7 @@ export function TrainingRun({ start, train, held, glyphs }: Props) {
         </button>
       </div>
       {logScale && (
-        <p className="mt-1.5 font-mono text-[0.6875rem] text-graphite">
+        <p className="mt-1.5 mono-note text-graphite">
           Each line up the side is ten times the one below it, so steady
           progress reads as a steady slope. Switch to an even scale and almost
           all of it collapses into the first few steps.
@@ -241,7 +241,7 @@ export function TrainingRun({ start, train, held, glyphs }: Props) {
       <div className="mt-5 flex flex-wrap items-start gap-6">
         {glyphs.map((glyph, c) => (
           <figure key={glyph.id} className="w-36">
-            <figcaption className="pb-2 font-mono text-[0.6875rem] text-graphite">
+            <figcaption className="pb-2 mono-note text-graphite">
               {glyph.label}
             </figcaption>
             <WeightMap
@@ -257,11 +257,11 @@ export function TrainingRun({ start, train, held, glyphs }: Props) {
           <button
             type="button"
             onClick={() => setShowChange((s) => !s)}
-            className="font-mono text-[0.6875rem] text-plot underline underline-offset-4 hover:text-riso"
+            className="mono-note text-plot underline underline-offset-4 hover:text-riso"
           >
             {showChange ? "Show the scorecards" : "Show only what changed"}
           </button>
-          <p className="mt-2 max-w-[20rem] text-sm leading-relaxed text-graphite">
+          <p className="mt-2 max-w-[20rem] caption text-graphite">
             {showChange
               ? "The random numbers it started with, subtracted away. This is purely what training put there."
               : "The scorecards as they stand, random starting values and all."}
@@ -273,7 +273,7 @@ export function TrainingRun({ start, train, held, glyphs }: Props) {
         <button
           type="button"
           onClick={() => setPlaying((p) => !p)}
-          className="bg-plot px-4 py-2 font-mono text-[0.6875rem] tracking-wider text-paper uppercase transition-colors hover:bg-ink"
+          className="bg-plot px-4 py-2 mono-note tracking-wider text-paper uppercase transition-colors hover:bg-ink"
         >
           {playing ? "Pause" : "Play"}
         </button>
@@ -283,7 +283,7 @@ export function TrainingRun({ start, train, held, glyphs }: Props) {
             setPlaying(false);
             advance(1);
           }}
-          className="border px-4 py-2 font-mono text-[0.6875rem] tracking-wider uppercase transition-colors hairline hover:border-plot"
+          className="border px-4 py-2 mono-note tracking-wider uppercase transition-colors hairline hover:border-plot"
         >
           One step
         </button>
@@ -295,12 +295,12 @@ export function TrainingRun({ start, train, held, glyphs }: Props) {
             setStep(0);
             setHistory([]);
           }}
-          className="font-mono text-[0.6875rem] text-graphite underline underline-offset-4 hover:text-riso"
+          className="mono-note text-graphite underline underline-offset-4 hover:text-riso"
         >
           Start again
         </button>
 
-        <label className="ml-auto flex items-center gap-2 font-mono text-[0.6875rem] text-graphite">
+        <label className="ml-auto flex items-center gap-2 mono-note text-graphite">
           step size
           <input
             type="range"
@@ -312,7 +312,7 @@ export function TrainingRun({ start, train, held, glyphs }: Props) {
           />
           <span className="w-8 text-right">{rate.toFixed(2)}</span>
         </label>
-        <span className="font-mono text-[0.6875rem] text-graphite">
+        <span className="mono-note text-graphite">
           step {step}
         </span>
       </div>

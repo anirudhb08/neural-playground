@@ -89,7 +89,7 @@ export function ScorecardFlow({ pixels, glyphs, network }: Props) {
                     }}
                   />
                 </span>
-                <span className="w-16 shrink-0 text-right font-mono text-[0.6875rem]">
+                <span className="w-16 shrink-0 text-right mono-note">
                   {totals[c] >= 0 ? "+" : ""}
                   {totals[c].toFixed(3)}
                 </span>
@@ -97,7 +97,7 @@ export function ScorecardFlow({ pixels, glyphs, network }: Props) {
             ))}
           </ul>
 
-          <p className="mt-4 font-mono text-[0.6875rem] leading-relaxed text-graphite">
+          <p className="mt-4 mono-note text-graphite">
             {done ? (
               <>
                 All {INPUTS} squares counted. Winner:{" "}
@@ -129,7 +129,7 @@ export function ScorecardFlow({ pixels, glyphs, network }: Props) {
           type="button"
           onClick={() => setPlaying((p) => !p)}
           disabled={done}
-          className="bg-plot px-4 py-2 font-mono text-[0.6875rem] tracking-wider text-paper uppercase transition-colors hover:bg-ink disabled:opacity-30"
+          className="bg-plot px-4 py-2 mono-note tracking-wider text-paper uppercase transition-colors hover:bg-ink disabled:opacity-30"
         >
           {playing ? "Pause" : "Play"}
         </button>
@@ -140,7 +140,7 @@ export function ScorecardFlow({ pixels, glyphs, network }: Props) {
             setCursor((c) => Math.min(c + 1, INPUTS));
           }}
           disabled={done}
-          className="border px-4 py-2 font-mono text-[0.6875rem] tracking-wider uppercase transition-colors hairline hover:border-plot disabled:opacity-30"
+          className="border px-4 py-2 mono-note tracking-wider uppercase transition-colors hairline hover:border-plot disabled:opacity-30"
         >
           One square
         </button>
@@ -150,12 +150,12 @@ export function ScorecardFlow({ pixels, glyphs, network }: Props) {
             setPlaying(false);
             setCursor(0);
           }}
-          className="font-mono text-[0.6875rem] text-graphite underline underline-offset-4 hover:text-riso"
+          className="mono-note text-graphite underline underline-offset-4 hover:text-riso"
         >
           Back to the start
         </button>
 
-        <label className="ml-auto flex items-center gap-2 font-mono text-[0.6875rem] text-graphite">
+        <label className="ml-auto flex items-center gap-2 mono-note text-graphite">
           speed
           <input
             type="range"
@@ -166,7 +166,7 @@ export function ScorecardFlow({ pixels, glyphs, network }: Props) {
             className="w-24 accent-plot"
           />
         </label>
-        <span className="font-mono text-[0.6875rem] text-graphite">
+        <span className="mono-note text-graphite">
           {cursor} / {INPUTS}
         </span>
       </div>

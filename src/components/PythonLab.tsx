@@ -28,7 +28,7 @@ export function PythonLab({ steps, prepare, closing }: Props) {
 
   return (
     <div className="flex flex-col gap-8">
-      <p className="border-l-2 border-plot/30 pl-4 text-sm leading-relaxed text-graphite">
+      <p className="aside">
         This is real Python with NumPy, running inside this page — there is no
         server. Change anything you like and run it again. Python remembers its
         variables between cells, so each one builds on the one above. Its bridge
@@ -52,7 +52,7 @@ export function PythonLab({ steps, prepare, closing }: Props) {
       )}
 
       {closing && unlocked >= steps.length && (
-        <p className="border-t pt-8 text-[1.0625rem] leading-relaxed hairline">
+        <p className="border-t pt-8 body-text hairline">
           {closing}
         </p>
       )}

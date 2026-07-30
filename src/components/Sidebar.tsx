@@ -42,7 +42,7 @@ export function Sidebar({ stages, current, onSelect, footer }: Props) {
                         : "border-transparent text-graphite hover:border-plot/40 hover:text-plot"
                     }`}
                   >
-                    <span className="font-mono text-[0.6875rem]">
+                    <span className="mono-note">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <span
@@ -63,7 +63,7 @@ export function Sidebar({ stages, current, onSelect, footer }: Props) {
                 {coming.map((stage, i) => (
                   <li key={stage.id}>
                     <span className="flex items-baseline gap-2.5 border-l-2 border-transparent py-1.5 pl-3 text-graphite/55">
-                      <span className="font-mono text-[0.6875rem]">
+                      <span className="mono-note">
                         {String(built.length + i + 1).padStart(2, "0")}
                       </span>
                       <span className="text-sm">{stage.name}</span>
@@ -81,7 +81,7 @@ export function Sidebar({ stages, current, onSelect, footer }: Props) {
             href="https://github.com/anirudh-valyx/neural-playground"
             target="_blank"
             rel="noreferrer"
-            className="mt-3 inline-block font-mono text-[0.6875rem] text-plot underline underline-offset-4 hover:text-riso"
+            className="mt-3 inline-block mono-note text-plot underline underline-offset-4 hover:text-riso"
           >
             Source on GitHub
           </a>

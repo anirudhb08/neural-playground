@@ -47,7 +47,7 @@ export function SurpriseCurve() {
             />
             <circle cx={cx} cy={cy} r="5" fill="#ed3f72" />
           </svg>
-          <div className="flex justify-between pt-1 font-mono text-[0.6875rem] text-graphite">
+          <div className="flex justify-between pt-1 mono-note text-graphite">
             <span>believed 1%</span>
             <span>believed 100%</span>
           </div>
@@ -79,7 +79,7 @@ export function SurpriseCurve() {
             </div>
           </dl>
 
-          <p className="mt-4 text-sm leading-relaxed">
+          <p className="mt-4 caption">
             {share > 0.94
               ? "Almost no cost. It believed the right answer, so there is nothing to complain about."
               : share > 0.6

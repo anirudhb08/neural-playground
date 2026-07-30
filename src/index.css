@@ -72,6 +72,8 @@
   .eyebrow {
     font-family: var(--font-mono);
     font-size: 0.6875rem;
+    /* Stated, not inherited — otherwise a relaxed-leading parent stretches it. */
+    line-height: 1.5;
     font-weight: 500;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -95,6 +97,31 @@
   .body-text {
     font-size: 1.0625rem;
     line-height: 1.65;
+  }
+
+  /* The plotter annotation: axis labels, readouts, row counts, units. Line
+     height is stated so a relaxed-leading parent cannot stretch it. */
+  .mono-note {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.5;
+  }
+
+  /* Prose inside a diagram or control: what you are looking at, what just
+     happened. Single-line labels stay on plain text-sm; this is for sentences. */
+  .caption {
+    font-size: 0.875rem;
+    line-height: 1.625;
+  }
+
+  /* A remark set beside the argument rather than inside it — where a number
+     comes from, what a control does. Skippable without losing the thread. */
+  .aside {
+    font-size: 0.875rem;
+    line-height: 1.625;
+    color: var(--color-graphite);
+    border-left: 2px solid color-mix(in srgb, var(--color-plot) 30%, transparent);
+    padding-left: 1rem;
   }
 
   /* A single sentence the section rests on. */

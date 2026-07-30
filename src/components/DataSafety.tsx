@@ -59,13 +59,13 @@ export function DataSafety({ dataset, saveError, onReplace, onClear }: Props) {
         </p>
       )}
 
-      <p className="font-mono text-[0.6875rem] leading-relaxed text-graphite">
+      <p className="mono-note leading-relaxed text-graphite">
         {drawings === 0
           ? "Nothing drawn yet. Whatever you draw stays in this browser."
           : `Saved here: ${drawings} drawing${drawings === 1 ? "" : "s"}, ${characters} character${characters === 1 ? "" : "s"}.`}
       </p>
 
-      <div className="flex flex-col items-start gap-1.5 font-mono text-[0.6875rem]">
+      <div className="flex flex-col items-start gap-1.5 mono-note">
         <button
           type="button"
           onClick={download}
@@ -125,7 +125,7 @@ export function DataSafety({ dataset, saveError, onReplace, onClear }: Props) {
       </div>
 
       {problem && (
-        <p role="alert" className="font-mono text-[0.6875rem] text-riso">
+        <p role="alert" className="mono-note text-riso">
           {problem}
         </p>
       )}

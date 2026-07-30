@@ -52,7 +52,7 @@ export function SoftmaxSteps({ labels, scores, truth, children }: Props) {
       {children}
 
       {tampered && (
-        <p className="mb-3 font-mono text-[0.6875rem] text-riso">
+        <p className="mb-3 mono-note text-riso">
           Your scores now, not the network's — the rest of the page still quotes
           its own.
         </p>
@@ -84,15 +84,15 @@ export function SoftmaxSteps({ labels, scores, truth, children }: Props) {
                     </span>
                   )}
                 </td>
-                <td className="py-2.5 pl-4 text-right font-mono text-[0.6875rem] text-graphite whitespace-nowrap">
+                <td className="py-2.5 pl-4 text-right mono-note text-graphite whitespace-nowrap">
                   {signed(shown[c])}
                 </td>
-                <td className="py-2.5 pl-4 text-right font-mono text-[0.6875rem] whitespace-nowrap">
+                <td className="py-2.5 pl-4 text-right mono-note whitespace-nowrap">
                   {compact(lifted[c])}
                 </td>
                 <td className="py-2.5 pl-6">
                   <div className="flex items-center gap-3">
-                    <span className="hidden shrink-0 font-mono text-[0.6875rem] text-graphite sm:inline">
+                    <span className="hidden shrink-0 mono-note text-graphite sm:inline">
                       ÷ {compact(total)}
                     </span>
                     <span className="h-3 min-w-[3rem] flex-1 bg-plot/10">
@@ -101,7 +101,7 @@ export function SoftmaxSteps({ labels, scores, truth, children }: Props) {
                         style={{ width: `${shares[c] * 100}%` }}
                       />
                     </span>
-                    <span className="w-14 shrink-0 text-right font-mono text-[0.6875rem]">
+                    <span className="w-14 shrink-0 text-right mono-note">
                       {(shares[c] * 100).toFixed(1)}%
                     </span>
                   </div>
@@ -114,16 +114,16 @@ export function SoftmaxSteps({ labels, scores, truth, children }: Props) {
             <tr>
               <td className="pt-2.5 pr-2 text-sm text-graphite">total</td>
               <td />
-              <td className="pt-2.5 pl-4 text-right font-mono text-[0.6875rem] font-semibold whitespace-nowrap">
+              <td className="pt-2.5 pl-4 text-right mono-note font-semibold whitespace-nowrap">
                 {compact(total)}
               </td>
               <td className="pt-2.5 pl-6">
                 <div className="flex items-center gap-3">
-                  <span className="hidden shrink-0 font-mono text-[0.6875rem] text-graphite sm:inline">
+                  <span className="hidden shrink-0 mono-note text-graphite sm:inline">
                     ÷ {compact(total)}
                   </span>
                   <span className="min-w-[3rem] flex-1" />
-                  <span className="w-14 shrink-0 text-right font-mono text-[0.6875rem] font-semibold">
+                  <span className="w-14 shrink-0 text-right mono-note font-semibold">
                     100.0%
                   </span>
                 </div>
@@ -159,7 +159,7 @@ export function SoftmaxSteps({ labels, scores, truth, children }: Props) {
           <button
             type="button"
             onClick={() => setShifted((s) => !s)}
-            className="border border-plot px-3 py-1.5 font-mono text-[0.6875rem] tracking-[0.1em] text-plot uppercase transition-colors hover:bg-plot hover:text-paper"
+            className="border border-plot px-3 py-1.5 mono-note tracking-[0.1em] text-plot uppercase transition-colors hover:bg-plot hover:text-paper"
           >
             {shifted ? `Take the ${SHIFT} back off` : `Add ${SHIFT} to every score`}
           </button>
@@ -167,14 +167,14 @@ export function SoftmaxSteps({ labels, scores, truth, children }: Props) {
             <button
               type="button"
               onClick={() => setEdited(null)}
-              className="font-mono text-[0.6875rem] text-graphite underline underline-offset-4 hover:text-riso"
+              className="mono-note text-graphite underline underline-offset-4 hover:text-riso"
             >
               Put the network's own scores back
             </button>
           )}
         </div>
 
-        <p className="mt-4 text-sm leading-relaxed">
+        <p className="mt-4 caption">
           {shifted
             ? `Every score is ${SHIFT} higher and the exponentials are unrecognisable — yet not one share has moved.`
             : `Drag any score, or add ${SHIFT} to all of them at once, and watch which of these columns actually move.`}

@@ -59,7 +59,7 @@ export function StarveIt({
   return (
     <div className="border bg-paper-raised p-5 hairline">
       <label className="block">
-        <span className="font-mono text-[0.6875rem] text-graphite">
+        <span className="mono-note text-graphite">
           give it less — {perClass} drawing{perClass === 1 ? "" : "s"} of each
           character, {used} in total
         </span>
@@ -78,7 +78,7 @@ export function StarveIt({
       </label>
 
       <label className="mt-4 block">
-        <span className="font-mono text-[0.6875rem] text-graphite">
+        <span className="mono-note text-graphite">
           lie to it — {lies} of those {used} are labelled as the wrong character
         </span>
         <input
@@ -112,7 +112,7 @@ export function StarveIt({
         </div>
       </div>
 
-      <p className="mt-4 max-w-[34rem] text-sm leading-relaxed">
+      <p className="mt-4 max-w-[34rem] caption">
         {lies > 0 && gap > 0
           ? `You told it ${lies} lie${lies === 1 ? "" : "s"}, and it believed every one. It still scores perfectly on the drawings it studied — it simply memorised the lies too — while collapsing on everything else. That gap is the only warning you would ever get.`
           : lies > 0

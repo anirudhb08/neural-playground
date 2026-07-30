@@ -74,7 +74,7 @@ export function WreckTheRate({
       </svg>
 
       <label className="mt-4 block">
-        <span className="font-mono text-[0.6875rem] text-graphite">
+        <span className="mono-note text-graphite">
           step size <span className="text-ink">{rate}</span> · loss after{" "}
           {ROUNDS} rounds <span className="text-ink">{final.toFixed(4)}</span>
         </span>
@@ -92,7 +92,7 @@ export function WreckTheRate({
         </span>
       </label>
 
-      <p className="mt-4 max-w-[34rem] text-sm leading-relaxed">
+      <p className="mt-4 max-w-[34rem] caption">
         {crawling
           ? "Nothing is broken. The steps are simply so short that after 200 rounds it has barely left where it started — it would get there eventually, and you would not wait."
           : enormous

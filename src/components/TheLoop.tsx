@@ -122,7 +122,7 @@ export function TheLoop({ start, samples, glyphs }: Props) {
         );
       case 4:
         return (
-          <ul className="flex flex-col gap-1 font-mono text-[0.6875rem]">
+          <ul className="flex flex-col gap-1 mono-note">
             {glyphs.map((glyph, c) => (
               <li
                 key={glyph.id}
@@ -180,7 +180,7 @@ export function TheLoop({ start, samples, glyphs }: Props) {
         })}
       </div>
 
-      <p className="mt-3 text-center font-mono text-[0.6875rem] text-graphite">
+      <p className="mt-3 text-center mono-note text-graphite">
         ↑ station 6 hands the new numbers back to station 2, and it all runs
         again ↑
       </p>
@@ -189,7 +189,7 @@ export function TheLoop({ start, samples, glyphs }: Props) {
         <button
           type="button"
           onClick={() => setPlaying((p) => !p)}
-          className="bg-plot px-4 py-2 font-mono text-[0.6875rem] tracking-wider text-paper uppercase transition-colors hover:bg-ink"
+          className="bg-plot px-4 py-2 mono-note tracking-wider text-paper uppercase transition-colors hover:bg-ink"
         >
           {playing ? "Pause" : "Play"}
         </button>
@@ -199,7 +199,7 @@ export function TheLoop({ start, samples, glyphs }: Props) {
             setPlaying(false);
             advance();
           }}
-          className="border px-4 py-2 font-mono text-[0.6875rem] tracking-wider uppercase transition-colors hairline hover:border-plot"
+          className="border px-4 py-2 mono-note tracking-wider uppercase transition-colors hairline hover:border-plot"
         >
           Next station
         </button>
@@ -212,12 +212,12 @@ export function TheLoop({ start, samples, glyphs }: Props) {
             setLap(0);
             setPick(0);
           }}
-          className="font-mono text-[0.6875rem] text-graphite underline underline-offset-4 hover:text-riso"
+          className="mono-note text-graphite underline underline-offset-4 hover:text-riso"
         >
           Start again
         </button>
 
-        <span className="ml-auto flex gap-4 font-mono text-[0.6875rem] text-graphite">
+        <span className="ml-auto flex gap-4 mono-note text-graphite">
           <span>
             laps <span className="text-ink">{lap}</span>
           </span>

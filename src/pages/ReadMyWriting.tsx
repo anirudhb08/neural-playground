@@ -135,7 +135,7 @@ export function ReadMyWriting({ dataset, onBuildAlphabet }: Props) {
                             style={{ width: `${shares[c] * 100}%` }}
                           />
                         </span>
-                        <span className="w-12 shrink-0 text-right font-mono text-[0.6875rem]">
+                        <span className="w-12 shrink-0 text-right mono-note">
                           {(shares[c] * 100).toFixed(0)}%
                         </span>
                       </li>
@@ -143,7 +143,7 @@ export function ReadMyWriting({ dataset, onBuildAlphabet }: Props) {
                   </ul>
                 </>
               ) : (
-                <p className="mt-3 text-sm text-graphite">
+                <p className="mt-3 caption text-graphite">
                   Nothing drawn yet. The answer appears as you draw, and changes
                   with every stroke.
                 </p>
@@ -176,7 +176,7 @@ export function ReadMyWriting({ dataset, onBuildAlphabet }: Props) {
               </figcaption>
               <WeightMap weights={trained.weights[winner]} />
             </figure>
-            <p className="min-w-[14rem] flex-1 text-sm leading-relaxed text-graphite">
+            <p className="min-w-[14rem] flex-1 caption text-graphite">
               The left picture is only the part of the scorecard your ink
               actually touched. Everywhere you left blank contributed nothing at
               all, which is why most of it is empty.
