@@ -19,6 +19,8 @@ interface Props {
   tutorial?: string;
   part?: string;
   wide?: boolean;
+  /** Keeps a page out of the index. Error pages, chiefly. */
+  noindex?: boolean;
   /** Path under /og/, without extension. Falls back to the site card. */
   ogImage?: string;
   /** ISO dates. Present on parts, absent on the index and tutorial pages. */
@@ -34,6 +36,7 @@ const {
   tutorial,
   part,
   wide = false,
+  noindex = false,
   ogImage,
   published,
   modified,
@@ -54,8 +57,15 @@ const image = new URL(`/og/${ogImage ?? "index"}.png`, Astro.site).href;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={url} />
-    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+    {!noindex && <link rel="canonical" href={url} />}
+    <meta
+      name="robots"
+      content={
+        noindex
+          ? "noindex, follow"
+          : "index, follow, max-snippet:-1, max-image-preview:large"
+      }
+    />
     <meta name="theme-color" content="#e7e9e1" />
 
     <meta property="og:type" content={ogType} />

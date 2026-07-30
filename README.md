@@ -62,10 +62,31 @@ pnpm dev
 ```
 
 - `pnpm typecheck` — `astro check`
-- `pnpm build` — check, then prerender every page to `dist/`
-- `pnpm start` — serve the built site (used in deployment)
+- `pnpm build` — social cards, then check, then prerender every page to `dist/`
+- `pnpm preview` — serve the built site
+- `pnpm fonts` — refresh the TrueType the card generator uses. Not part of the
+  build; the files are committed so a deploy never depends on a third party.
 
 Requires Node 20.19+.
+
+## Deploying
+
+Cloudflare Pages, static output, no adapter and no server.
+
+| setting | value |
+|---|---|
+| Build command | `pnpm build` |
+| Output directory | `dist` |
+| Node version | from `.nvmrc` (20.19.0) |
+
+`public/_headers` sets caching: fingerprinted assets and fonts immutable for a
+year, social cards for a week, HTML on Cloudflare's default revalidate. Note
+that Cloudflare *appends* every matching rule rather than letting the most
+specific win, so `/*` deliberately carries no `Cache-Control` — adding one
+concatenates it onto the rules above and undoes them.
+
+`src/pages/404.astro` becomes `dist/404.html`, which Pages serves for unknown
+paths. It is `noindex` and excluded from the sitemap.
 
 ## How it is built
 

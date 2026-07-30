@@ -26,9 +26,9 @@ const GRAPHITE = "#77806f";
 const WORDMARK = "Learn. Well dun.";
 
 const fonts = [
-  { name: "Archivo", data: await readFile(".fonts/Archivo-800.ttf"), weight: 800, style: "normal" },
-  { name: "Instrument Sans", data: await readFile(".fonts/InstrumentSans-400.ttf"), weight: 400, style: "normal" },
-  { name: "IBM Plex Mono", data: await readFile(".fonts/IBMPlexMono-500.ttf"), weight: 500, style: "normal" },
+  { name: "Archivo", data: await readFile("scripts/fonts/Archivo-800.ttf"), weight: 800, style: "normal" },
+  { name: "Instrument Sans", data: await readFile("scripts/fonts/InstrumentSans-400.ttf"), weight: 400, style: "normal" },
+  { name: "IBM Plex Mono", data: await readFile("scripts/fonts/IBMPlexMono-500.ttf"), weight: 500, style: "normal" },
 ];
 
 /** The 16x16 plate, same contrast curve the site uses so they match. */

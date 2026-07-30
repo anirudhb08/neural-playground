@@ -2,28 +2,28 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 
 /**
- * TrueType for the card generator, fetched on demand.
+ * Refreshes the TrueType the card generator needs. Not part of the build.
  *
- * satori cannot read woff2, and these are build-only, so they are not
- * committed. A bare "Mozilla/5.0" is what makes the Google Fonts API answer
- * with truetype rather than woff2 or — with a very old agent — EOT.
+ * The three files are committed under scripts/fonts, so a deploy never depends
+ * on a third-party API being up — a build that reaches out to fonts.googleapis
+ * fails for reasons that have nothing to do with the commit being built. Run
+ * this by hand if a face ever changes.
+ *
+ * A bare "Mozilla/5.0" is what makes the API answer with truetype; a modern
+ * agent gets woff2, which satori cannot read, and an ancient one gets EOT.
  */
 const UA = "Mozilla/5.0";
 const API =
   "https://fonts.googleapis.com/css?family=Archivo:800|Instrument+Sans:400|IBM+Plex+Mono:500";
+const DIR = "scripts/fonts";
 
-if (!existsSync(".fonts")) await mkdir(".fonts");
+if (!existsSync(DIR)) await mkdir(DIR, { recursive: true });
 
 const css = await (await fetch(API, { headers: { "User-Agent": UA } })).text();
-const faces = [
-  ...css.matchAll(
-    /font-family: '([^']+)';[\s\S]*?font-weight: (\d+);[\s\S]*?src: url\((https:\/\/[^)]+)\)/g,
-  ),
-];
-
-for (const [, family, weight, url] of faces) {
-  const path = `.fonts/${family.replaceAll(" ", "")}-${weight}.ttf`;
-  if (existsSync(path)) continue;
+for (const [, family, weight, url] of css.matchAll(
+  /font-family: '([^']+)';[\s\S]*?font-weight: (\d+);[\s\S]*?src: url\((https:\/\/[^)]+)\)/g,
+)) {
+  const path = `${DIR}/${family.replaceAll(" ", "")}-${weight}.ttf`;
   const buf = Buffer.from(
     await (await fetch(url, { headers: { "User-Agent": UA } })).arrayBuffer(),
   );

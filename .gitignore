@@ -2,7 +2,3 @@ node_modules
 dist
 .DS_Store
 *.local
-
-# TrueType for the social-card generator. Fetched by scripts/fonts.mjs; the
-# woff2 the site actually serves live in public/fonts and are committed.
-.fonts/
