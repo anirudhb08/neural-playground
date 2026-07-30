@@ -15,6 +15,11 @@
   --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Navigation chrome. The rails sit back from the plate rather than framing
+     it — no new hues, only the deeper paper the palette already carries. */
+  --rail-width: 17rem;
+  --toc-width: 13rem;
 }
 
 @layer base {
@@ -140,6 +145,87 @@
     font-weight: 700;
     font-size: 1.375rem;
     letter-spacing: -0.015em;
+  }
+
+  /* The part number, set as a plate stamp above its title. Parts of a tutorial
+     are a genuine sequence — you draw an alphabet before you train on it — so
+     the numbering carries information rather than decorating the page. */
+  .plate-no {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--color-riso);
+  }
+
+  /*
+   * Markdown written by hand comes out as bare tags, so the reading roles are
+   * applied by position here rather than by class on every paragraph. Only
+   * inside .prose — the figures set their own type and must not inherit this.
+   */
+  :where(.prose) > p {
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    max-width: 34rem;
+    margin-block: 1rem 0;
+  }
+
+  :where(.prose) > h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.375rem;
+    letter-spacing: -0.015em;
+    margin-block: 3.5rem 0;
+    scroll-margin-top: 1.5rem;
+  }
+
+  :where(.prose) > h2 + p {
+    margin-block-start: 0.75rem;
+  }
+
+  :where(.prose) > ul,
+  :where(.prose) > ol {
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    max-width: 34rem;
+    margin-block: 1rem 0;
+    padding-inline-start: 1.25rem;
+  }
+
+  :where(.prose) > ul { list-style: disc; }
+  :where(.prose) > ol { list-style: decimal; }
+  :where(.prose) li::marker { color: var(--color-plot-soft); }
+
+  :where(.prose) a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: color-mix(in srgb, var(--color-plot) 45%, transparent);
+  }
+
+  :where(.prose) a:hover { color: var(--color-plot); }
+
+  /* Sidebar and on-this-page rows. Quiet until they are the current one. */
+  .rail-link {
+    display: block;
+    border-left: 2px solid transparent;
+    padding: 0.3rem 0 0.3rem 0.875rem;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: var(--color-graphite);
+    text-decoration: none;
+    transition: color 120ms, border-color 120ms;
+  }
+
+  .rail-link:hover {
+    color: var(--color-plot);
+    border-left-color: color-mix(in srgb, var(--color-plot) 40%, transparent);
+  }
+
+  .rail-link[aria-current] {
+    color: var(--color-ink);
+    font-weight: 600;
+    border-left-color: var(--color-riso);
   }
 
   /* A number pulled out of prose so the eye can find it. */

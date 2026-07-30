@@ -1,0 +1,88 @@
+---
+import { getCollection } from "astro:content";
+
+/**
+ * The left rail: every tutorial, with the current one opened to its parts.
+ *
+ * Notion's tree, because a reader who arrives on part six from a search result
+ * needs to see instantly that there are five before it and four after. Closed
+ * tutorials show only a title, so the rail never becomes a wall of links.
+ */
+interface Props {
+  tutorial?: string;
+  part?: string;
+}
+const { tutorial, part } = Astro.props;
+
+const tutorials = (await getCollection("tutorials"))
+  .filter((t) => t.data.status === "published")
+  .sort((a, b) => a.data.order - b.data.order);
+
+const allParts = (await getCollection("parts")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const partsOf = (slug: string) =>
+  allParts.filter((p) => p.data.tutorial === slug);
+---
+
+<nav class="flex flex-col gap-7" aria-label="Tutorials">
+  <a href="/" class="group block no-underline">
+    <span class="font-display text-base font-extrabold tracking-[-0.01em] text-ink"
+      >Neulearn</span
+    >
+    <span class="mono-note mt-0.5 block text-graphite"
+      >tutorials you can run</span
+    >
+  </a>
+
+  <ul class="flex list-none flex-col gap-5 p-0">
+    {
+      tutorials.map((t) => {
+        const open = t.id === tutorial;
+        const parts = partsOf(t.id);
+        return (
+          <li>
+            <a
+              href={`/${t.id}/`}
+              class="block no-underline"
+              aria-current={open && !part ? "page" : undefined}
+            >
+              <span
+                class={`text-sm leading-snug ${open ? "font-semibold text-ink" : "text-graphite hover:text-plot"}`}
+              >
+                {t.data.title}
+              </span>
+            </a>
+
+            {open && parts.length > 0 && (
+              <ol class="mt-2.5 flex list-none flex-col p-0 pl-1">
+                {parts.map((p) => (
+                  <li>
+                    <a
+                      href={`/${t.id}/${p.id.split("/").pop()}/`}
+                      class="rail-link"
+                      aria-current={
+                        p.id.split("/").pop() === part ? "page" : undefined
+                      }
+                    >
+                      <span class="mono-note pr-2 text-plot-soft">
+                        {String(p.data.order).padStart(2, "0")}
+                      </span>
+                      {p.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </li>
+        );
+      })
+    }
+  </ul>
+
+  <p class="mono-note border-t pt-4 text-graphite hairline">
+    <a href="https://github.com/anirudh-valyx/neural-playground" class="underline underline-offset-4"
+      >Source on GitHub</a
+    >
+  </p>
+</nav>

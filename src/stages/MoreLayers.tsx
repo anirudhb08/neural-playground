@@ -117,7 +117,7 @@ export function MoreLayers({ dataset, onBuildAlphabet }: Props) {
     [classes],
   );
 
-  // How the one-layer network from stage 06 does, for comparison.
+  // How the one-layer network from part 06 does, for comparison.
   const flat = useMemo(() => {
     let net = createNetwork(Math.max(classes, 1));
     for (let i = 0; i < ROUNDS; i++) net = applyNudge(net, nudgeFor(net, train), 0.5);

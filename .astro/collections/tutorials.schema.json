@@ -1,0 +1,69 @@
+{
+  "$ref": "#/definitions/tutorials",
+  "definitions": {
+    "tutorials": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "blurb": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "published": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "integer",
+              "format": "unix-time"
+            }
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "published",
+            "draft"
+          ],
+          "default": "published"
+        },
+        "plate": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 256,
+          "maxItems": 256
+        },
+        "plateCaption": {
+          "type": "string"
+        },
+        "$schema": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "blurb",
+        "outcome",
+        "order",
+        "published"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

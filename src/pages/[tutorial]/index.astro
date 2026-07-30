@@ -1,0 +1,118 @@
+---
+import { getCollection } from "astro:content";
+import Shell from "../../layouts/Shell.astro";
+import PlateMark from "../../components/site/PlateMark.astro";
+
+export async function getStaticPaths() {
+  const tutorials = await getCollection("tutorials");
+  const parts = await getCollection("parts");
+  return tutorials.map((tutorial) => ({
+    params: { tutorial: tutorial.id },
+    props: {
+      tutorial,
+      parts: parts
+        .filter((p) => p.data.tutorial === tutorial.id)
+        .sort((a, b) => a.data.order - b.data.order),
+    },
+  }));
+}
+
+const { tutorial, parts } = Astro.props;
+const canonical = `/${tutorial.id}/`;
+const first = parts[0];
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Course",
+  name: tutorial.data.title,
+  description: tutorial.data.blurb,
+  url: new URL(canonical, Astro.site).href,
+  isAccessibleForFree: true,
+  inLanguage: "en",
+  educationalLevel: "Beginner",
+  provider: { "@type": "Organization", name: "Neulearn" },
+  hasPart: parts.map((p) => ({
+    "@type": "LearningResource",
+    name: p.data.title,
+    description: p.data.blurb,
+    position: p.data.order,
+    url: new URL(`/${tutorial.id}/${p.id.split("/").pop()}/`, Astro.site).href,
+  })),
+};
+---
+
+<Shell
+  title={`${tutorial.data.title} — Neulearn`}
+  description={tutorial.data.blurb}
+  canonical={canonical}
+  tutorial={tutorial.id}
+  jsonLd={jsonLd}
+>
+  <div class="pb-24">
+    <nav class="mono-note pt-10 text-graphite" aria-label="Breadcrumb">
+      <a href="/" class="underline underline-offset-4 hover:text-plot">Tutorials</a>
+    </nav>
+
+    <header class="mt-8">
+      <h1
+        class="font-display text-4xl leading-[1.08] font-extrabold tracking-[-0.025em]"
+      >
+        {tutorial.data.title}
+      </h1>
+      <p class="lede measure mt-6">{tutorial.data.blurb}</p>
+
+      <div class="mt-9 flex flex-wrap items-start gap-7 border-y py-7 hairline">
+        <PlateMark plate={tutorial.data.plate} class="w-28 shrink-0" />
+        <p class="caption measure min-w-[15rem] flex-1 text-graphite">
+          {tutorial.data.plateCaption}
+        </p>
+      </div>
+
+      <p class="body-text measure mt-8">
+        <strong>By the end:</strong>{" "}{tutorial.data.outcome}
+      </p>
+
+      {
+        first && (
+          <a
+            href={`/${tutorial.id}/${first.id.split("/").pop()}/`}
+            class="mt-8 inline-block bg-ink px-6 py-3 font-mono text-xs tracking-[0.14em] text-paper uppercase no-underline transition-colors hover:bg-plot"
+          >
+            Start with part 01
+          </a>
+        )
+      }
+    </header>
+
+    <section class="mt-16">
+      <h2 class="section-title">The {parts.length} parts</h2>
+      <ol class="mt-7 flex list-none flex-col p-0">
+        {
+          parts.map((p) => (
+            <li class="border-b hairline last:border-0">
+              <a
+                href={`/${tutorial.id}/${p.id.split("/").pop()}/`}
+                class="group flex gap-5 py-5 no-underline"
+              >
+                <span class="mono-note w-7 shrink-0 pt-1 text-plot-soft">
+                  {String(p.data.order).padStart(2, "0")}
+                </span>
+                <span class="min-w-0">
+                  <span class="block font-display text-lg font-bold tracking-[-0.01em] group-hover:text-plot">
+                    {p.data.title}
+                  </span>
+                  <span class="caption mt-1 block text-graphite">{p.data.blurb}</span>
+                  {p.data.teaches.length > 0 && (
+                    <span class="mono-note mt-2 block text-plot-soft">
+                      {p.data.teaches.join(" · ")}
+                    </span>
+                  )}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+  </div>
+</Shell>

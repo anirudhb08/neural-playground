@@ -1,0 +1,89 @@
+---
+import { getCollection } from "astro:content";
+import Shell from "../layouts/Shell.astro";
+import PlateMark from "../components/site/PlateMark.astro";
+
+const tutorials = (await getCollection("tutorials"))
+  .filter((t) => t.data.status === "published")
+  .sort((a, b) => a.data.order - b.data.order);
+const parts = await getCollection("parts");
+const countOf = (slug: string) =>
+  parts.filter((p) => p.data.tutorial === slug).length;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Neulearn",
+  url: Astro.site?.href,
+  description:
+    "Long, interactive tutorials on how machine learning actually works. Every one runs in the browser with every number visible.",
+  inLanguage: "en",
+};
+---
+
+<Shell
+  title="Neulearn — tutorials you can run"
+  description="Long, interactive tutorials on how machine learning actually works. Nothing hidden behind a library, every number visible, all of it running in your browser."
+  canonical="/"
+  jsonLd={jsonLd}
+>
+  <div class="pb-24">
+    <header class="pt-16">
+      <h1
+        class="font-display text-4xl leading-[1.05] font-extrabold tracking-[-0.03em] sm:text-5xl"
+      >
+        Tutorials you can run
+      </h1>
+      <p class="lede measure mt-6">
+        Long, interactive explanations of how machine learning actually works.
+        Nothing is hidden behind a library, every number is visible, and all of
+        it runs in your browser — including the Python.
+      </p>
+      <p class="body-text measure mt-4 text-graphite">
+        Each one is a single subject taken slowly, in parts. Read them in order
+        or land in the middle; every part says what it needs on its own.
+      </p>
+    </header>
+
+    <ul class="mt-16 flex list-none flex-col gap-px bg-plot/15 p-0">
+      {
+        tutorials.map((t) => (
+          <li class="bg-paper">
+            <a
+              href={`/${t.id}/`}
+              class="group flex flex-wrap items-start gap-6 p-6 no-underline sm:flex-nowrap"
+            >
+              <PlateMark plate={t.data.plate} class="w-24 shrink-0" />
+              <span class="min-w-[16rem] flex-1">
+                <span class="mono-note block text-plot-soft">
+                  {countOf(t.id)} parts
+                </span>
+                <span class="mt-1.5 block font-display text-2xl leading-tight font-extrabold tracking-[-0.02em] group-hover:text-plot">
+                  {t.data.title}
+                </span>
+                <span class="body-text mt-2.5 block">{t.data.blurb}</span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <section class="mt-20 border-t pt-10 hairline">
+      <h2 class="section-title">What these are</h2>
+      <p class="body-text measure mt-4">
+        Every tutorial here is built the same way: you make something real in
+        the first few minutes, and every term is demonstrated before it is
+        named. There is no video, no sign-up, and nothing to install.
+      </p>
+      <p class="body-text measure mt-4">
+        They are free, and they stay free. If something here teaches you the
+        wrong thing, that is a bug —{" "}
+        <a
+          href="https://github.com/anirudh-valyx/neural-playground/issues"
+          class="underline underline-offset-4 hover:text-plot">report it</a
+        >.
+      </p>
+    </section>
+  </div>
+</Shell>

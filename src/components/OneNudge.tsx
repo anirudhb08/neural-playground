@@ -200,7 +200,7 @@ export function OneNudge({ sample, glyphs, network, square, rate }: Props) {
         </p>
         <p className="mt-3 max-w-[34rem] caption text-graphite">
           The step size is the one number here that nothing decided for you: it
-          is set to {rate} because that trains this network well. Stage 09 is
+          is set to {rate} because that trains this network well. Part 09 is
           where you get to break it.
         </p>
       </div>

@@ -85,12 +85,12 @@ export function WholeLoop({ dataset, onBuildAlphabet }: Props) {
         <h2 className="section-title">Where each station came from</h2>
         <ol className="mt-4 flex flex-col gap-3">
           {[
-            ["Your drawing", "stage 03 — a grid laid over the ink, 256 numbers out"],
-            ["The scorecards", "stage 04 — one number per square, per character"],
+            ["Your drawing", "part 03 — a grid laid over the ink, 256 numbers out"],
+            ["The scorecards", "part 04 — one number per square, per character"],
             ["A score, then a share", "stages 04 and 05 — multiply and add, then softmax"],
-            ["How wrong", "stage 05 — the cost of the belief placed on the truth"],
-            ["Blame", "stage 06 — what it said minus what it should have said"],
-            ["Nudge", "stage 06 — ink times blame, subtracted from every number"],
+            ["How wrong", "part 05 — the cost of the belief placed on the truth"],
+            ["Blame", "part 06 — what it said minus what it should have said"],
+            ["Nudge", "part 06 — ink times blame, subtracted from every number"],
           ].map(([name, where], i) => (
             <li key={name} className="flex gap-3 border-b pb-3 hairline last:border-0">
               <span className="w-5 shrink-0 mono-note text-plot">
