@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build",
+    "build": "node scripts/fonts.mjs && node scripts/og.mjs && astro check && astro build",
     "typecheck": "astro check",
     "preview": "astro preview",
-    "start": "serve dist -l ${PORT:-3000}"
+    "start": "serve dist -l ${PORT:-3000}",
+    "og": "node scripts/og.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.0.0",
@@ -27,10 +28,13 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
+    "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/vite": "^4.0.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "satori": "^0.12.2",
     "tailwindcss": "^4.0.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "yaml": "^2.9.0"
   }
 }

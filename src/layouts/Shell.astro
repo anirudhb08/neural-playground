@@ -19,6 +19,8 @@ interface Props {
   tutorial?: string;
   part?: string;
   wide?: boolean;
+  /** Path under /og/, without extension. Falls back to the site card. */
+  ogImage?: string;
   /** ISO dates. Present on parts, absent on the index and tutorial pages. */
   published?: string;
   modified?: string;
@@ -32,6 +34,7 @@ const {
   tutorial,
   part,
   wide = false,
+  ogImage,
   published,
   modified,
   jsonLd,
@@ -39,6 +42,9 @@ const {
 const url = new URL(canonical, Astro.site).href;
 // A homepage is not an article. og:type drives how it is treated when shared.
 const ogType = canonical === "/" ? "website" : "article";
+// One card per page. A single shared image means every link anyone posts looks
+// identical whichever part it points at.
+const image = new URL(`/og/${ogImage ?? "index"}.png`, Astro.site).href;
 ---
 
 <!doctype html>
@@ -57,7 +63,10 @@ const ogType = canonical === "/" ? "website" : "article";
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={url} />
-    <meta property="og:image" content={new URL("/og.jpg", Astro.site).href} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
     {published && <meta property="article:published_time" content={published} />}
     {modified && <meta property="article:modified_time" content={modified} />}
     {published && <meta property="article:author" content={SITE.author.name} />}
@@ -65,7 +74,7 @@ const ogType = canonical === "/" ? "website" : "article";
     <meta name="twitter:site" content={SITE.xHandle} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL("/og.jpg", Astro.site).href} />
+    <meta name="twitter:image" content={image} />
 
     {/* Self-hosted; the two families above the fold are preloaded so the
         first paint does not wait on a font request it could have started
