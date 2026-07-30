@@ -1,4 +1,5 @@
 import { Suspense, lazy, useMemo } from "react";
+import { SHIFT, SoftmaxSteps } from "../components/SoftmaxSteps";
 import { SurpriseCurve } from "../components/SurpriseCurve";
 import { Thumb } from "../components/Thumb";
 import {
@@ -19,22 +20,43 @@ const PythonLab = lazy(() =>
 const STEPS = [
   {
     title: "scores are not answers",
-    lead: "The network hands back raw scores, and a raw score means nothing on its own. Turning them into shares of 100% takes two moves: make them all positive, then divide by the total.",
+    lead: "One drawing's scores, converted by hand. Raise e to the power of each one so they are all positive, add those up, then divide each by that total. Nothing else happens.",
     code: `import numpy as np
 
 scores = X @ W + b
 row = scores[0]
-print("raw scores:", row)
+print("raw scores: ", np.round(row, 3))
 
-lifted = np.exp(row - row.max())   # all positive, gaps preserved
-shares = lifted / lifted.sum()     # now they add up to 1
+lifted = np.exp(row)              # e to the power of each score
+total = lifted.sum()
 
-print("as shares:", shares)
-print("they sum to:", shares.sum())`,
+print("e^score:    ", np.round(lifted, 3))
+print("their total:", round(float(total), 3))
+
+shares = lifted / total
+print("as shares:  ", np.round(shares, 3))
+print("summing to: ", round(float(shares.sum()), 3))`,
+  },
+  {
+    title: "why the real version subtracts the biggest score",
+    lead: "Adding the same amount to every score cannot change the shares. That is fortunate, because exp() runs out of room quickly, and subtracting the largest score first is what keeps it in range. The last two lines are what that is protecting you from.",
+    code: `bumped = np.exp(row + 100)
+print("shares after +100:", np.round(bumped / bumped.sum(), 3))
+print("identical to before:", np.allclose(bumped / bumped.sum(), shares))
+
+# So: subtract the largest score first. Same answer, nothing enormous.
+safe = np.exp(row - row.max())
+print("shares, safely:   ", np.round(safe / safe.sum(), 3))
+
+# Here is what that is protecting you from.
+print("e^800 is", np.exp(800.0))
+
+lost = np.exp(row + 800)
+print("shares without it:", lost / lost.sum())`,
   },
   {
     title: "the same thing for every drawing at once",
-    lead: "keepdims=True is the only fiddly part: it keeps the result shaped so NumPy divides each row by its own total rather than by one number.",
+    lead: "Both moves again, on all your drawings in one go, with the max subtracted for the reason above. keepdims=True is the only fiddly part: it keeps the result shaped so NumPy divides each row by its own total rather than by one number.",
     code: `lifted = np.exp(scores - scores.max(axis=1, keepdims=True))
 P = lifted / lifted.sum(axis=1, keepdims=True)
 
@@ -154,55 +176,50 @@ export function HowWrong({ dataset, onBuildAlphabet }: Props) {
           <code>−9</code>. Nothing can be measured against them yet.
         </p>
         <p className="body-text measure mt-4">
-          So convert them into shares of 100%: make every score positive, then
-          divide each one by the total. Only the <em>gaps</em> between scores
-          survive, which is the part that carried any meaning.
+          Shares of 100% would be measurable, and two moves produce them. Raise{" "}
+          <code>e</code> — that constant, 2.718… — to the power of each score,
+          which makes every one of them positive, since no share of anything is
+          negative. Then divide each result by the total of them all. That pair
+          of moves is called <strong>softmax</strong>, and here it is in full on
+          your network's real scores.
         </p>
 
-        <div className="mt-7 border bg-paper-raised p-5 hairline">
-          <div className="flex flex-wrap items-center gap-8">
-            <div className="h-24 w-24 shrink-0 border bg-paper hairline">
-              <Thumb pixels={first.pixels} />
+        <div className="mt-7">
+          <SoftmaxSteps
+            labels={dataset.glyphs.map((g) => g.label)}
+            scores={raw}
+            truth={first.label}
+          >
+            <div className="mb-5 flex items-center gap-4 border-b pb-4 hairline">
+              <div className="h-16 w-16 shrink-0 border bg-paper hairline">
+                <Thumb pixels={first.pixels} />
+              </div>
+              <p className="text-sm leading-relaxed">
+                This drawing really is{" "}
+                <strong>{dataset.glyphs[first.label].label}</strong>, and every
+                number below is the network's own.
+              </p>
             </div>
-            <ul className="min-w-[15rem] flex-1 flex-col gap-3">
-              {dataset.glyphs.map((glyph, c) => (
-                <li key={glyph.id} className="flex items-center gap-3 py-1">
-                  <span className="w-16 shrink-0 truncate text-sm">
-                    {glyph.label}
-                  </span>
-                  <span className="w-20 shrink-0 text-right font-mono text-[0.6875rem] text-graphite">
-                    {raw[c] >= 0 ? "+" : ""}
-                    {raw[c].toFixed(3)}
-                  </span>
-                  <span className="h-3 min-w-0 flex-1 bg-plot/10">
-                    <span
-                      className="block h-full bg-plot"
-                      style={{ width: `${shares[c] * 100}%` }}
-                    />
-                  </span>
-                  <span className="w-12 shrink-0 text-right font-mono text-[0.6875rem]">
-                    {(shares[c] * 100).toFixed(0)}%
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <p className="mt-4 border-t pt-3 font-mono text-[0.6875rem] text-graphite hairline">
-            raw scores on the left, shares on the right · the shares add up to
-            100% · this drawing really is {dataset.glyphs[first.label].label}
-          </p>
+          </SoftmaxSteps>
         </div>
+
         <p className="body-text measure mt-5">
-          This conversion is called <strong>softmax</strong>. It is worth
-          knowing the word, but it is only the two moves above: make positive,
-          then divide by the total.
+          Two things show up as you drag. The exponent turns the <em>gap</em>{" "}
+          between two scores into a <em>ratio</em> — one point of score is always
+          worth about 2.7 times the belief, wherever the two sit. And adding{" "}
+          {SHIFT} to all of them changes nothing whatever, because the extra
+          factor lands above and below the line and cancels. Which is why real
+          code subtracts the largest score before exponentiating, as the cells
+          below do: it keeps <code>exp</code> from overflowing, and it cannot
+          change the answer.
         </p>
       </section>
 
       <section className="mt-14">
         <h2 className="section-title">How wrong is one guess?</h2>
         <p className="body-text measure mt-3">
-          Now there is something to grade. It gave the right answer{" "}
+          Now there is something to grade. Left to its own scores, the network
+          gave the right answer{" "}
           <code>{(shares[first.label] * 100).toFixed(0)}%</code> of its belief.
           The cost of a guess depends only on that one number — whatever it
           spread across the wrong answers does not matter separately, because it
@@ -266,7 +283,7 @@ export function HowWrong({ dataset, onBuildAlphabet }: Props) {
       <section className="mt-14">
         <h2 className="section-title">Build the measuring stick yourself</h2>
         <p className="body-text measure mt-3">
-          Four cells, and you will have written the loss function by hand. It is
+          Five cells, and you will have written the loss function by hand. It is
           the same one used to train essentially every classifier in the world.
         </p>
         <div className="mt-8">
