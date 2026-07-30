@@ -61,8 +61,7 @@
 <script is:inline>
   (() => {
     // The rail renders twice — desktop column and mobile drawer — so this
-    // script ships twice. Without the guard both copies bind the keydown
-    // handler, every bracket toggles twice, and nothing appears to happen.
+    // script ships twice and must only initialise once.
     if (window.__welldunControls) return;
     window.__welldunControls = true;
 
@@ -73,55 +72,60 @@
     const systemDark = () =>
       window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-    function currentTheme() {
-      return root.dataset.theme ?? (systemDark() ? "dark" : "light");
+    const currentTheme = () =>
+      root.dataset.theme ?? (systemDark() ? "dark" : "light");
+
+    const save = (key, value) => {
+      try {
+        localStorage.setItem(key, value);
+      } catch {}
+    };
+
+    /** Re-read from the DOM every time: copies of these buttons appear later. */
+    function sync() {
+      const dark = currentTheme() === "dark";
+      const collapsed = root.dataset.rail === "collapsed";
+      for (const b of document.querySelectorAll("[data-theme-toggle]")) {
+        b.title = dark ? "Switch to light" : "Switch to dark";
+      }
+      for (const b of document.querySelectorAll("[data-rail-toggle]")) {
+        b.title = collapsed ? "Show the sidebar  [" : "Hide the sidebar  [";
+        b.firstElementChild.textContent = collapsed ? "\u27E9" : "\u27E8";
+        b.lastElementChild.textContent = collapsed
+          ? "Show the sidebar"
+          : "Hide the sidebar";
+      }
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", dark ? "#121815" : "#e7e9e1");
     }
 
-    function apply(theme) {
+    function setTheme(theme) {
       root.dataset.theme = theme;
-      // The browser chrome around the page should match the page.
-      const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute("content", theme === "dark" ? "#121815" : "#e7e9e1");
-      for (const button of document.querySelectorAll("[data-theme-toggle]")) {
-        button.title = theme === "dark" ? "Switch to light" : "Switch to dark";
-      }
+      save(THEME, theme);
+      sync();
     }
 
     function setRail(collapsed) {
       root.dataset.rail = collapsed ? "collapsed" : "open";
-      for (const button of document.querySelectorAll("[data-rail-toggle]")) {
-        button.title = collapsed ? "Show the sidebar  [" : "Hide the sidebar  [";
-        button.firstElementChild.textContent = collapsed ? "⟩" : "⟨";
-        button.lastElementChild.textContent = collapsed
-          ? "Show the sidebar"
-          : "Hide the sidebar";
+      save(RAIL, collapsed ? "collapsed" : "open");
+      sync();
+    }
+
+    /*
+     * Delegated, not bound per button. This script runs while the page is still
+     * parsing, so the desktop rail's copy of these buttons does not exist yet —
+     * binding listeners here would silently miss it, and the guard above stops
+     * the second copy of the script from ever catching up.
+     */
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (target.closest("[data-theme-toggle]")) {
+        setTheme(currentTheme() === "dark" ? "light" : "dark");
+      } else if (target.closest("[data-rail-toggle]")) {
+        setRail(root.dataset.rail !== "collapsed");
       }
-    }
-
-    apply(currentTheme());
-    setRail(root.dataset.rail === "collapsed");
-
-    function toggleRail() {
-      const collapsed = root.dataset.rail !== "collapsed";
-      setRail(collapsed);
-      try {
-        localStorage.setItem(RAIL, collapsed ? "collapsed" : "open");
-      } catch {}
-    }
-
-    for (const button of document.querySelectorAll("[data-theme-toggle]")) {
-      button.addEventListener("click", () => {
-        const next = currentTheme() === "dark" ? "light" : "dark";
-        apply(next);
-        try {
-          localStorage.setItem(THEME, next);
-        } catch {}
-      });
-    }
-
-    for (const button of document.querySelectorAll("[data-rail-toggle]")) {
-      button.addEventListener("click", toggleRail);
-    }
+    });
 
     /**
      * [ or ] toggles the rail — but not while someone is typing. This page has
@@ -140,7 +144,13 @@
         return;
       }
       event.preventDefault();
-      toggleRail();
+      setRail(root.dataset.rail !== "collapsed");
     });
+
+    root.dataset.theme = currentTheme();
+    root.dataset.rail = root.dataset.rail === "collapsed" ? "collapsed" : "open";
+    sync();
+    // Labels for the buttons that had not been parsed yet when this first ran.
+    document.addEventListener("DOMContentLoaded", sync);
   })();
 </script>
