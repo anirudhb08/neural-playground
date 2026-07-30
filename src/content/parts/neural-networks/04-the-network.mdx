@@ -1,0 +1,85 @@
+---
+tutorial: neural-networks
+order: 4
+title: The network
+teaches: [weights, parameters, bias, nn.Linear]
+blurb: >-
+  Every character gets a scorecard — one number per square. The weights are
+  shown as pictures, because with one layer they can be.
+searchTitle: "What weights and parameters are in a neural network"
+description: "Every character gets a scorecard: one weight per square, saying how much ink counts for or against it. Weights drawn as pictures you can look at."
+---
+
+import { Widget } from "../../../components/site/Widget";
+
+A scorecard is a list of 256 numbers — one for every square of the grid. The
+number sitting at square 37 says how much ink in square 37 counts *towards*
+this character, or *against* it.
+
+To judge a drawing you go square by square. Multiply the ink in the square by
+the scorecard's number for that square, and add the result to a running total.
+After all 256 squares you have one number: how much this drawing looks like
+that character. Do it again for each of the other scorecards and you have one
+number per character. Biggest wins.
+
+Each character also gets one number that belongs to no square at all: a **head
+start**, added to that character's total before any ink is counted. It lets the
+network lean towards a character on its own — worth having if one of yours
+turns up more often than the rest. Yours all begin at `0`, and training moves
+them like everything else. Libraries call it the *bias*.
+
+<p class="claim mt-7">
+That is the whole network. One scorecard of 256 numbers per character, plus one
+head start each.
+</p>
+
+## What does a single weight do?
+
+Before all 256 of them, here is exactly one square of your drawing, and the one
+number the scorecard keeps for that square.
+
+<div class="mt-7"><Widget name="one-square" client:only="react" /></div>
+
+## Why can weights be drawn as pictures?
+
+A scorecard has one number per square, and those squares came from a grid — so
+you can lay the scorecard back out in that same shape and simply look at it.
+
+This is the one real advantage of a network with a single layer, and the reason
+this tutorial uses one: every number maps to a square of the drawing, so the
+whole thing can be *seen*. Stack layers and that stops being true, which is
+part 10's problem.
+
+<div class="mt-7"><Widget name="scorecards" client:only="react" /></div>
+
+## How does the network score a whole drawing?
+
+Same arithmetic as the single square above, repeated down the whole grid. Step
+through it one square at a time, or press play and watch the totals build. The
+dimmed part of each grid is what has not been counted yet.
+
+<div class="mt-7"><Widget name="scorecard-flow" client:only="react" /></div>
+
+## What is this called in PyTorch?
+
+You have just built a network by hand, out of nothing but a table of numbers
+and a multiply-and-add. Almost nobody writes it that way. They use PyTorch, and
+the whole of the last hour collapses into four lines.
+
+You cannot run those here — PyTorch is far too large to load in a browser,
+which is why everything on this site is NumPy. But the words are worth having,
+because they are everywhere.
+
+`nn.Linear(256, 3)` makes the scorecards. `layer.weight` is them.
+`layer(drawing)` is the multiply-and-add you stepped through square by square.
+And `layer.weight` is an `nn.Parameter`, which means exactly one thing:
+
+<p class="claim mt-7">
+A number the network owns, and is allowed to change while it learns.
+</p>
+
+Everything else in your program stays put; parameters are the parts that move.
+When somebody says a model has eight billion parameters, these are what they
+are counting. Yours are quick to count: one scorecard of 256 numbers per
+character, plus one head start each — `256 × 3 + 3 = 771` for a
+three-character alphabet. Not one of them has moved yet. That is the next part.

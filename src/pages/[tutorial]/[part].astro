@@ -1,0 +1,192 @@
+---
+import { getCollection, render } from "astro:content";
+import Shell from "../../layouts/Shell.astro";
+import { SITE } from "../../site";
+import { fileDates } from "../../lib/dates";
+import AlsoCovered from "../../components/site/AlsoCovered.astro";
+
+export async function getStaticPaths() {
+  const parts = await getCollection("parts");
+  const tutorials = await getCollection("tutorials");
+  const ordered = (slug: string) =>
+    parts
+      .filter((p) => p.data.tutorial === slug)
+      .sort((a, b) => a.data.order - b.data.order);
+
+  return parts.map((entry) => {
+    const siblings = ordered(entry.data.tutorial);
+    const i = siblings.findIndex((p) => p.id === entry.id);
+    return {
+      params: {
+        tutorial: entry.data.tutorial,
+        part: entry.id.split("/").pop()!,
+      },
+      props: {
+        entry,
+        tutorial: tutorials.find((t) => t.id === entry.data.tutorial)!,
+        total: siblings.length,
+        prev: siblings[i - 1],
+        next: siblings[i + 1],
+      },
+    };
+  });
+}
+
+const { entry, tutorial, total, prev, next } = Astro.props;
+const { Content, headings } = await render(entry);
+
+const slug = entry.id.split("/").pop()!;
+const href = (p: typeof prev) =>
+  p ? `/${p.data.tutorial}/${p.id.split("/").pop()}/` : undefined;
+const canonical = `/${entry.data.tutorial}/${slug}/`;
+const no = String(entry.data.order).padStart(2, "0");
+
+// Only h2s — the parts are short enough that h3s would make the rail longer
+// than the section list it is meant to summarise.
+const sections = headings.filter((h) => h.depth === 2);
+
+const url = new URL(canonical, Astro.site).href;
+const dates = fileDates(`src/content/parts/${entry.id}.mdx`, tutorial.data.published);
+const description = entry.data.description ?? entry.data.blurb;
+const author = { "@type": "Person", name: SITE.author.name, url: SITE.author.url };
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": ["LearningResource", "TechArticle"],
+    name: entry.data.title,
+    headline: entry.data.searchTitle ?? entry.data.title,
+    description,
+    url,
+    mainEntityOfPage: url,
+    position: entry.data.order,
+    isAccessibleForFree: true,
+    inLanguage: "en",
+    learningResourceType: "Interactive tutorial",
+    educationalLevel: "Beginner",
+    teaches: entry.data.teaches,
+    datePublished: dates.published,
+    dateModified: dates.modified,
+    author,
+    publisher: { "@type": "Organization", name: SITE.org.name, url: SITE.org.url },
+    isPartOf: {
+      "@type": "Course",
+      name: tutorial.data.title,
+      url: new URL(`/${tutorial.id}/`, Astro.site).href,
+    },
+  },
+  // Markup for the breadcrumb the page already draws, so a result can show the
+  // trail instead of a bare url.
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Tutorials", item: Astro.site?.href },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: tutorial.data.title,
+        item: new URL(`/${tutorial.id}/`, Astro.site).href,
+      },
+      { "@type": "ListItem", position: 3, name: entry.data.title, item: url },
+    ],
+  },
+];
+---
+
+<Shell
+  title={`${entry.data.searchTitle ?? entry.data.title} — ${SITE.name}`}
+  description={description}
+  canonical={canonical}
+  tutorial={entry.data.tutorial}
+  part={slug}
+  ogImage={`${entry.data.tutorial}-${slug}`}
+  published={dates.published}
+  modified={dates.modified}
+  jsonLd={jsonLd}
+>
+  <article class="pb-24">
+    <nav class="mono-note flex flex-wrap gap-x-2 pt-10 text-graphite" aria-label="Breadcrumb">
+      <a href="/" class="underline underline-offset-4 hover:text-plot">Tutorials</a>
+      <span aria-hidden="true">/</span>
+      <a href={`/${tutorial.id}/`} class="underline underline-offset-4 hover:text-plot"
+        >{tutorial.data.title}</a
+      >
+    </nav>
+
+    <header class="mt-8 border-b pb-8 hairline">
+      <p class="plate-no">Part {no} of {String(total).padStart(2, "0")}</p>
+      <h1
+        class="mt-2 font-display text-3xl leading-[1.12] font-extrabold tracking-[-0.02em] sm:text-4xl"
+      >
+        {entry.data.title}
+      </h1>
+      <p class="lede measure mt-5">{entry.data.blurb}</p>
+    </header>
+
+    <div class="prose mt-12">
+      <Content />
+    </div>
+
+    <AlsoCovered tutorial={entry.data.tutorial} current={slug} />
+
+    <nav
+      class="mt-16 grid gap-4 border-t pt-8 hairline sm:grid-cols-2"
+      aria-label="Parts"
+    >
+      {
+        prev ? (
+          <a
+            href={href(prev)}
+            class="group border p-4 no-underline hairline hover:border-plot"
+          >
+            <span class="mono-note block text-graphite">
+              ← Part {String(prev.data.order).padStart(2, "0")}
+            </span>
+            <span class="mt-1 block text-sm font-semibold group-hover:text-plot">
+              {prev.data.title}
+            </span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        next && (
+          <a
+            href={href(next)}
+            class="group border p-4 text-right no-underline hairline hover:border-plot sm:col-start-2"
+          >
+            <span class="mono-note block text-graphite">
+              Part {String(next.data.order).padStart(2, "0")} →
+            </span>
+            <span class="mt-1 block text-sm font-semibold group-hover:text-plot">
+              {next.data.title}
+            </span>
+          </a>
+        )
+      }
+    </nav>
+  </article>
+
+  <Fragment slot="toc">
+    {
+      sections.length > 0 && (
+        <nav aria-labelledby="toc-heading">
+          <p id="toc-heading" class="eyebrow pb-3">
+            On this page
+          </p>
+          <ul class="flex list-none flex-col p-0">
+            {sections.map((h) => (
+              <li>
+                <a href={`#${h.slug}`} class="rail-link">
+                  {h.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
+  </Fragment>
+</Shell>

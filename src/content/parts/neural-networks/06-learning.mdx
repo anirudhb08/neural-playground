@@ -1,0 +1,124 @@
+---
+tutorial: neural-networks
+order: 6
+title: Learning
+teaches: [gradient descent, learning rate, epoch, overfitting]
+blurb: >-
+  Gradient descent without calculus, and why averaging over many drawings turns
+  memorising into understanding.
+searchTitle: "Gradient descent explained without calculus"
+description: "Where there was ink, push the right scorecard up and the wrong ones down, in proportion to how far off the guess was. With sums you can check on a calculator."
+---
+
+import { Widget } from "../../../components/site/Widget";
+
+You have a number that says how wrong the network is. Now the question that
+sounds impossible: how can one number tell every one of the network's numbers
+which way to move?
+
+<aside class="aside measure mt-5">
+Where that count comes from: one scorecard per character holding one number per
+square, so <code>256 × 3 = 768</code> for a three-character alphabet, plus the
+head start each character carries from part 04 — one more number apiece, added
+to its total before any ink is counted. That is the <em>bias</em>, and it is
+<code>b</code> in the code below. <code>768 + 3 = 771</code>.
+</aside>
+
+The answer needs no mathematics. It fits in one sentence.
+
+<p class="claim mt-7">
+Where there was ink, push the right character's scorecard up and the wrong
+ones' down — in proportion to how far off the guess was.
+</p>
+
+## How does one number tell every weight which way to move?
+
+Take a drawing the network gets wrong and look at a single square. Three things
+decide how far its number moves: how much ink is in that square, how far off
+the guess was, and how big a step you are willing to take. Multiply all three.
+
+That multiplication is written out below with the numbers filled in. Click a
+different square, or a different character, and it is a different sum — check
+any of them on a calculator.
+
+<div class="mt-7"><Widget name="one-nudge" client:only="react" /></div>
+
+Click somewhere you never drew and the sum collapses: ink of `0` times anything
+is `0`. The network only ever learns about the places you put ink.
+
+## What happens if you train on one example repeatedly?
+
+Apply that rule to one drawing, over and over, and watch how much the network
+comes to believe it. The step is bigger here — 2 rather than 0.5 — so that one
+click does visible work.
+
+<div class="mt-7"><Widget name="train-one-drawing" client:only="react" /></div>
+
+It becomes certain within a handful of nudges — and useless at everything else.
+Being told about one drawing over and over does not teach a character; it
+teaches that drawing.
+
+## Why does averaging over many drawings help?
+
+The nudge one drawing asks for is simply that drawing — you can see your own
+strokes in it. Every drawing asks for something slightly different, so average
+them all: where they disagree the colours cancel towards nothing, and where
+they agree they pile up.
+
+<div class="mt-7"><Widget name="averaging-nudges" client:only="react" /></div>
+
+<p class="claim mt-8">
+Nobody decided which parts of your handwriting mattered. The parts that varied
+deleted themselves.
+</p>
+
+That is how it learns a character instead of a drawing, and why more drawings,
+drawn more differently, make a better network. Every extra one gives the
+accidents another chance to cancel.
+
+## What does a full training run look like?
+
+Now the real thing: work out the nudge across every drawing at once, take one
+small step, and repeat. The teal line is the loss on the drawings it is
+learning from. The pink line is the loss on drawings deliberately kept back,
+which it never gets to learn from — the only honest test of whether it has
+understood anything.
+
+<div class="mt-7"><Widget name="training-run" client:only="react" /></div>
+
+Watch the order things happen in. It gets every drawing right within a couple
+of steps, then keeps going for hundreds more — because being *right* and being
+*sure* are not the same thing, and becoming sure takes far longer.
+
+The step size has a slider of its own. Drag it down and progress crawls. Drag
+it up and, with characters as unlike each other as yours, it simply arrives
+sooner — this curve will not break, and part 09 is where you find out why. That
+dial is called the **learning rate**, and on harder problems choosing it is
+most of what tuning a network feels like.
+
+If the pink line stops falling while the teal one keeps going, the network has
+started memorising your particular drawings rather than learning the
+characters. That is **overfitting**, and more drawings is the usual cure.
+
+## What is gradient descent called, and what is backpropagation?
+
+Taking a small step in the direction that reduces the loss, over and over, is
+**gradient descent**. The nudge you have been working out is the **gradient**.
+One pass over all your drawings is an **epoch**. The thing that applies the
+step is an **optimiser**.
+
+One word deserves an honest answer: **backpropagation**. You have not used it.
+Your network is one row of scorecards, so blame goes straight from the loss to
+the numbers in a single move — which is why the rule fitted in a sentence. Put
+another row of scorecards behind the first — that is what a **layer** is — and
+each one has to work out its own blame and pass what is left back to the row
+before it: the same rule, run backwards down the chain. That is part 10. This
+network is too simple to show it to you, and pretending otherwise would be a
+lie.
+
+## Writing the training loop in Python
+
+Four cells and you will have trained it by hand, starting from the same numbers
+the figures above started from.
+
+<div class="mt-8"><Widget name="learning-lab" client:only="react" /></div>

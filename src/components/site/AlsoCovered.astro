@@ -1,0 +1,75 @@
+---
+import { getCollection } from "astro:content";
+
+/**
+ * Where each idea on this page is first explained, and what the neighbouring
+ * parts cover.
+ *
+ * Four links a page — two breadcrumbs, previous, next — is a thin internal
+ * graph for a ten-part sequence, and it leaves every concept a dead end. This
+ * is built from the `teaches` each part already declares, so it cannot drift
+ * out of step with the content the way a hand-written list would.
+ */
+interface Props {
+  tutorial: string;
+  /** Slug of the part being read, so it never links to itself. */
+  current: string;
+}
+const { tutorial, current } = Astro.props;
+
+const parts = (await getCollection("parts"))
+  .filter((p) => p.data.tutorial === tutorial)
+  .sort((a, b) => a.data.order - b.data.order);
+
+const slugOf = (id: string) => id.split("/").pop()!;
+
+// One entry per term, pointing at the part that introduces it. Several parts
+// revisit the same idea — overfitting turns up in 06 and again in 09 — so the
+// first mention wins and the term appears once, not once per part.
+const first = new Map<string, (typeof parts)[number]>();
+for (const p of parts) {
+  for (const term of p.data.teaches) {
+    if (!first.has(term)) first.set(term, p);
+  }
+}
+
+const terms = [...first].map(([term, p]) => ({
+  term,
+  title: p.data.title,
+  order: p.data.order,
+  href: `/${tutorial}/${slugOf(p.id)}/`,
+  here: slugOf(p.id) === current,
+}));
+---
+
+{
+  terms.length > 0 && (
+    <nav class="mt-16 border-t pt-8 hairline" aria-labelledby="covered">
+      <h2 id="covered" class="eyebrow">
+        Every idea in this tutorial, and where it is explained
+      </h2>
+      <ul class="mt-4 flex flex-wrap gap-x-3 gap-y-2 p-0">
+        {terms.map((t) => (
+          <li class="list-none">
+            {t.here ? (
+              <span
+                class="mono-note inline-block border border-riso/40 bg-riso/8 px-2.5 py-1 text-ink"
+                title="Explained on this page"
+              >
+                {t.term}
+              </span>
+            ) : (
+              <a
+                href={t.href}
+                class="mono-note inline-block border px-2.5 py-1 text-graphite no-underline hairline transition-colors hover:border-plot hover:text-plot"
+                title={`Explained in part ${String(t.order).padStart(2, "0")}: ${t.title}`}
+              >
+                {t.term}
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}

@@ -1,0 +1,73 @@
+---
+tutorial: neural-networks
+order: 1
+title: The problem
+teaches: [what a neural network is, dataset]
+blurb: >-
+  Five handwritten a's. Why comparing pictures fails, why writing rules fails,
+  and what a network does instead of both.
+searchTitle: "Why computers cannot read handwriting with rules"
+description: "Five people write the letter a and no two match. Why template matching fails, why hand-written rules fail, and what a neural network does instead."
+---
+
+import HandwrittenAs from "../../../components/site/HandwrittenAs.astro";
+import NextPart from "../../../components/site/NextPart.astro";
+
+<HandwrittenAs />
+
+How does a computer know these are all the same letter?
+
+## Idea 1 — compare pictures
+
+Save one picture of the letter *a*. When a new drawing comes in, check whether
+it matches.
+
+Now look at the five above. None of them match each other. One is bigger. One
+leans. One is drawn with a thicker pen. A picture only ever matches itself.
+
+## Idea 2 — write rules
+
+So write a rule instead. Something like: a round shape with a line down the
+right side.
+
+Then someone draws an *a* where the round part does not close. Your rule says
+no. But it is still an *a*. So you add another rule. Then another. It never
+ends.
+
+Here is the real trouble. You can spot an *a* in a split second. But you cannot
+say how you did it. And you cannot write down a rule you cannot explain.
+
+## How does a neural network solve this instead?
+
+This is not really about the letter *a*. Plenty of problems work the same way.
+Telling a cat from a dog. Spotting a face in a photo. Naming a song from two
+seconds of it. You know the answer the moment you see it, and you still cannot
+write the rule.
+
+That is where a neural network comes in.
+
+It is not a brain, and it is not magic. It is a big pile of numbers, plus a
+fixed set of steps that push your drawing through those numbers to reach an
+answer.
+
+At the start the numbers are random, so the answers are nonsense. Each time it
+answers, you tell it how wrong it was. It nudges its numbers a little, in the
+direction that would have been less wrong. Then it tries again.
+
+Do that a few thousand times and the numbers settle into something that works.
+Nobody wrote them down. The network found them by being wrong, over and over.
+
+## What does a neural network need to learn from?
+
+You are going to build one. A real one, a piece at a time.
+
+But it needs something to learn from: a pile of examples, each one labelled
+with the right answer. That pile is called a **dataset**, and you are going to
+make your own.
+
+You will invent a few characters that do not exist, and draw each one several
+times. Those drawings become the examples. And because you made the characters
+up, nothing out there has ever seen them. No existing program can help you.
+Everything this network learns will have come from you.
+
+<NextPart href="/neural-networks/02-your-alphabet/" label="Invent an alphabet" />

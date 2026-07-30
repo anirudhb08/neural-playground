@@ -1,0 +1,69 @@
+---
+import { getCollection } from "astro:content";
+import Shell from "../layouts/Shell.astro";
+import { SITE } from "../site";
+
+/**
+ * Cloudflare Pages serves this for any path that is not a file.
+ *
+ * The old site answered 200 to every url, which is how an invented address
+ * ended up looking valid. A wrong guess should say so — and then offer the
+ * thing the reader was probably looking for, since most wrong guesses here are
+ * a mistyped part.
+ */
+const parts = (await getCollection("parts")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const tutorials = await getCollection("tutorials");
+---
+
+<Shell
+  title={`Page not found — ${SITE.name}`}
+  description="That address does not exist on this site."
+  canonical="/404"
+  noindex
+>
+  <div class="pb-24">
+    <header class="pt-16">
+      <p class="plate-no">Error 404</p>
+      <h1
+        class="mt-2 font-display text-4xl leading-[1.08] font-extrabold tracking-[-0.025em]"
+      >
+        There is nothing at this address
+      </h1>
+      <p class="lede measure mt-6">
+        The link may be mistyped, or it may point at something that has moved.
+        Everything published is listed below.
+      </p>
+    </header>
+
+    {
+      tutorials.map((t) => (
+        <section class="mt-14">
+          <h2 class="section-title">
+            <a href={`/${t.id}/`} class="no-underline hover:text-plot">
+              {t.data.title}
+            </a>
+          </h2>
+          <ol class="mt-5 flex list-none flex-col p-0">
+            {parts
+              .filter((p) => p.data.tutorial === t.id)
+              .map((p) => (
+                <li class="border-b hairline last:border-0">
+                  <a
+                    href={`/${t.id}/${p.id.split("/").pop()}/`}
+                    class="group flex gap-4 py-3 no-underline"
+                  >
+                    <span class="mono-note w-7 shrink-0 pt-0.5 text-plot-soft">
+                      {String(p.data.order).padStart(2, "0")}
+                    </span>
+                    <span class="text-sm group-hover:text-plot">{p.data.title}</span>
+                  </a>
+                </li>
+              ))}
+          </ol>
+        </section>
+      ))
+    }
+  </div>
+</Shell>

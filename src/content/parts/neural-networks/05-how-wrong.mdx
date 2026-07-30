@@ -1,0 +1,76 @@
+---
+tutorial: neural-networks
+order: 5
+title: How wrong is it?
+teaches: [softmax, cross-entropy, loss]
+blurb: >-
+  Softmax as shares of 100 per cent, cross-entropy as surprise, and loss as the
+  single number training tries to shrink.
+searchTitle: "Softmax and cross-entropy loss, explained step by step"
+description: "Softmax turns raw scores into shares of 100 per cent, with every figure shown. Cross-entropy then turns one wrong guess into a number, and loss averages it."
+---
+
+import { Widget } from "../../../components/site/Widget";
+
+Nothing on this page learns anything. This is only the measuring stick.
+Building it is most of the work; once you have it, improving the network turns
+out to be surprisingly mechanical.
+
+## How does softmax turn scores into percentages?
+
+The network hands back a score per character. Those numbers are not
+percentages, they have no ceiling, and they could just as easily have been
+`+412` and `−9`. Nothing can be measured against them yet.
+
+Shares of 100% would be measurable, and two moves produce them. Raise `e` —
+that constant, 2.718… — to the power of each score, which makes every one of
+them positive, since no share of anything is negative. Then divide each result
+by the total of them all. That pair of moves is called **softmax**, and here it
+is in full on your network's real scores.
+
+<div class="mt-7"><Widget name="softmax-steps" client:only="react" /></div>
+
+Two things show up as you drag. The exponent turns the *gap* between two scores
+into a *ratio* — one point of score is always worth about 2.7 times the belief,
+wherever the two sit. And adding 100 to all of them changes nothing whatever,
+because the extra factor lands above and below the line and cancels. Which is
+why real code subtracts the largest score before exponentiating, as the cells
+below do: it keeps `exp` from overflowing, and it cannot change the answer.
+
+## What is cross-entropy loss?
+
+Now there is something to grade. The cost of a guess depends only on one
+number — the share of belief it placed on the right answer. Whatever it spread
+across the wrong answers does not matter separately, because it is what is left
+over.
+
+Believe the right answer completely and the cost is zero. Believe it a little
+less and the cost creeps up. Believe it barely at all and the cost runs away.
+Drag the belief and watch what the cost does.
+
+<div class="mt-7"><Widget name="surprise-curve" client:only="react" /></div>
+
+The runaway end is the point. If the cost were simply `100% − belief`, being
+confidently wrong would cost barely more than being unsure. This curve makes
+confident mistakes enormously expensive, which is exactly the behaviour worth
+discouraging. The name for it is **cross-entropy**.
+
+## What is the loss of a whole dataset?
+
+Work out that cost for every drawing you made, then take the average. That
+single number is called the **loss**, and it is the only thing training ever
+tries to make smaller.
+
+<div class="mt-7"><Widget name="loss-now" client:only="react" /></div>
+
+<p class="claim mt-8">
+Everything from here is one question: which way do we move the network's
+numbers to make that figure smaller?
+</p>
+
+## Writing the loss function in Python
+
+Five cells, and you will have written the loss function by hand. It is the same
+one used to train essentially every classifier in the world.
+
+<div class="mt-8"><Widget name="how-wrong-lab" client:only="react" /></div>

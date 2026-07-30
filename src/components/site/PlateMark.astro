@@ -1,0 +1,46 @@
+---
+/**
+ * A tutorial's identity: 256 numbers from its own subject, drawn as a 16x16
+ * plate in the same language the tutorials use for every other grid — teal
+ * positive, pink negative, paper for nothing.
+ *
+ * Static markup, no client JS. It is a picture of real data, so a tutorial
+ * that has no artefact to show renders nothing rather than a pattern.
+ */
+interface Props {
+  plate?: number[];
+  size?: "sm" | "lg";
+  class?: string;
+}
+
+const { plate, size = "lg", class: klass = "" } = Astro.props;
+const cell = size === "sm" ? "1.5px" : "3px";
+const peak = plate?.length ? Math.max(...plate.map(Math.abs), 1) : 1;
+
+/**
+ * Contrast curve, not a threshold. A trained scorecard is mostly small values
+ * either side of zero with the letter carried by the extremes; plotted flat it
+ * reads as noise. The exponent lets the weak values recede so the shape the
+ * network found is visible at 100px. Every value is still drawn, and the sign
+ * still picks the colour — nothing is clipped away.
+ */
+const fill = (v: number) => {
+  const strength = Math.pow(Math.abs(v) / peak, 1.7) * 100;
+  const hue = v >= 0 ? "46 106 92" : "237 63 114";
+  return `color-mix(in srgb, rgb(${hue}) ${strength.toFixed(1)}%, #f2f3ed)`;
+};
+---
+
+{
+  plate && (
+    <div
+      class={`grid aspect-square gap-px border bg-plot/20 hairline ${klass}`}
+      style={`grid-template-columns: repeat(16, minmax(${cell}, 1fr));`}
+      aria-hidden="true"
+    >
+      {plate.map((v) => (
+        <div class="aspect-square" style={`background-color:${fill(v)}`} />
+      ))}
+    </div>
+  )
+}

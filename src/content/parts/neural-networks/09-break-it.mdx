@@ -1,0 +1,105 @@
+---
+tutorial: neural-networks
+order: 9
+title: Break it
+teaches: [overfitting, learning rate, distributed representation]
+blurb: >-
+  Starve it, lie to it, and move a weight by hand. Three ways to wreck a
+  network on purpose, and what each failure looks like.
+searchTitle: "What overfitting is, and three ways to break a network"
+description: "Starve it, lie to it, move a weight by hand. What overfitting looks like when caused deliberately, and why a huge learning rate refuses to break this one."
+---
+
+import { Widget } from "../../../components/site/Widget";
+
+Everything has worked so far, which is a poor way to learn anything. You
+understand a machine when you know how it fails, so this part is three ways to
+wreck yours on purpose.
+
+## What does overfitting look like?
+
+Two dials. The first gives it fewer drawings to learn from. The second lies —
+it relabels some of your drawings as the wrong character before training
+starts. Watch the two scores come apart.
+
+<div class="mt-7"><Widget name="starve-it" client:only="react" /></div>
+
+Starving it barely works. Your characters are so unlike each other that a
+single drawing of each is very nearly enough — which is a real finding, not a
+broken demo. Distinct classes are easy; that is why nobody is impressed by
+telling circles from squares.
+
+Lying to it works. Push that second dial up and you reach a point where it
+still scores perfectly on the drawings it studied while falling to chance on
+everything else — it cheerfully memorised the lies alongside the truth. Its
+loss goes to nearly zero while doing it, because as far as the network is
+concerned it is getting every answer right. It has no way to tell a wrong label
+from a right one, and no notion that a label could be wrong at all.
+
+<p class="claim mt-7">
+A network that scores perfectly on what it studied and badly on everything else
+has not learned. It has memorised.
+</p>
+
+That gap has a name — **overfitting** — and it is the single most useful
+diagnostic in the subject, because it is the only warning you get. It is also
+why nobody ever reports a score on the data they trained on.
+
+## Can too large a learning rate break training?
+
+The nudge says which way to move; the step size says how far. Textbooks warn
+that too large a step overshoots the bottom of the valley and lands higher up
+the far side, so the loss climbs instead of falling. Wind the slider all the
+way up and try to make that happen.
+
+<div class="mt-7"><Widget name="wreck-the-rate" client:only="react" /></div>
+
+Small steps fail exactly as promised — the loss barely moves. But the other end
+refuses to break. A step size of ten million ought to be catastrophic, and it
+trains perfectly well.
+
+<p class="claim mt-7">
+You cannot break this one by pushing too hard, and the reason is worth more
+than the breakage would have been.
+</p>
+
+The nudge is made of how wrong the network is. Once it is confidently right,
+that error is nearly zero, so the nudge is nearly zero, so a huge step size
+multiplies almost nothing and moves almost nowhere. The rule throttles itself.
+And because your characters can be cleanly separated, one enormous first step
+lands somewhere confidently correct with nothing left to overshoot.
+
+On harder problems — characters that genuinely overlap, or the stacked layers
+from the next part — that safety net is gone and the step size becomes the
+setting most likely to ruin your day. It just cannot be demonstrated to you
+honestly on a handful of hand-drawn marks, so it is not going to be.
+
+## Is the answer stored in any single weight?
+
+Here is the trained network. Click any square of the first character's
+scorecard, drag its value as far as you like, and watch what happens to the
+answer.
+
+<div class="mt-7"><Widget name="touch-a-number" client:only="react" /></div>
+
+Almost nothing happens. There is no square holding the answer, no single number
+you can pull out to break it — the decision is smeared across all of them, and
+each one contributes a sliver.
+
+<p class="claim mt-7">
+That smearing is why these systems are hard to explain, and why they keep
+working when parts of them are damaged.
+</p>
+
+## How many parameters do real models have?
+
+Your network holds a few hundred numbers. That word — **parameters** — is the
+one used to describe every model you have heard of, so it is worth seeing what
+the same word covers: roughly 100,000 for a network that reads handwritten
+digits, 25 million for one that recognises objects in photographs, and hundreds
+of billions for one that writes essays.
+
+<p class="claim mt-7">
+Not one of them does anything yours do not. There are simply more, arranged in
+more layers, nudged for far longer, by far more examples.
+</p>

@@ -1,0 +1,45 @@
+---
+/**
+ * Five hands writing the same letter. The variation is the whole problem, so
+ * this is the first thing on the site — static SVG, no JavaScript, visible to
+ * anything that can render a page at all.
+ */
+const HANDS = [
+  { bowl: "M58 42C58 30 36 27 29 39 22 51 28 67 42 67 52 67 58 59 58 49", stem: "M58 29 60 69", rotate: -7, width: 7 },
+  { bowl: "M62 38C60 27 38 25 30 36 22 48 27 66 43 65 53 64 61 56 61 46", stem: "M61 27 64 66", rotate: 6, width: 5 },
+  { bowl: "M56 45C57 31 33 28 27 41 22 53 30 68 44 66 54 65 57 57 56 48", stem: "M56 30 57 67", rotate: -2, width: 9 },
+  { bowl: "M64 40C62 28 39 23 31 37 24 49 29 69 45 66 55 65 63 57 62 47", stem: "M63 27 62 68", rotate: 11, width: 6 },
+  { bowl: "M59 41C59 29 35 25 28 40 22 54 29 70 44 67 53 66 59 58 59 49", stem: "M59 27 60 68", rotate: -12, width: 8 },
+];
+---
+
+<figure class="my-10">
+  <div
+    class="flex flex-wrap items-end justify-center gap-6 border-y py-10 text-ink hairline"
+    role="img"
+    aria-label="The letter a, handwritten five different ways"
+  >
+    {
+      HANDS.map((hand) => (
+        <svg
+          viewBox="0 0 90 100"
+          class="h-20 w-auto shrink-0"
+          fill="none"
+          stroke="currentColor"
+          stroke-width={hand.width}
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <g transform={`rotate(${hand.rotate} 45 50)`}>
+            <path d={hand.bowl} />
+            <path d={hand.stem} />
+          </g>
+        </svg>
+      ))
+    }
+  </div>
+  <figcaption class="mt-3 text-center mono-note text-graphite">
+    Five people wrote the letter a.
+  </figcaption>
+</figure>

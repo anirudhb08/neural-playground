@@ -1,0 +1,148 @@
+---
+import "../styles/tokens.css";
+import Rail from "../components/site/Rail.astro";
+import { SITE } from "../site";
+
+/**
+ * Every page on the site. Rail on the left, one reading column, an optional
+ * on-this-page rail on the right.
+ *
+ * The rail is a <details> on small screens and a plain column above them, so
+ * the disclosure costs nothing on desktop and there is no JavaScript in the
+ * navigation at all.
+ */
+interface Props {
+  title: string;
+  description: string;
+  /** Path only, e.g. /neural-networks/06-learning/ */
+  canonical: string;
+  tutorial?: string;
+  part?: string;
+  wide?: boolean;
+  /** Keeps a page out of the index. Error pages, chiefly. */
+  noindex?: boolean;
+  /** Path under /og/, without extension. Falls back to the site card. */
+  ogImage?: string;
+  /** ISO dates. Present on parts, absent on the index and tutorial pages. */
+  published?: string;
+  modified?: string;
+  jsonLd?: unknown;
+}
+
+const {
+  title,
+  description,
+  canonical,
+  tutorial,
+  part,
+  wide = false,
+  noindex = false,
+  ogImage,
+  published,
+  modified,
+  jsonLd,
+} = Astro.props;
+const url = new URL(canonical, Astro.site).href;
+// A homepage is not an article. og:type drives how it is treated when shared.
+const ogType = canonical === "/" ? "website" : "article";
+// One card per page. A single shared image means every link anyone posts looks
+// identical whichever part it points at.
+const image = new URL(`/og/${ogImage ?? "index"}.png`, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {!noindex && <link rel="canonical" href={url} />}
+    <meta
+      name="robots"
+      content={
+        noindex
+          ? "noindex, follow"
+          : "index, follow, max-snippet:-1, max-image-preview:large"
+      }
+    />
+    <meta name="theme-color" content="#e7e9e1" />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
+    {published && <meta property="article:published_time" content={published} />}
+    {modified && <meta property="article:modified_time" content={modified} />}
+    {published && <meta property="article:author" content={SITE.author.name} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={SITE.xHandle} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+
+    {/* Self-hosted; the two families above the fold are preloaded so the
+        first paint does not wait on a font request it could have started
+        alongside the stylesheet. */}
+    <link rel="preload" href="/fonts/InstrumentSans-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/Archivo-800.woff2" as="font" type="font/woff2" crossorigin />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="text/markdown" href={`${url.replace(/\/$/, "")}.md`} />
+
+    {
+      (Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []).map((entity) => (
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(entity)} />
+      ))
+    }
+  </head>
+
+  <body class="min-h-screen">
+    <a
+      href="#content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
+      >Skip to content</a
+    >
+
+    <div class="lg:flex lg:items-start">
+      <!-- Rail. A disclosure on small screens, a column from lg up. -->
+      <details
+        class="group border-b bg-paper-deep/50 hairline lg:hidden"
+        aria-label="Tutorials"
+      >
+        <summary
+          class="mono-note cursor-pointer list-none px-5 py-3 text-graphite marker:hidden"
+        >
+          <span class="group-open:hidden">Tutorials ▸</span>
+          <span class="hidden group-open:inline">Tutorials ▾</span>
+        </summary>
+        <div class="px-5 pb-6"><Rail tutorial={tutorial} part={part} /></div>
+      </details>
+
+      <div
+        class="sticky top-0 hidden h-screen shrink-0 overflow-y-auto border-r bg-paper-deep/40 px-6 py-10 hairline lg:block"
+        style="width: var(--rail-width)"
+      >
+        <Rail tutorial={tutorial} part={part} />
+      </div>
+
+      <main id="content" class="min-w-0 flex-1">
+        <div class={wide ? "" : "mx-auto max-w-3xl px-5"}>
+          <slot />
+        </div>
+      </main>
+
+      <div
+        class="sticky top-0 hidden max-h-screen shrink-0 overflow-y-auto py-14 pr-6 xl:block"
+        style="width: var(--toc-width)"
+      >
+        <slot name="toc" />
+      </div>
+    </div>
+  </body>
+</html>

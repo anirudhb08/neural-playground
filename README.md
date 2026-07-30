@@ -1,6 +1,9 @@
-# Neural Playground
+# Welldun Learn
 
-**[neulearn.welldun.ai](https://neulearn.welldun.ai)**
+**[learn.welldun.ai](https://learn.welldun.ai)**
+
+A publication of long, interactive tutorials on how machine learning actually
+works. The first is *Neural networks, explained by building one*.
 
 Invent an alphabet that has never existed, draw it by hand, and train a neural
 network to read your handwriting — entirely in the browser, with every number
@@ -10,9 +13,9 @@ It is built for people who have never trained a model. There is no calculus,
 nothing is hidden behind a library, and every term is demonstrated before it is
 named.
 
-## The ten stages
+## Neural networks — the ten parts
 
-| # | Stage | What happens |
+| # | Part | What happens |
 |---|-------|--------------|
 | 01 | The problem | Five handwritten `a`s. Why comparing pictures fails, why writing rules fails, and what a network does instead. |
 | 02 | Your alphabet | Invent characters and draw a dataset. No mention yet of what the network receives. |
@@ -25,7 +28,7 @@ named.
 | 09 | Break it | Starve it, lie to it, move a weight by hand. What failure looks like. |
 | 10 | More layers | A real two-layer network, and backpropagation as blame travelling backwards. |
 
-Every stage carries an editable notebook running real CPython and NumPy in the
+Most parts carry an editable notebook running real CPython and NumPy in the
 browser, plus the equivalent PyTorch alongside.
 
 ## Design decisions worth knowing
@@ -58,15 +61,39 @@ pnpm install
 pnpm dev
 ```
 
-- `pnpm typecheck` — TypeScript, no emit
-- `pnpm build` — typecheck then bundle to `dist/`
-- `pnpm start` — serve the production build (used in deployment)
+- `pnpm typecheck` — `astro check`
+- `pnpm build` — social cards, then check, then prerender every page to `dist/`
+- `pnpm preview` — serve the built site
+- `pnpm fonts` — refresh the TrueType the card generator uses. Not part of the
+  build; the files are committed so a deploy never depends on a third party.
 
 Requires Node 20.19+.
 
+## Deploying
+
+Cloudflare Pages, static output, no adapter and no server.
+
+| setting | value |
+|---|---|
+| Build command | `pnpm build` |
+| Output directory | `dist` |
+| Node version | from `.nvmrc` (20.19.0) |
+
+`public/_headers` sets caching: fingerprinted assets and fonts immutable for a
+year, social cards for a week, HTML on Cloudflare's default revalidate. Note
+that Cloudflare *appends* every matching rule rather than letting the most
+specific win, so `/*` deliberately carries no `Cache-Control` — adding one
+concatenates it onto the rules above and undoes them.
+
+`src/pages/404.astro` becomes `dist/404.html`, which Pages serves for unknown
+paths. It is `noindex` and excluded from the sitemap.
+
 ## How it is built
 
-Vite, React and Tailwind, with no backend. Python runs client-side through
+Astro with React islands, and Tailwind, with no backend. Every part is
+prerendered to static HTML at build time and each interactive figure hydrates
+on its own, so the teaching text is readable without JavaScript and the ten
+parts are ten real URLs. Python runs client-side through
 [Pyodide](https://pyodide.org) (CPython compiled to WebAssembly), loaded lazily
 so the text stages do not pay for it. Code cells are CodeMirror 6 with a
 palette-matched theme.
@@ -78,14 +105,21 @@ loop will freeze the tab until reload. Moving it to a Web Worker is the fix.
 
 ```
 src/
-  pages/        one file per stage
-  components/   canvas, grids, notebook cells, animations
+  content/
+    tutorials/    one YAML record per tutorial
+    parts/        one MDX file per part — the prose
+  pages/          routes: /, /<tutorial>/, /<tutorial>/<part>/
+  layouts/        the shell: rail, reading column, on-this-page
+  components/
+    site/         navigation, plate marks, the figure registry
+    <figures>     canvas, grids, notebook cells, animations
+  labs/           the Python cells, shared by prose and figure
   lib/
-    network.ts  the single-layer network, loss and gradients
-    deep.ts     the two-layer network and backpropagation
-    raster.ts   drawing -> 16x16 grid, and back again
-    pyodide.ts  Python in the browser
-    sample.ts   the ready-made alphabet, drawn procedurally
+    network.ts    the single-layer network, loss and gradients
+    deep.ts       the two-layer network and backpropagation
+    raster.ts     drawing -> 16x16 grid, and back again
+    pyodide.ts    Python in the browser
+    sample.ts     the ready-made alphabet, drawn procedurally
 ```
 
 ## Contributing
@@ -94,6 +128,7 @@ Issues and pull requests are welcome, particularly:
 
 - moving Pyodide into a Web Worker
 - mobile layout, which is untested
+- a second tutorial: add `src/content/tutorials/<slug>.yaml` and parts beside it
 - a numerical gradient check guarding `nudgeFor` and `blameFor`
 - corrections to any explanation that is wrong or misleading
 

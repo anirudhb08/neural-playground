@@ -1,4 +1,4 @@
-# Neural Playground — a free, hands-on introduction to neural networks.
+# Neulearn — free, interactive tutorials on how machine learning works.
 # Everything here is public and free to read. Crawlers welcome, including
 # the ones that build answers for language models: the whole point of the
 # site is that people who need it can find it.
@@ -59,4 +59,8 @@ Allow: /
 User-agent: Meta-ExternalAgent
 Allow: /
 
-Sitemap: https://neulearn.welldun.ai/sitemap.xml
+Sitemap: https://learn.welldun.ai/sitemap-index.xml
+
+# A plain-text index of every tutorial and part, with a one-line
+# summary of each. Append .md to any page URL for clean markdown.
+# https://learn.welldun.ai/llms.txt

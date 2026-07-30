@@ -1,0 +1,56 @@
+---
+tutorial: neural-networks
+order: 7
+title: The whole loop
+teaches: [training loop, epoch]
+blurb: >-
+  Six stations of training drawn as one circuit you can step around, one
+  station at a time.
+searchTitle: "The neural network training loop, end to end"
+description: "Six stations drawn as one circuit you can step around. What changes each lap, what does not, and why every network you have heard of runs this same loop."
+---
+
+import { Widget } from "../../../components/site/Widget";
+
+You have met every piece separately. Here they are joined up — because the
+important thing about them is not the pieces, it is that they go round.
+
+Six stations. Walk them one at a time, or press play and watch it circle.
+Nothing new is introduced on this page; every station is something you already
+built.
+
+<div class="mt-8"><Widget name="the-loop" client:only="react" /></div>
+
+## What actually changes on each training loop?
+
+Five of the six stations are pure arithmetic. Multiplying, adding, turning
+scores into percentages, taking a logarithm, subtracting one set of numbers
+from another — none of that learns anything, and none of it is different on lap
+one thousand than on lap one.
+
+Only station six touches anything permanent. The numbers in the scorecards are
+the sole thing that carries over from one lap to the next. That is the entire
+memory of the system.
+
+<p class="claim mt-7">
+The loop is not the network. The loop is what happens to it.
+</p>
+
+## Where does each step of the loop come from?
+
+1. **Your drawing** — part 03, a grid laid over the ink, 256 numbers out
+2. **The scorecards** — part 04, one number per square, per character
+3. **A score, then a share** — parts 04 and 05, multiply and add, then softmax
+4. **How wrong** — part 05, the cost of the belief placed on the truth
+5. **Blame** — part 06, what it said minus what it should have said
+6. **Nudge** — part 06, ink times blame, subtracted from every number
+
+## Do larger networks work differently?
+
+Every network you have heard of runs this circuit. What changes between a toy
+like yours and something that writes essays is what sits at station two — more
+numbers, arranged in more layers, with more elaborate ways of combining them —
+and how many laps it runs, over how much data.
+
+The circuit itself does not change. Guess, measure how wrong, work out the
+blame, nudge, guess again.

@@ -2,9 +2,16 @@ import { useState } from "react";
 import { runPython, type RunResult } from "../lib/pyodide";
 import { CodeEditor } from "./CodeEditor";
 
-const RUN_HINT = /Mac|iPhone|iPad/.test(navigator.userAgent)
-  ? "⌘ + Return to run"
-  : "Ctrl + Enter to run";
+/**
+ * Worked out on demand, not at import. The pages are prerendered, so module
+ * bodies are evaluated by the build where there is no navigator to ask.
+ */
+function runHint() {
+  if (typeof navigator === "undefined") return "Ctrl + Enter to run";
+  return /Mac|iPhone|iPad/.test(navigator.userAgent)
+    ? "⌘ + Return to run"
+    : "Ctrl + Enter to run";
+}
 
 type Props = {
   index: number;
@@ -74,7 +81,7 @@ export function PythonStep({
             In [{busy ? "*" : (execution ?? " ")}]
           </span>
           <span className="mono-note text-graphite">
-            {status ?? RUN_HINT}
+            {status ?? runHint()}
           </span>
         </div>
 

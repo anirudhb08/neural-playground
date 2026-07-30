@@ -2,3 +2,8 @@ node_modules
 dist
 .DS_Store
 *.local
+
+# Astro's generated types and content cache. Rebuilt by `astro sync`, which
+# `astro check` and `astro build` both run, so committing it only produces
+# diff noise on every build.
+.astro/

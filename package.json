@@ -1,33 +1,43 @@
 {
-  "name": "neural-playground",
+  "name": "neulearn",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "typecheck": "tsc --noEmit",
-    "preview": "vite preview",
-    "start": "serve -s dist -l ${PORT:-3000}"
+    "dev": "astro dev",
+    "build": "node scripts/og.mjs && astro check && astro build",
+    "typecheck": "astro check",
+    "preview": "astro preview",
+    "og": "node scripts/og.mjs",
+    "fonts": "node scripts/fonts.mjs"
   },
   "dependencies": {
+    "@astrojs/mdx": "^4.0.0",
+    "@astrojs/react": "^4.2.0",
+    "@astrojs/sitemap": "^3.2.1",
     "@codemirror/commands": "^6.10.4",
     "@codemirror/lang-python": "^6.2.1",
     "@codemirror/language": "^6.12.4",
     "@codemirror/state": "^6.7.1",
     "@codemirror/view": "^6.43.6",
     "@lezer/highlight": "^1.2.3",
+    "astro": "^5.2.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "serve": "^14.2.6"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/vite": "^4.0.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.4",
+    "satori": "^0.12.2",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.6.3",
-    "vite": "^6.0.5"
+    "yaml": "^2.9.0"
+  },
+  "packageManager": "pnpm@10.28.1",
+  "engines": {
+    "node": ">=20.19"
   }
 }

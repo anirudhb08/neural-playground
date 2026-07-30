@@ -1,0 +1,71 @@
+---
+tutorial: neural-networks
+order: 10
+title: More layers
+teaches: [hidden layer, ReLU, backpropagation]
+blurb: >-
+  A real two-layer network, and backpropagation as blame travelling backwards
+  through it.
+searchTitle: "Backpropagation explained simply"
+description: "Blame travelling backwards: the output layer works out its error, then hands each hidden unit a share. A real two-layer network with ReLU, and backprop in one line."
+---
+
+import { Widget } from "../../../components/site/Widget";
+
+Everything so far had one layer, which is why the rule fitted in a sentence:
+the loss touched the numbers directly. Stack a second layer in and that stops
+being true — and the thing you need to fix it is backpropagation.
+
+## Do more layers always help?
+
+Your one-layer network already gets nearly all of its drawings right, held-back
+ones included. There is nothing here for a bigger network to fix. Adding layers
+will not help you, and this part is not going to pretend otherwise.
+
+Layers earn their keep when one weighted vote over the pixels cannot separate
+the answers — photographs, handwriting from thousands of people, an alphabet of
+fifty characters. A handful of your marks, drawn by one hand, is not that. What
+follows is worth doing anyway, because backpropagation is the one idea in this
+whole subject you cannot skip.
+
+## What does a hidden layer actually do?
+
+Instead of the scorecards reading the drawing directly, put eight units in
+between. Each one has its own 256 numbers — its own picture, exactly like a
+scorecard — and each reports a single number: how much it saw its own pattern.
+The output layer then votes on those eight reports and never looks at the
+drawing at all.
+
+One rule has to be added, or the whole thing collapses. If a unit simply passed
+its total along, two layers of multiply-and-add would flatten into a single
+layer and you would have gained nothing at all. So each unit does one crude
+thing first: **if its total came out negative, it reports zero**. That bend is
+the entire reason stacking works, and it is called **ReLU**.
+
+## How does backpropagation work?
+
+The loss can only speak to the output layer — it has no idea the hidden units
+exist. So the output layer works out its own error, then hands each unit a
+share of it, sized by how heavily it was leaning on that unit. Step through it.
+
+<div class="mt-7"><Widget name="blame-flow" client:only="react" /></div>
+
+<p class="claim mt-8">
+That handing-back is backpropagation. Each layer works out its own blame, then
+passes the rest to the layer behind it.
+</p>
+
+With a hundred layers it is the same move, ninety-nine more times. The blame
+gets thinner the further back it travels, which is precisely why very deep
+networks were hard to train for decades.
+
+## Writing backpropagation in Python
+
+Four cells: two layers forwards, the blame backwards, and both layers nudged.
+The middle one is backpropagation, and it is a single line.
+
+<div class="mt-8"><Widget name="more-layers-lab" client:only="react" /></div>
+
+`loss.backward()` in PyTorch walks the whole stack for you, handing blame back
+layer by layer, however deep it goes. It is doing exactly what you just wrote
+by hand — no more, and nothing hidden.
