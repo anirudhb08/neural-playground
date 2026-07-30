@@ -7,7 +7,11 @@
 export const SITE = {
   name: "Neulearn",
   tagline: "tutorials you can run",
-  /** TODO: git only carries the handle "anirudh-valyx" — set the display name. */
+  /**
+   * The byline, and the Person entity on every part's structured data. Named
+   * human authorship is weighed on explanatory technical writing, so this is
+   * a real signal rather than decoration.
+   */
   author: {
     name: "Anirudh",
     url: "https://x.com/welldunai",
