@@ -18,8 +18,13 @@ export function InkGrid({
   pixels,
   highlight = null,
   upTo = null,
+  onPick,
   className = "",
-}: Common & { pixels: number[] }) {
+}: Common & {
+  pixels: number[];
+  /** Makes every square clickable, for pages that work one out at a time. */
+  onPick?: (index: number) => void;
+}) {
   return (
     <div
       className={`grid w-full gap-px border bg-plot/20 hairline ${className}`}
@@ -28,7 +33,11 @@ export function InkGrid({
       {pixels.map((value, i) => (
         <div
           key={i}
-          className="aspect-square"
+          role={onPick ? "button" : undefined}
+          tabIndex={onPick ? -1 : undefined}
+          onClick={onPick ? () => onPick(i) : undefined}
+          title={onPick ? `square ${i}: ink ${(value / 255).toFixed(4)}` : undefined}
+          className={`aspect-square ${onPick ? "cursor-pointer" : ""}`}
           style={{
             backgroundColor: `color-mix(in srgb, #2e6a5c ${(value / 255) * 100}%, #f2f3ed)`,
             boxShadow: cellRing(i === highlight, upTo === null || i < upTo),

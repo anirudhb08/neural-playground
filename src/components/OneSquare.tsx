@@ -10,8 +10,10 @@ type Props = {
 
 /** The whole idea, worked through for a single square before anything moves. */
 export function OneSquare({ pixels, weights, label, square }: Props) {
-  const ink = pixels[square] / 255;
-  const weight = weights[square];
+  // Rounded before multiplying, so the product below is exactly what a reader
+  // gets from typing the two figures on screen into a calculator.
+  const ink = Number((pixels[square] / 255).toFixed(4));
+  const weight = Number(weights[square].toFixed(4));
   const contribution = ink * weight;
   const row = Math.floor(square / GRID);
   const column = square % GRID;
@@ -22,7 +24,7 @@ export function OneSquare({ pixels, weights, label, square }: Props) {
         <figure className="w-40">
           <figcaption className="eyebrow pb-2">Your drawing</figcaption>
           <InkGrid pixels={pixels} highlight={square} />
-          <p className="pt-2 font-mono text-[0.6875rem] text-graphite">
+          <p className="pt-2 mono-note text-graphite">
             square {square} (row {row}, col {column})
           </p>
         </figure>
@@ -30,7 +32,7 @@ export function OneSquare({ pixels, weights, label, square }: Props) {
         <figure className="w-40">
           <figcaption className="eyebrow pb-2">{label}'s scorecard</figcaption>
           <WeightMap weights={weights} highlight={square} />
-          <p className="pt-2 font-mono text-[0.6875rem] text-graphite">
+          <p className="pt-2 mono-note text-graphite">
             same square, same place
           </p>
         </figure>
@@ -40,7 +42,7 @@ export function OneSquare({ pixels, weights, label, square }: Props) {
           <dl className="mt-3 flex flex-col gap-2 font-mono text-xs">
             <div className="flex justify-between gap-4 border-b pb-2 hairline">
               <dt className="text-graphite">ink in this square</dt>
-              <dd>{ink.toFixed(2)}</dd>
+              <dd>{ink.toFixed(4)}</dd>
             </div>
             <div className="flex justify-between gap-4 border-b pb-2 hairline">
               <dt className="text-graphite">
@@ -53,7 +55,7 @@ export function OneSquare({ pixels, weights, label, square }: Props) {
             </div>
             <div className="flex justify-between gap-4 pt-1">
               <dt className="text-graphite">
-                {ink.toFixed(2)} × {weight.toFixed(4)}
+                {ink.toFixed(4)} × {weight.toFixed(4)}
               </dt>
               <dd
                 className={`font-semibold ${contribution >= 0 ? "text-plot" : "text-riso"}`}
@@ -63,7 +65,7 @@ export function OneSquare({ pixels, weights, label, square }: Props) {
               </dd>
             </div>
           </dl>
-          <p className="mt-4 text-sm leading-relaxed">
+          <p className="mt-4 caption">
             That is this one square's entire say in the matter: it pushes{" "}
             {label}'s total {contribution >= 0 ? "up" : "down"} by{" "}
             {Math.abs(contribution).toFixed(4)}. Now do that 255 more times and

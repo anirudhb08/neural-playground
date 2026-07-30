@@ -28,7 +28,7 @@ for step in range(400):
     optimiser.step()              # move every number
     optimiser.zero_grad()         # forget the nudges, ready for next time`;
 
-const STEPS = [
+const stepsFor = (classes: number) => [
   {
     title: "how far off is every guess?",
     lead: "Subtract what it should have said from what it did say. Positive means too keen on that character, negative means not keen enough. This single table drives everything else.",
@@ -47,8 +47,8 @@ print("should say:", should_be[0])
 print("off by:    ", np.round(error[0], 3))`,
   },
   {
-    title: "turn that into a nudge for all 512 numbers",
-    lead: "X.T @ error is the whole update rule: for every square and every character, how much ink was there multiplied by how far off that character was — added up over every drawing.",
+    title: `turn that into a nudge for all ${INPUTS * classes + classes} numbers`,
+    lead: "X.T @ error is the whole update rule: for every square and every character, how much ink was there multiplied by how far off that character was — added up over every drawing. The head start belongs to no square, so there is nothing to multiply it by: its nudge is the error on its own.",
     code: `nudge_W = X.T @ error / len(y)
 nudge_b = error.mean(axis=0)
 
@@ -91,6 +91,7 @@ print("after: ", round(float(loss_now(W, b)), 4))`,
               f"   sure {truth.mean():.0%}")`,
   },
 ];
+
 
 type Props = {
   dataset: Dataset;
@@ -161,22 +162,42 @@ export function Learning({ dataset, onBuildAlphabet }: Props) {
           that sounds impossible: how can one number tell{" "}
           {INPUTS * classes + classes} separate numbers which way to move?
         </p>
-        <p className="body-text measure mt-4">
-          For a network with no hidden layer the answer needs no mathematics at
-          all. It fits in one sentence.
+        <p className="aside measure mt-5">
+          Where {INPUTS * classes + classes} comes from: {classes} scorecards
+          holding one number per square,{" "}
+          <code>
+            {INPUTS} × {classes} = {INPUTS * classes}
+          </code>
+          , plus the head start each character carries from stage 04 — one more
+          number apiece, added to its total before any ink is counted. That is
+          the <em>bias</em>, and it is <code>b</code> in the code below.{" "}
+          <code>
+            {INPUTS * classes} + {classes} = {INPUTS * classes + classes}
+          </code>
+          .
+        </p>
+        <p className="body-text measure mt-5">
+          The answer needs no mathematics. It fits in one sentence.
         </p>
         <p className="claim mt-7">
           Where there was ink, push the right character's scorecard up and the
-          wrong one's down — in proportion to how badly you missed.
+          wrong {classes === 2 ? "one's" : "ones'"} down — in proportion to how
+          far off the guess was.
         </p>
       </header>
 
       <section className="mt-14">
         <h2 className="section-title">One square, one telling-off</h2>
         <p className="body-text measure mt-3">
-          Take a drawing the network gets wrong, and look again at a single
-          square. Two things decide how far its number moves: how much ink is in
-          that square, and how far off the guess was. Multiply them.
+          Take a drawing the network gets wrong and look at a single square.
+          Three things decide how far its number moves: how much ink is in that
+          square, how far off the guess was, and how big a step you are willing
+          to take. Multiply all three.
+        </p>
+        <p className="body-text measure mt-4">
+          That multiplication is written out below with the numbers filled in.
+          Click a different square, or a different character, and it is a
+          different sum — check any of them on a calculator.
         </p>
         <div className="mt-7">
           <OneNudge
@@ -188,17 +209,18 @@ export function Learning({ dataset, onBuildAlphabet }: Props) {
           />
         </div>
         <p className="body-text measure mt-5">
-          Notice what happens to blank squares. Ink of <code>0</code> times any
-          error is <code>0</code>, so squares you never drew on are left
-          untouched. The network only ever learns about places you put ink.
+          Click somewhere you never drew and the sum collapses: ink of{" "}
+          <code>0</code> times anything is <code>0</code>. The network only ever
+          learns about the places you put ink.
         </p>
       </section>
 
       <section className="mt-14">
         <h2 className="section-title">Nudge the same drawing over and over</h2>
         <p className="body-text measure mt-3">
-          Apply that rule to one drawing, repeatedly, and watch what happens to
-          how much the network believes it.
+          Apply that rule to one drawing, over and over, and watch how much the
+          network comes to believe it. The step is bigger here — 2 rather than
+          0.5 — so that one click does visible work.
         </p>
         <div className="mt-7">
           <TrainOneDrawing
@@ -216,17 +238,12 @@ export function Learning({ dataset, onBuildAlphabet }: Props) {
       </section>
 
       <section className="mt-14">
-        <h2 className="section-title">How disagreement cancels itself out</h2>
+        <h2 className="section-title">What averaging does</h2>
         <p className="body-text measure mt-3">
-          This is the part worth staring at, because it is where memorising
-          turns into understanding.
-        </p>
-        <p className="body-text measure mt-4">
-          The nudge asked for by a single drawing is simply that drawing — you
-          can see the strokes in it. But your drawings are all slightly
-          different, so each one asks for something slightly different. Average
-          them, and everywhere they disagree the colours cancel towards nothing,
-          while everywhere they agree they pile up.
+          The nudge one drawing asks for is simply that drawing — you can see
+          your own strokes in it. Every drawing asks for something slightly
+          different, so average them all: where they disagree the colours cancel
+          towards nothing, and where they agree they pile up.
         </p>
         <div className="mt-7">
           <AveragingNudges
@@ -241,10 +258,9 @@ export function Learning({ dataset, onBuildAlphabet }: Props) {
           that varied deleted themselves.
         </p>
         <p className="body-text measure mt-6">
-          That is the whole trick behind learning a character instead of a
-          drawing — and it is also why more drawings, drawn more differently,
-          make a better network. Every extra one gives the accidents another
-          chance to cancel.
+          That is how it learns a character instead of a drawing, and why more
+          drawings, drawn more differently, make a better network. Every extra
+          one gives the accidents another chance to cancel.
         </p>
       </section>
 
@@ -268,16 +284,17 @@ export function Learning({ dataset, onBuildAlphabet }: Props) {
         </div>
         <p className="body-text measure mt-5">
           Watch the order things happen in. It gets every drawing right within a
-          couple of steps, and then keeps going for hundreds more — because
-          being <em>right</em> and being <em>sure</em> are different, and the
-          loss only stops complaining about the second one slowly.
+          couple of steps, then keeps going for hundreds more — because being{" "}
+          <em>right</em> and being <em>sure</em> are not the same thing, and
+          becoming sure takes far longer.
         </p>
         <p className="body-text measure mt-4">
-          Push the step size up and the curve will start to thrash: too big a
-          step overshoots the bottom and lands further up the other side. Push
-          it down and progress becomes glacial. That one dial is called the{" "}
-          <strong>learning rate</strong>, and choosing it is most of what tuning
-          a network feels like.
+          The step size has a slider of its own. Drag it down and progress
+          crawls. Drag it up and, with characters as unlike each other as yours,
+          it simply arrives sooner — this curve will not break, and stage 09 is
+          where you find out why. That dial is called the{" "}
+          <strong>learning rate</strong>, and on harder problems choosing it is
+          most of what tuning a network feels like.
         </p>
         <p className="body-text measure mt-4">
           If the pink line stops falling while the teal one keeps going, the
@@ -290,22 +307,22 @@ export function Learning({ dataset, onBuildAlphabet }: Props) {
       <section className="mt-14">
         <h2 className="section-title">What all this is called</h2>
         <p className="body-text measure mt-3">
-          Walking downhill by repeatedly taking a small step in the direction
-          that reduces the loss is <strong>gradient descent</strong>. The nudge
-          you have been computing is the <strong>gradient</strong>. One pass
-          over your drawings is an <strong>epoch</strong>. The thing that
-          applies the step is an <strong>optimiser</strong>.
+          Taking a small step in the direction that reduces the loss, over and
+          over, is <strong>gradient descent</strong>. The nudge you have been
+          working out is the <strong>gradient</strong>. One pass over all your
+          drawings is an <strong>epoch</strong>. The thing that applies the step
+          is an <strong>optimiser</strong>.
         </p>
         <p className="body-text measure mt-4">
           One word deserves an honest answer:{" "}
-          <strong>backpropagation</strong>. You have not used it. With a single
-          layer, blame travels straight from the loss to the numbers in one
-          move, which is why the rule fitted in a sentence. Backpropagation is
-          what you need once layers are stacked: each layer works out its own
-          blame, hands what is left to the layer before it, and the same rule
-          runs backwards through the whole chain. It is this idea repeated, not
-          a different one — but this network is too simple to show it to you,
-          and pretending otherwise would be a lie.
+          <strong>backpropagation</strong>. You have not used it. Your network
+          is one row of scorecards, so blame goes straight from the loss to the
+          numbers in a single move — which is why the rule fitted in a sentence.
+          Put another row of scorecards behind the first — that is what a{" "}
+          <strong>layer</strong> is — and each one has to work out its own blame
+          and pass what is left back to the row before it: the same rule, run
+          backwards down the chain. That is stage 10. This network is too simple
+          to show it to you, and pretending otherwise would be a lie.
         </p>
       </section>
 
@@ -324,7 +341,7 @@ export function Learning({ dataset, onBuildAlphabet }: Props) {
             }
           >
             <PythonLab
-              steps={STEPS}
+              steps={stepsFor(classes)}
               prepare={prepare}
               closing="That loop is the whole of it. Next: draw something it has never seen, and find out whether any of this worked."
             />

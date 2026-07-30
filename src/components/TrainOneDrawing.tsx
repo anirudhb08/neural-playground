@@ -19,6 +19,9 @@ type Props = {
   start: Network;
 };
 
+/** Deliberately bigger than the 0.5 used elsewhere, so a click does visible work. */
+const RATE = 2;
+
 /**
  * Nudges the network on one drawing, over and over. It becomes certain about
  * that drawing very quickly — and the second drawing shows what that cost.
@@ -38,7 +41,7 @@ export function TrainOneDrawing({ sample, other, glyphs, start }: Props) {
   function nudge(times: number) {
     let next = network;
     for (let i = 0; i < times; i++) {
-      next = applyNudge(next, nudgeFor(next, [sample]), 2);
+      next = applyNudge(next, nudgeFor(next, [sample]), RATE);
     }
     setNetwork(next);
     setRounds((r) => r + times);
@@ -52,7 +55,7 @@ export function TrainOneDrawing({ sample, other, glyphs, start }: Props) {
           <div className="h-20 w-20 border bg-paper hairline">
             <Thumb pixels={sample.pixels} />
           </div>
-          <p className="font-mono text-[0.6875rem] text-graphite">
+          <p className="mono-note text-graphite">
             a {glyphs[sample.label].label}
           </p>
         </div>
@@ -89,7 +92,7 @@ export function TrainOneDrawing({ sample, other, glyphs, start }: Props) {
             </li>
           </ul>
 
-          <p className="mt-4 text-sm leading-relaxed">
+          <p className="mt-4 caption">
             {rounds === 0
               ? `Both are near chance, which with ${glyphs.length} characters is about ${chance}%. Nudge it and watch the top bar climb.`
               : !otherRight
@@ -103,14 +106,14 @@ export function TrainOneDrawing({ sample, other, glyphs, start }: Props) {
         <button
           type="button"
           onClick={() => nudge(1)}
-          className="bg-plot px-4 py-2 font-mono text-[0.6875rem] tracking-wider text-paper uppercase transition-colors hover:bg-ink"
+          className="bg-plot px-4 py-2 mono-note tracking-wider text-paper uppercase transition-colors hover:bg-ink"
         >
           Nudge once
         </button>
         <button
           type="button"
           onClick={() => nudge(20)}
-          className="border px-4 py-2 font-mono text-[0.6875rem] tracking-wider uppercase transition-colors hairline hover:border-plot"
+          className="border px-4 py-2 mono-note tracking-wider uppercase transition-colors hairline hover:border-plot"
         >
           Nudge 20 times
         </button>
@@ -120,18 +123,18 @@ export function TrainOneDrawing({ sample, other, glyphs, start }: Props) {
             setNetwork(start);
             setRounds(0);
           }}
-          className="font-mono text-[0.6875rem] text-graphite underline underline-offset-4 hover:text-riso"
+          className="mono-note text-graphite underline underline-offset-4 hover:text-riso"
         >
           Start again
         </button>
-        <span className="ml-auto font-mono text-[0.6875rem] text-graphite">
-          {rounds} nudges
+        <span className="ml-auto mono-note text-graphite">
+          step size {RATE} · {rounds} nudges
         </span>
       </div>
 
       {rounds > 0 && (
         <figure className="mt-5 w-36">
-          <figcaption className="pb-2 font-mono text-[0.6875rem] text-graphite">
+          <figcaption className="pb-2 mono-note text-graphite">
             {glyphs[sample.label].label}'s scorecard now
           </figcaption>
           <WeightMap weights={network.weights[sample.label]} />
