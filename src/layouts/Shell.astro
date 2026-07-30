@@ -1,6 +1,7 @@
 ---
 import "../styles/tokens.css";
 import Rail from "../components/site/Rail.astro";
+import { SITE } from "../site";
 
 /**
  * Every page on the site. Rail on the left, one reading column, an optional
@@ -18,12 +19,26 @@ interface Props {
   tutorial?: string;
   part?: string;
   wide?: boolean;
+  /** ISO dates. Present on parts, absent on the index and tutorial pages. */
+  published?: string;
+  modified?: string;
   jsonLd?: unknown;
 }
 
-const { title, description, canonical, tutorial, part, wide = false, jsonLd } =
-  Astro.props;
+const {
+  title,
+  description,
+  canonical,
+  tutorial,
+  part,
+  wide = false,
+  published,
+  modified,
+  jsonLd,
+} = Astro.props;
 const url = new URL(canonical, Astro.site).href;
+// A homepage is not an article. og:type drives how it is treated when shared.
+const ogType = canonical === "/" ? "website" : "article";
 ---
 
 <!doctype html>
@@ -37,32 +52,34 @@ const url = new URL(canonical, Astro.site).href;
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
     <meta name="theme-color" content="#e7e9e1" />
 
-    <meta property="og:type" content="article" />
-    <meta property="og:site_name" content="Neulearn" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={SITE.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={url} />
     <meta property="og:image" content={new URL("/og.jpg", Astro.site).href} />
+    {published && <meta property="article:published_time" content={published} />}
+    {modified && <meta property="article:modified_time" content={modified} />}
+    {published && <meta property="article:author" content={SITE.author.name} />}
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@welldunai" />
+    <meta name="twitter:site" content={SITE.xHandle} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={new URL("/og.jpg", Astro.site).href} />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
-    />
+    {/* Self-hosted; the two families above the fold are preloaded so the
+        first paint does not wait on a font request it could have started
+        alongside the stylesheet. */}
+    <link rel="preload" href="/fonts/InstrumentSans-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/Archivo-800.woff2" as="font" type="font/woff2" crossorigin />
 
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="alternate" type="text/markdown" href={`${url.replace(/\/$/, "")}.md`} />
 
     {
-      jsonLd && (
-        <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
-      )
+      (Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []).map((entity) => (
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(entity)} />
+      ))
     }
   </head>
 

@@ -6,6 +6,8 @@ teaches: [gradient descent, learning rate, epoch, overfitting]
 blurb: >-
   Gradient descent without calculus, and why averaging over many drawings turns
   memorising into understanding.
+searchTitle: "Gradient descent explained without calculus"
+description: "Where there was ink, push the right scorecard up and the wrong ones down, in proportion to how far off the guess was. With sums you can check on a calculator."
 ---
 
 import { Widget } from "../../../components/site/Widget";
@@ -29,7 +31,7 @@ Where there was ink, push the right character's scorecard up and the wrong
 ones' down — in proportion to how far off the guess was.
 </p>
 
-## One square, one telling-off
+## How does one number tell every weight which way to move?
 
 Take a drawing the network gets wrong and look at a single square. Three things
 decide how far its number moves: how much ink is in that square, how far off
@@ -44,7 +46,7 @@ any of them on a calculator.
 Click somewhere you never drew and the sum collapses: ink of `0` times anything
 is `0`. The network only ever learns about the places you put ink.
 
-## Nudge the same drawing over and over
+## What happens if you train on one example repeatedly?
 
 Apply that rule to one drawing, over and over, and watch how much the network
 comes to believe it. The step is bigger here — 2 rather than 0.5 — so that one
@@ -56,7 +58,7 @@ It becomes certain within a handful of nudges — and useless at everything else
 Being told about one drawing over and over does not teach a character; it
 teaches that drawing.
 
-## What averaging does
+## Why does averaging over many drawings help?
 
 The nudge one drawing asks for is simply that drawing — you can see your own
 strokes in it. Every drawing asks for something slightly different, so average
@@ -74,7 +76,7 @@ That is how it learns a character instead of a drawing, and why more drawings,
 drawn more differently, make a better network. Every extra one gives the
 accidents another chance to cancel.
 
-## Train on everything
+## What does a full training run look like?
 
 Now the real thing: work out the nudge across every drawing at once, take one
 small step, and repeat. The teal line is the loss on the drawings it is
@@ -98,7 +100,7 @@ If the pink line stops falling while the teal one keeps going, the network has
 started memorising your particular drawings rather than learning the
 characters. That is **overfitting**, and more drawings is the usual cure.
 
-## What all this is called
+## What is gradient descent called, and what is backpropagation?
 
 Taking a small step in the direction that reduces the loss, over and over, is
 **gradient descent**. The nudge you have been working out is the **gradient**.
@@ -114,7 +116,7 @@ before it: the same rule, run backwards down the chain. That is part 10. This
 network is too simple to show it to you, and pretending otherwise would be a
 lie.
 
-## Write the training loop yourself
+## Writing the training loop in Python
 
 Four cells and you will have trained it by hand, starting from the same numbers
 the figures above started from.

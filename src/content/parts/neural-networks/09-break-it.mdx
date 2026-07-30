@@ -6,6 +6,8 @@ teaches: [overfitting, learning rate, distributed representation]
 blurb: >-
   Starve it, lie to it, and move a weight by hand. Three ways to wreck a
   network on purpose, and what each failure looks like.
+searchTitle: "What overfitting is, and three ways to break a network"
+description: "Starve it, lie to it, move a weight by hand. What overfitting looks like when caused deliberately, and why a huge learning rate refuses to break this one."
 ---
 
 import { Widget } from "../../../components/site/Widget";
@@ -14,7 +16,7 @@ Everything has worked so far, which is a poor way to learn anything. You
 understand a machine when you know how it fails, so this part is three ways to
 wreck yours on purpose.
 
-## One: ruin the training set
+## What does overfitting look like?
 
 Two dials. The first gives it fewer drawings to learn from. The second lies —
 it relabels some of your drawings as the wrong character before training
@@ -43,7 +45,7 @@ That gap has a name — **overfitting** — and it is the single most useful
 diagnostic in the subject, because it is the only warning you get. It is also
 why nobody ever reports a score on the data they trained on.
 
-## Two: try to break it with the step size
+## Can too large a learning rate break training?
 
 The nudge says which way to move; the step size says how far. Textbooks warn
 that too large a step overshoots the bottom of the valley and lands higher up
@@ -72,7 +74,7 @@ from the next part — that safety net is gone and the step size becomes the
 setting most likely to ruin your day. It just cannot be demonstrated to you
 honestly on a handful of hand-drawn marks, so it is not going to be.
 
-## Three: reach in and move a number
+## Is the answer stored in any single weight?
 
 Here is the trained network. Click any square of the first character's
 scorecard, drag its value as far as you like, and watch what happens to the
@@ -89,7 +91,7 @@ That smearing is why these systems are hard to explain, and why they keep
 working when parts of them are damaged.
 </p>
 
-## And a last thing about size
+## How many parameters do real models have?
 
 Your network holds a few hundred numbers. That word — **parameters** — is the
 one used to describe every model you have heard of, so it is worth seeing what

@@ -6,6 +6,8 @@ teaches: [dataset, labels, training examples]
 blurb: >-
   Invent characters that have never existed and draw a dataset of them by hand.
   Nothing here mentions yet what the network will receive.
+searchTitle: "How to build a training dataset by hand"
+description: "Invent characters that never existed and draw a labelled dataset. What a dataset is, why labels matter, and why varying each drawing is the whole trick."
 ---
 
 import { Widget } from "../../../components/site/Widget";
@@ -25,7 +27,7 @@ picture twice.
 
 <div class="mt-8"><Widget name="alphabet-builder" client:only="react" /></div>
 
-## Why you are drawing these by hand
+## Why draw a dataset by hand?
 
 What you are making is a **dataset**: a pile of examples, each one labelled
 with the right answer. The label is the whole point. Without it there is

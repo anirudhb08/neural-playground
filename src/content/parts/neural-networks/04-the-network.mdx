@@ -6,6 +6,8 @@ teaches: [weights, parameters, bias, nn.Linear]
 blurb: >-
   Every character gets a scorecard — one number per square. The weights are
   shown as pictures, because with one layer they can be.
+searchTitle: "What weights and parameters are in a neural network"
+description: "Every character gets a scorecard: one weight per square, saying how much ink counts for or against it. Weights drawn as pictures you can look at."
 ---
 
 import { Widget } from "../../../components/site/Widget";
@@ -31,14 +33,14 @@ That is the whole network. One scorecard of 256 numbers per character, plus one
 head start each.
 </p>
 
-## Start with one square
+## What does a single weight do?
 
 Before all 256 of them, here is exactly one square of your drawing, and the one
 number the scorecard keeps for that square.
 
 <div class="mt-7"><Widget name="one-square" client:only="react" /></div>
 
-## A scorecard is a picture
+## Why can weights be drawn as pictures?
 
 A scorecard has one number per square, and those squares came from a grid — so
 you can lay the scorecard back out in that same shape and simply look at it.
@@ -50,7 +52,7 @@ part 10's problem.
 
 <div class="mt-7"><Widget name="scorecards" client:only="react" /></div>
 
-## Now watch all 256 squares
+## How does the network score a whole drawing?
 
 Same arithmetic as the single square above, repeated down the whole grid. Step
 through it one square at a time, or press play and watch the totals build. The
@@ -58,7 +60,7 @@ dimmed part of each grid is what has not been counted yet.
 
 <div class="mt-7"><Widget name="scorecard-flow" client:only="react" /></div>
 
-## What all this is called in PyTorch
+## What is this called in PyTorch?
 
 You have just built a network by hand, out of nothing but a table of numbers
 and a multiply-and-add. Almost nobody writes it that way. They use PyTorch, and

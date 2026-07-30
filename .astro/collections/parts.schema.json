@@ -13,7 +13,13 @@
         "title": {
           "type": "string"
         },
+        "searchTitle": {
+          "type": "string"
+        },
         "blurb": {
+          "type": "string"
+        },
+        "description": {
           "type": "string"
         },
         "teaches": {

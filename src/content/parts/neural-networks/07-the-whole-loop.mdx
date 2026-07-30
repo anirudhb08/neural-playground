@@ -6,6 +6,8 @@ teaches: [training loop, epoch]
 blurb: >-
   Six stations of training drawn as one circuit you can step around, one
   station at a time.
+searchTitle: "The neural network training loop, end to end"
+description: "Six stations drawn as one circuit you can step around. What changes each lap, what does not, and why every network you have heard of runs this same loop."
 ---
 
 import { Widget } from "../../../components/site/Widget";
@@ -19,7 +21,7 @@ built.
 
 <div class="mt-8"><Widget name="the-loop" client:only="react" /></div>
 
-## What actually changes, and what does not
+## What actually changes on each training loop?
 
 Five of the six stations are pure arithmetic. Multiplying, adding, turning
 scores into percentages, taking a logarithm, subtracting one set of numbers
@@ -34,7 +36,7 @@ memory of the system.
 The loop is not the network. The loop is what happens to it.
 </p>
 
-## Where each station came from
+## Where does each step of the loop come from?
 
 1. **Your drawing** — part 03, a grid laid over the ink, 256 numbers out
 2. **The scorecards** — part 04, one number per square, per character
@@ -43,7 +45,7 @@ The loop is not the network. The loop is what happens to it.
 5. **Blame** — part 06, what it said minus what it should have said
 6. **Nudge** — part 06, ink times blame, subtracted from every number
 
-## This is the whole subject
+## Do larger networks work differently?
 
 Every network you have heard of runs this circuit. What changes between a toy
 like yours and something that writes essays is what sits at station two — more

@@ -1,6 +1,9 @@
 ---
 import { getCollection, render } from "astro:content";
 import Shell from "../../layouts/Shell.astro";
+import { SITE } from "../../site";
+import { fileDates } from "../../lib/dates";
+import AlsoCovered from "../../components/site/AlsoCovered.astro";
 
 export async function getStaticPaths() {
   const parts = await getCollection("parts");
@@ -42,32 +45,63 @@ const no = String(entry.data.order).padStart(2, "0");
 // than the section list it is meant to summarise.
 const sections = headings.filter((h) => h.depth === 2);
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "LearningResource",
-  name: entry.data.title,
-  description: entry.data.blurb,
-  url: new URL(canonical, Astro.site).href,
-  position: entry.data.order,
-  isAccessibleForFree: true,
-  inLanguage: "en",
-  learningResourceType: "Interactive tutorial",
-  educationalLevel: "Beginner",
-  teaches: entry.data.teaches,
-  isPartOf: {
-    "@type": "Course",
-    name: tutorial.data.title,
-    url: new URL(`/${tutorial.id}/`, Astro.site).href,
+const url = new URL(canonical, Astro.site).href;
+const dates = fileDates(`src/content/parts/${entry.id}.mdx`, tutorial.data.published);
+const description = entry.data.description ?? entry.data.blurb;
+const author = { "@type": "Person", name: SITE.author.name, url: SITE.author.url };
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": ["LearningResource", "TechArticle"],
+    name: entry.data.title,
+    headline: entry.data.searchTitle ?? entry.data.title,
+    description,
+    url,
+    mainEntityOfPage: url,
+    position: entry.data.order,
+    isAccessibleForFree: true,
+    inLanguage: "en",
+    learningResourceType: "Interactive tutorial",
+    educationalLevel: "Beginner",
+    teaches: entry.data.teaches,
+    datePublished: dates.published,
+    dateModified: dates.modified,
+    author,
+    publisher: { "@type": "Organization", name: SITE.name, url: Astro.site?.href },
+    isPartOf: {
+      "@type": "Course",
+      name: tutorial.data.title,
+      url: new URL(`/${tutorial.id}/`, Astro.site).href,
+    },
   },
-};
+  // Markup for the breadcrumb the page already draws, so a result can show the
+  // trail instead of a bare url.
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Tutorials", item: Astro.site?.href },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: tutorial.data.title,
+        item: new URL(`/${tutorial.id}/`, Astro.site).href,
+      },
+      { "@type": "ListItem", position: 3, name: entry.data.title, item: url },
+    ],
+  },
+];
 ---
 
 <Shell
-  title={`${entry.data.title} — ${tutorial.data.title}`}
-  description={entry.data.blurb}
+  title={`${entry.data.searchTitle ?? entry.data.title} — ${SITE.name}`}
+  description={description}
   canonical={canonical}
   tutorial={entry.data.tutorial}
   part={slug}
+  published={dates.published}
+  modified={dates.modified}
   jsonLd={jsonLd}
 >
   <article class="pb-24">
@@ -93,8 +127,10 @@ const jsonLd = {
       <Content />
     </div>
 
+    <AlsoCovered tutorial={entry.data.tutorial} current={slug} />
+
     <nav
-      class="mt-20 grid gap-4 border-t pt-8 hairline sm:grid-cols-2"
+      class="mt-16 grid gap-4 border-t pt-8 hairline sm:grid-cols-2"
       aria-label="Parts"
     >
       {

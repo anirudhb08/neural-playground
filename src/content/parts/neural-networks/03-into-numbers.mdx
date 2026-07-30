@@ -6,6 +6,8 @@ teaches: [pixels, reshape, features]
 blurb: >-
   A grid laid over your drawing turns it into 256 numbers, and reshape gets a
   step of its own.
+searchTitle: "How images become numbers a neural network can read"
+description: "A 16x16 grid turns a drawing into 256 numbers. What pixels are to a network, what the grid throws away, and why a drawing ends up as a row in a table."
 ---
 
 import { Widget } from "../../../components/site/Widget";
@@ -20,7 +22,7 @@ curves. Just an amount, square by square.
 
 <div class="mt-8"><Widget name="into-numbers" client:only="react" /></div>
 
-## What just got thrown away
+## What does the grid throw away?
 
 That grid keeps almost nothing. It does not know the order you drew the strokes
 in, which way the pen travelled, how long you took, or that a line is a line.
@@ -31,7 +33,7 @@ ever learns it learns from those 256 numbers. If two characters look identical
 once blurred onto a 16 by 16 grid, no amount of training will separate them.
 The grid is a decision, and it is the first place accuracy can be lost.
 
-## One row per drawing
+## Why is each drawing one row of numbers?
 
 Those 256 numbers are laid out as a square because the drawing was, but the
 arithmetic does not care. Flattened into one long row of 256, with the label

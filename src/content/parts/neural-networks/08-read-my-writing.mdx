@@ -6,6 +6,8 @@ teaches: [inference, generalisation, held-out data]
 blurb: >-
   Draw something it has never seen and watch it read your handwriting, stroke
   by stroke.
+searchTitle: "Testing a neural network on data it has never seen"
+description: "Draw something new and watch it read your handwriting. What held-out data is, and why a classifier can never answer none of these, however hard you try."
 ---
 
 import { Widget } from "../../../components/site/Widget";
@@ -16,7 +18,7 @@ characters and it will tell you which one it thinks you drew.
 
 <div class="mt-8"><Widget name="read-my-writing" client:only="react" /></div>
 
-## It can only ever say what you taught it
+## What happens if you draw something it was never taught?
 
 Draw a spiral, a house, a letter from a real alphabet — anything at all. It
 will still answer with one of your characters, often with great confidence. It
@@ -27,7 +29,7 @@ to divide the world into a fixed number of boxes, so it divides the world into
 that many boxes. Every one of these systems has an edge like this, and knowing
 where the edge sits is most of using them responsibly.
 
-## How much to trust it
+## How much should you trust the accuracy figure?
 
 Some of your drawings were kept out of training entirely. The score on those is
 the only one worth anything, because they are the ones it could not have
@@ -38,7 +40,7 @@ same pen. If your handwriting drifts, or someone else draws your characters,
 expect it to struggle. More drawings, and more varied ones, is the cure for
 almost everything that goes wrong here.
 
-## What you built
+## What have you actually built?
 
 You invented an alphabet nobody had written before, turned it into numbers,
 built a network out of nothing but a table and a multiply-and-add, worked out

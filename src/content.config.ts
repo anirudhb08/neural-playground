@@ -37,9 +37,21 @@ const parts = defineCollection({
   schema: z.object({
     tutorial: z.string(),
     order: z.number(),
+    /** What the page calls itself. Short and editorial; it is a headline. */
     title: z.string(),
+    /**
+     * What the browser tab and the search result call it. The headline "Learning"
+     * is right on the page and useless in a result list, so intent lives here
+     * instead of being forced into the h1. Falls back to `title`.
+     */
+    searchTitle: z.string().optional(),
     /** Standalone summary — most readers arrive here from search, not part 1. */
     blurb: z.string(),
+    /**
+     * Meta description, when the blurb is too short to fill a snippet. Kept
+     * separate so lengthening it for search cannot make the index card worse.
+     */
+    description: z.string().optional(),
     /** Terms this part is the first to demonstrate, for the tutorial index. */
     teaches: z.array(z.string()).default([]),
   }),
