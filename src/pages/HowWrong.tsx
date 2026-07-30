@@ -194,7 +194,7 @@ export function HowWrong({ dataset, onBuildAlphabet }: Props) {
               <div className="h-16 w-16 shrink-0 border bg-paper hairline">
                 <Thumb pixels={first.pixels} />
               </div>
-              <p className="text-sm leading-relaxed">
+              <p className="caption">
                 This drawing really is{" "}
                 <strong>{dataset.glyphs[first.label].label}</strong>, and every
                 number below is the network's own.
@@ -254,7 +254,10 @@ export function HowWrong({ dataset, onBuildAlphabet }: Props) {
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
               <p className="eyebrow">Your network right now</p>
-              <p className="mt-1 font-display text-4xl font-extrabold tracking-[-0.02em]">
+              {/* Mono, like every other quantity on the site — the figure it is
+                  set against, two inches to the right, is the same kind of
+                  number and must not look like a different kind of thing. */}
+              <p className="mt-1 font-mono text-4xl font-semibold tracking-[-0.02em]">
                 {loss.toFixed(4)}
               </p>
             </div>
@@ -265,7 +268,7 @@ export function HowWrong({ dataset, onBuildAlphabet }: Props) {
               </p>
             </div>
           </div>
-          <p className="mt-5 border-t pt-4 text-sm leading-relaxed hairline">
+          <p className="mt-5 border-t pt-4 caption hairline">
             With {classes} characters, a network that splits its belief evenly
             every time scores <code>{chance.toFixed(4)}</code> — that is{" "}
             <code>log({classes})</code>. Yours is at{" "}

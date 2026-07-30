@@ -58,12 +58,12 @@ export function AveragingNudges({
               </figure>
             ))}
             {count > SHOWN && (
-              <span className="self-center font-mono text-[0.6875rem] text-graphite">
+              <span className="self-center mono-note text-graphite">
                 + {count - SHOWN} more
               </span>
             )}
           </div>
-          <p className="mt-3 max-w-[24rem] text-sm leading-relaxed text-graphite">
+          <p className="mt-3 max-w-[24rem] caption text-graphite">
             Each one is just that drawing, stamped out. Alone, every one of them
             is asking the scorecard to memorise a particular set of strokes.
           </p>
@@ -79,7 +79,7 @@ export function AveragingNudges({
 
       <div className="mt-5 border-t pt-4 hairline">
         <label className="block">
-          <span className="font-mono text-[0.6875rem] text-graphite">
+          <span className="mono-note text-graphite">
             averaging over {count} of {samples.length} drawings
           </span>
           <input
@@ -91,7 +91,7 @@ export function AveragingNudges({
             className="mt-2 w-full accent-riso"
           />
         </label>
-        <p className="mt-3 max-w-[36rem] text-sm leading-relaxed">
+        <p className="mt-3 max-w-[36rem] caption">
           {count === 1
             ? "With one drawing, the average is that drawing. Slide right and watch what happens."
             : count < samples.length

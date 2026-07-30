@@ -98,7 +98,7 @@ export function TheNetwork({ dataset, onBuildAlphabet }: Props) {
         <h1 className="mt-1 font-display text-3xl font-extrabold tracking-[-0.02em]">
           Nothing to tell apart yet
         </h1>
-        <p className="mt-4 text-[1.0625rem] leading-relaxed text-graphite">
+        <p className="mt-4 body-text text-graphite">
           A network needs at least two characters to choose between, and some
           drawings of each.
         </p>
@@ -146,9 +146,17 @@ export function TheNetwork({ dataset, onBuildAlphabet }: Props) {
           {classes === 2 ? "the other scorecard" : "each of the other scorecards"}{" "}
           and you have one number per character. Biggest wins.
         </p>
+        <p className="body-text measure mt-4">
+          Each character also gets one number that belongs to no square at all:
+          a <strong>head start</strong>, added to that character's total before
+          any ink is counted. It lets the network lean towards a character on
+          its own — worth having if one of yours turns up more often than the
+          rest. Yours all begin at <code>0</code>, and training moves them like
+          everything else. Libraries call it the <em>bias</em>.
+        </p>
         <p className="claim mt-8">
-          That is the whole network. {classes} scorecards, {INPUTS} numbers
-          each.
+          That is the whole network. {classes} scorecards of {INPUTS} numbers,
+          plus one head start each.
         </p>
       </header>
 
@@ -258,7 +266,7 @@ export function TheNetwork({ dataset, onBuildAlphabet }: Props) {
           <button
             type="button"
             onClick={() => setPick((p) => (p + 1) % dataset.specimens.length)}
-            className="border px-4 py-2 font-mono text-[0.6875rem] tracking-wider uppercase transition-colors hairline hover:border-plot"
+            className="border px-4 py-2 mono-note tracking-wider uppercase transition-colors hairline hover:border-plot"
           >
             Try another drawing
           </button>
@@ -324,9 +332,15 @@ export function TheNetwork({ dataset, onBuildAlphabet }: Props) {
         <p className="body-text measure mt-4">
           Everything else in your program stays put; parameters are the parts
           that move. When somebody says a model has eight billion parameters,
-          these are what they are counting. Yours has{" "}
-          <span className="figure-value">{INPUTS * classes + classes}</span> —
-          and not one of them has moved yet. That is the next stage.
+          these are what they are counting. Yours are quick to count: {classes}{" "}
+          scorecards of {INPUTS} numbers each, plus the {classes} head starts.
+          So{" "}
+          <code>
+            {INPUTS} × {classes} + {classes}
+          </code>
+          , or{" "}
+          <span className="figure-value">{INPUTS * classes + classes}</span>{" "}
+          altogether. Not one of them has moved yet. That is the next stage.
         </p>
       </section>
     </div>

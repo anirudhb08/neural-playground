@@ -33,7 +33,7 @@ export function MatrixView({ pixels, onHover }: Props) {
         <button
           type="button"
           onClick={() => setShowNumbers((v) => !v)}
-          className="font-mono text-[0.6875rem] tracking-wider text-plot uppercase underline underline-offset-4 hover:text-riso"
+          className="mono-note tracking-wider text-plot uppercase underline underline-offset-4 hover:text-riso"
         >
           {showNumbers ? "Shading" : "Numbers"}
         </button>

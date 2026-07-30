@@ -96,11 +96,11 @@ export function IntoNumbers({ dataset, onBuildAlphabet }: Props) {
         <h1 className="mt-1 font-display text-3xl leading-[1.15] font-extrabold tracking-[-0.02em] sm:text-4xl">
           A network cannot look at a picture
         </h1>
-        <p className="mt-5 text-[1.0625rem] leading-relaxed">
+        <p className="mt-5 body-text">
           Everything a neural network does is arithmetic. Multiply, add,
           compare. That is all it has.
         </p>
-        <p className="mt-4 text-[1.0625rem] leading-relaxed">
+        <p className="mt-4 body-text">
           A drawing is not arithmetic. So before anything else, your drawings
           have to turn into numbers.
         </p>
@@ -108,19 +108,19 @@ export function IntoNumbers({ dataset, onBuildAlphabet }: Props) {
 
       <section className="mt-12">
         <p className="eyebrow">Laying a grid over it</p>
-        <p className="mt-2 text-[1.0625rem] leading-relaxed">
+        <p className="mt-2 body-text">
           Here is the whole trick. Put a grid over the drawing. For each square,
           ask one question: how dark is it? An empty square is 0. A solid black
           square is 255. Half covered lands somewhere in between.
         </p>
-        <p className="mt-4 text-[1.0625rem] leading-relaxed">
+        <p className="mt-4 body-text">
           This grid is {GRID} squares across and {GRID} down, so it produces{" "}
           {GRID * GRID} numbers. As far as the network is concerned, those{" "}
           {GRID * GRID} numbers <em>are</em> the drawing.
         </p>
 
         <div className="mt-8 border-y py-8 hairline">
-          <p className="text-sm text-graphite">
+          <p className="caption text-graphite">
             Draw anything here. The grid fills in as you go — and if you point
             at a square, it will show you where on the drawing that number came
             from.
@@ -154,11 +154,11 @@ export function IntoNumbers({ dataset, onBuildAlphabet }: Props) {
 
       <section className="mt-12">
         <p className="eyebrow">Where on the page does not matter</p>
-        <p className="mt-2 text-[1.0625rem] leading-relaxed">
+        <p className="mt-2 body-text">
           One more thing happens on the way. The drawing is trimmed down to its
           ink, then scaled up to fill the grid.
         </p>
-        <p className="mt-4 text-[1.0625rem] leading-relaxed">
+        <p className="mt-4 body-text">
           So a tiny mark in the corner and a big one in the middle end up as
           almost the same {GRID * GRID} numbers. The network gets to see the
           shape you drew, not where on the page you happened to draw it. Try it
@@ -171,7 +171,7 @@ export function IntoNumbers({ dataset, onBuildAlphabet }: Props) {
         <p className="eyebrow">Your whole alphabet, as numbers</p>
         {drawings === 0 ? (
           <>
-            <p className="mt-2 text-[1.0625rem] leading-relaxed">
+            <p className="mt-2 body-text">
               You have not drawn anything yet, so there is nothing to convert.
             </p>
             <button
@@ -184,18 +184,18 @@ export function IntoNumbers({ dataset, onBuildAlphabet }: Props) {
           </>
         ) : (
           <>
-            <p className="mt-2 text-[1.0625rem] leading-relaxed">
+            <p className="mt-2 body-text">
               The same thing happens to every drawing you made. You have{" "}
               {drawings} of them, and each one becomes a row of {GRID * GRID}{" "}
               numbers. Stack the rows and you get a table: {drawings} rows,{" "}
               {GRID * GRID} columns. That table is what the network will be fed.
             </p>
-            <p className="mt-4 text-[1.0625rem] leading-relaxed">
+            <p className="mt-4 body-text">
               Next to it sits a second, much shorter list — which character each
               row actually is. That one is the answer key, the thing the network
               gets marked against.
             </p>
-            <p className="mt-4 text-[1.0625rem] leading-relaxed">
+            <p className="mt-4 body-text">
               The table is called <code>X</code> and the answer key is called{" "}
               <code>y</code>, which is what nearly everyone calls them. Below you
               can build both yourself, a line at a time, and see what each line

@@ -93,7 +93,7 @@ export function WholeLoop({ dataset, onBuildAlphabet }: Props) {
             ["Nudge", "stage 06 — ink times blame, subtracted from every number"],
           ].map(([name, where], i) => (
             <li key={name} className="flex gap-3 border-b pb-3 hairline last:border-0">
-              <span className="w-5 shrink-0 font-mono text-[0.6875rem] text-plot">
+              <span className="w-5 shrink-0 mono-note text-plot">
                 {i + 1}
               </span>
               <span className="min-w-0">

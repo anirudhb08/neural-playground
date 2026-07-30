@@ -66,14 +66,14 @@ export function PythonStep({
       <p className="eyebrow">
         Step {index} — {title}
       </p>
-      <p className="mt-2 text-[1.0625rem] leading-relaxed">{lead}</p>
+      <p className="mt-2 body-text">{lead}</p>
 
       <div className="mt-5 border hairline">
         <div className="flex items-center justify-between gap-4 border-b bg-paper px-3 py-1.5 hairline">
-          <span className="font-mono text-[0.6875rem] text-plot">
+          <span className="mono-note text-plot">
             In [{busy ? "*" : (execution ?? " ")}]
           </span>
-          <span className="font-mono text-[0.6875rem] text-graphite">
+          <span className="mono-note text-graphite">
             {status ?? RUN_HINT}
           </span>
         </div>
@@ -85,7 +85,7 @@ export function PythonStep({
             type="button"
             onClick={run}
             disabled={busy}
-            className="bg-plot px-4 py-1.5 font-mono text-[0.6875rem] tracking-[0.14em] text-paper uppercase transition-colors hover:bg-ink disabled:opacity-40"
+            className="bg-plot px-4 py-1.5 mono-note tracking-[0.14em] text-paper uppercase transition-colors hover:bg-ink disabled:opacity-40"
           >
             {busy ? "Running" : "Run"}
           </button>
@@ -93,7 +93,7 @@ export function PythonStep({
             <button
               type="button"
               onClick={() => setCode(initialCode)}
-              className="font-mono text-[0.6875rem] text-graphite underline underline-offset-4 hover:text-riso"
+              className="mono-note text-graphite underline underline-offset-4 hover:text-riso"
             >
               Put it back
             </button>
@@ -104,7 +104,7 @@ export function PythonStep({
       {result && (
         <div className="mt-3 flex gap-3">
           <span
-            className={`shrink-0 pt-3 font-mono text-[0.6875rem] ${
+            className={`shrink-0 pt-3 mono-note ${
               result.error ? "text-riso" : "text-graphite"
             }`}
           >

@@ -83,18 +83,18 @@ export function BuildDataset({
         <h1 className="mt-1 font-display text-3xl leading-[1.15] font-extrabold tracking-[-0.02em] sm:text-4xl">
           Invent an alphabet
         </h1>
-        <p className="mt-4 text-[1.0625rem] leading-relaxed">
+        <p className="mt-4 body-text">
           Make up a few characters and draw each one a handful of times. A hook.
           A spiral with a tail. A box with a dot inside. They only need to look
           different enough that you could tell them apart yourself.
         </p>
-        <p className="mt-4 text-[1.0625rem] leading-relaxed text-graphite">
+        <p className="mt-4 body-text text-graphite">
           Aim for {SUGGESTED_CHARACTERS} characters, with about {SUGGESTED}{" "}
           drawings of each. Draw them a little differently every time — bigger,
           smaller, leaning, rushed. You can come back and add more whenever you
           like.
         </p>
-        <p className="mt-4 text-[1.0625rem] leading-relaxed text-graphite">
+        <p className="mt-4 body-text text-graphite">
           Two will work, but everything downstream is more interesting with{" "}
           {SUGGESTED_CHARACTERS}: with only two characters the network's
           scorecards are forced to be exact mirror images of each other, so
@@ -102,7 +102,7 @@ export function BuildDataset({
         </p>
         {dataset.glyphs.length === 0 && (
           <div className="mt-7 border-l-2 border-riso bg-riso/6 py-4 pr-4 pl-5">
-            <p className="text-[1.0625rem] leading-relaxed">
+            <p className="body-text">
               In a hurry, or just want to see where this goes? Load a
               ready-made alphabet of {SUGGESTED_CHARACTERS} characters and every
               stage will have something to work with straight away.
@@ -114,7 +114,7 @@ export function BuildDataset({
             >
               Load a sample alphabet
             </button>
-            <p className="mt-3 font-mono text-[0.6875rem] text-graphite">
+            <p className="mt-3 mono-note text-graphite">
               You can delete it and draw your own at any point — and drawing
               your own is the better way round.
             </p>
@@ -174,7 +174,7 @@ export function BuildDataset({
                             {glyph.label}
                           </span>
                           <span
-                            className={`block font-mono text-[0.6875rem] ${
+                            className={`block mono-note ${
                               count >= MINIMUM ? "text-plot" : "text-graphite"
                             }`}
                           >
@@ -221,7 +221,7 @@ export function BuildDataset({
           </h2>
 
           {!selected ? (
-            <p className="text-sm text-graphite">
+            <p className="caption text-graphite">
               Name a character to start drawing.
             </p>
           ) : (
@@ -254,7 +254,7 @@ export function BuildDataset({
 
               <div className="min-w-0 flex-1">
                 {mine.length === 0 ? (
-                  <p className="text-sm text-graphite">
+                  <p className="caption text-graphite">
                     No drawings of {selected.label} yet.
                   </p>
                 ) : (

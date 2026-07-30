@@ -50,7 +50,7 @@ export function Problem({ onStart }: { onStart: () => void }) {
         How does a computer know these are all the same letter?
       </h1>
 
-      <div className="mt-10 flex flex-col gap-9 text-[1.0625rem] leading-relaxed">
+      <div className="mt-10 flex flex-col gap-9 body-text">
         <section>
           <p className="eyebrow">Idea 1 — compare pictures</p>
           <p className="mt-2">
@@ -113,15 +113,15 @@ export function Problem({ onStart }: { onStart: () => void }) {
       </div>
 
       <div className="mt-14 border-t pt-10 hairline">
-        <p className="text-[1.0625rem] leading-relaxed">
+        <p className="body-text">
           You are going to build one. A real one, a piece at a time.
         </p>
-        <p className="mt-4 text-[1.0625rem] leading-relaxed">
+        <p className="mt-4 body-text">
           But it needs something to learn from first: a pile of examples, each
           one labelled with the right answer. That pile is called a dataset, and
           you are going to make your own.
         </p>
-        <p className="mt-4 text-[1.0625rem] leading-relaxed">
+        <p className="mt-4 body-text">
           You will invent a few characters that do not exist, and draw each one
           several times. Those drawings become the examples. And because you
           made the characters up, nothing out there has ever seen them. No
