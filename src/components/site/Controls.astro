@@ -1,0 +1,146 @@
+---
+/**
+ * Theme and rail controls.
+ *
+ * Plain DOM rather than an island: both have to work before React would have
+ * hydrated, and the theme in particular has to be decided before the first
+ * paint or the page flashes the wrong one.
+ */
+---
+
+<div class="flex items-center gap-1">
+  <button
+    type="button"
+    data-rail-toggle
+    class="control"
+    aria-keyshortcuts="["
+    title="Hide the sidebar  ["
+  >
+    <span aria-hidden="true">⟨</span>
+    <span class="sr-only">Hide the sidebar</span>
+  </button>
+
+  <button type="button" data-theme-toggle class="control" title="Switch to dark">
+    <span aria-hidden="true" class="theme-sun">☀</span>
+    <span aria-hidden="true" class="theme-moon">☾</span>
+    <span class="sr-only">Switch theme</span>
+  </button>
+</div>
+
+<style>
+  .control {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid transparent;
+    background: none;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    line-height: 1;
+    color: var(--color-graphite);
+    transition: color 120ms, border-color 120ms;
+  }
+
+  .control:hover {
+    color: var(--color-plot);
+    border-color: color-mix(in srgb, var(--color-plot) 35%, transparent);
+  }
+
+  /* Only one of the two glyphs is ever the offer. */
+  .theme-moon { display: none; }
+  :root[data-theme="dark"] .theme-moon { display: block; }
+  :root[data-theme="dark"] .theme-sun { display: none; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .theme-moon { display: block; }
+    :root:not([data-theme="light"]) .theme-sun { display: none; }
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    // The rail renders twice — desktop column and mobile drawer — so this
+    // script ships twice. Without the guard both copies bind the keydown
+    // handler, every bracket toggles twice, and nothing appears to happen.
+    if (window.__welldunControls) return;
+    window.__welldunControls = true;
+
+    const root = document.documentElement;
+    const THEME = "welldun:theme";
+    const RAIL = "welldun:rail";
+
+    const systemDark = () =>
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    function currentTheme() {
+      return root.dataset.theme ?? (systemDark() ? "dark" : "light");
+    }
+
+    function apply(theme) {
+      root.dataset.theme = theme;
+      // The browser chrome around the page should match the page.
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", theme === "dark" ? "#121815" : "#e7e9e1");
+      for (const button of document.querySelectorAll("[data-theme-toggle]")) {
+        button.title = theme === "dark" ? "Switch to light" : "Switch to dark";
+      }
+    }
+
+    function setRail(collapsed) {
+      root.dataset.rail = collapsed ? "collapsed" : "open";
+      for (const button of document.querySelectorAll("[data-rail-toggle]")) {
+        button.title = collapsed ? "Show the sidebar  [" : "Hide the sidebar  [";
+        button.firstElementChild.textContent = collapsed ? "⟩" : "⟨";
+        button.lastElementChild.textContent = collapsed
+          ? "Show the sidebar"
+          : "Hide the sidebar";
+      }
+    }
+
+    apply(currentTheme());
+    setRail(root.dataset.rail === "collapsed");
+
+    function toggleRail() {
+      const collapsed = root.dataset.rail !== "collapsed";
+      setRail(collapsed);
+      try {
+        localStorage.setItem(RAIL, collapsed ? "collapsed" : "open");
+      } catch {}
+    }
+
+    for (const button of document.querySelectorAll("[data-theme-toggle]")) {
+      button.addEventListener("click", () => {
+        const next = currentTheme() === "dark" ? "light" : "dark";
+        apply(next);
+        try {
+          localStorage.setItem(THEME, next);
+        } catch {}
+      });
+    }
+
+    for (const button of document.querySelectorAll("[data-rail-toggle]")) {
+      button.addEventListener("click", toggleRail);
+    }
+
+    /**
+     * [ or ] toggles the rail — but not while someone is typing. This page has
+     * a text field for naming characters and a Python editor, and a bracket is
+     * a character both of them need.
+     */
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "[" && event.key !== "]") return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const el = event.target;
+      if (
+        el instanceof HTMLElement &&
+        (el.isContentEditable ||
+          el.closest("input, textarea, select, .cm-editor"))
+      ) {
+        return;
+      }
+      event.preventDefault();
+      toggleRail();
+    });
+  })();
+</script>

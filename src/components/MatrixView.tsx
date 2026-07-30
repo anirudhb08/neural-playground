@@ -58,10 +58,10 @@ export function MatrixView({ pixels, onHover }: Props) {
               style={{
                 // Opaque blend from blank paper to full ink, so the 1px gaps
                 // stay the only thing the grid colour shows through.
-                backgroundColor: `color-mix(in srgb, #2e6a5c ${
+                backgroundColor: `color-mix(in srgb, var(--color-plot) ${
                   (value / 255) * 100
-                }%, #f2f3ed)`,
-                boxShadow: isHovered ? "inset 0 0 0 2px #ed3f72" : undefined,
+                }%, var(--color-paper-raised))`,
+                boxShadow: isHovered ? "inset 0 0 0 2px var(--color-riso)" : undefined,
               }}
             >
               {showNumbers && (
@@ -69,7 +69,7 @@ export function MatrixView({ pixels, onHover }: Props) {
                   className="font-mono leading-none"
                   style={{
                     fontSize: "clamp(5px, 0.55vw, 8px)",
-                    color: value > 140 ? "#f2f3ed" : "#77806f",
+                    color: value > 140 ? "var(--color-paper-raised)" : "var(--color-graphite)",
                   }}
                 >
                   {value}

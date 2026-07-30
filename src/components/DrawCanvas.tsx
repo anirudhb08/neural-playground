@@ -59,8 +59,24 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(
       ctx.lineWidth = STROKE;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
-      ctx.strokeStyle = "#15201b";
+      ctx.strokeStyle = inkColour();
     }, []);
+
+    /**
+     * Canvas 2D takes a resolved colour, not a var(), so the token has to be
+     * read out of the document. Read again at every stroke: a reader who
+     * switches theme mid-drawing gets the right ink from then on. Only the
+     * alpha channel is ever rasterised, so the colour is purely what you see —
+     * strokes already laid down keep the shade they were drawn in.
+     */
+    function inkColour() {
+      if (typeof window === "undefined") return "#15201b";
+      return (
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--color-ink")
+          .trim() || "#15201b"
+      );
+    }
 
     function positionOf(event: ReactPointerEvent<HTMLCanvasElement>) {
       const rect = event.currentTarget.getBoundingClientRect();
@@ -75,6 +91,7 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(
       const ctx = context();
       if (!ctx) return;
       drawing.current = true;
+      ctx.strokeStyle = inkColour();
       event.currentTarget.setPointerCapture(event.pointerId);
       const { x, y } = positionOf(event);
       ctx.beginPath();

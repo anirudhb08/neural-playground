@@ -33,19 +33,19 @@ export function SurpriseCurve() {
             role="img"
             aria-label="Cost against belief in the right answer"
           >
-            <line x1="0" y1={H} x2={W} y2={H} stroke="#77806f" strokeWidth="1" />
-            <line x1="0" y1="0" x2="0" y2={H} stroke="#77806f" strokeWidth="1" />
-            <path d={PATH} fill="none" stroke="#2e6a5c" strokeWidth="2" />
+            <line x1="0" y1={H} x2={W} y2={H} style={{ stroke: "var(--color-graphite)" }} strokeWidth="1" />
+            <line x1="0" y1="0" x2="0" y2={H} style={{ stroke: "var(--color-graphite)" }} strokeWidth="1" />
+            <path d={PATH} fill="none" style={{ stroke: "var(--color-plot)" }} strokeWidth="2" />
             <line
               x1={cx}
               y1={cy}
               x2={cx}
               y2={H}
-              stroke="#ed3f72"
+              style={{ stroke: "var(--color-riso)" }}
               strokeWidth="1"
               strokeDasharray="3 3"
             />
-            <circle cx={cx} cy={cy} r="5" fill="#ed3f72" />
+            <circle cx={cx} cy={cy} r="5" style={{ fill: "var(--color-riso)" }} />
           </svg>
           <div className="flex justify-between pt-1 mono-note text-graphite">
             <span>believed 1%</span>

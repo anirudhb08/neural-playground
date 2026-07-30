@@ -18,31 +18,31 @@ import { useEffect, useRef } from "react";
 
 /** Syntax colours drawn from the page's own palette rather than a stock theme. */
 const highlight = HighlightStyle.define([
-  { tag: tags.comment, color: "#77806f", fontStyle: "italic" },
-  { tag: tags.keyword, color: "#c22c5e" },
-  { tag: [tags.string, tags.special(tags.string)], color: "#2e6a5c" },
-  { tag: [tags.number, tags.bool, tags.null], color: "#8a6d1f" },
-  { tag: [tags.function(tags.variableName), tags.definition(tags.variableName)], color: "#1e4e6e" },
-  { tag: tags.operator, color: "#15201b" },
-  { tag: tags.punctuation, color: "#77806f" },
+  { tag: tags.comment, color: "var(--color-graphite)", fontStyle: "italic" },
+  { tag: tags.keyword, color: "var(--syntax-keyword)" },
+  { tag: [tags.string, tags.special(tags.string)], color: "var(--color-plot)" },
+  { tag: [tags.number, tags.bool, tags.null], color: "var(--syntax-number)" },
+  { tag: [tags.function(tags.variableName), tags.definition(tags.variableName)], color: "var(--syntax-function)" },
+  { tag: tags.operator, color: "var(--color-ink)" },
+  { tag: tags.punctuation, color: "var(--color-graphite)" },
 ]);
 
 const theme = EditorView.theme({
   "&": {
-    backgroundColor: "#f2f3ed",
-    color: "#15201b",
+    backgroundColor: "var(--color-paper-raised)",
+    color: "var(--color-ink)",
     fontSize: "12px",
   },
   "&.cm-focused": { outline: "none" },
   ".cm-content": {
     fontFamily: '"IBM Plex Mono", ui-monospace, monospace',
     padding: "12px 0",
-    caretColor: "#ed3f72",
+    caretColor: "var(--color-riso)",
   },
   ".cm-line": { padding: "0 12px" },
   ".cm-gutters": {
-    backgroundColor: "#f2f3ed",
-    color: "#aab2a4",
+    backgroundColor: "var(--color-paper-raised)",
+    color: "var(--gutter-ink)",
     border: "none",
     borderRight: "1px solid rgba(46,106,92,0.16)",
     fontFamily: '"IBM Plex Mono", ui-monospace, monospace',
@@ -50,7 +50,7 @@ const theme = EditorView.theme({
   ".cm-lineNumbers .cm-gutterElement": { padding: "0 8px 0 12px" },
   ".cm-activeLine": { backgroundColor: "rgba(46,106,92,0.05)" },
   ".cm-activeLineGutter": { backgroundColor: "transparent" },
-  "&.cm-editor .cm-cursor": { borderLeftColor: "#ed3f72" },
+  "&.cm-editor .cm-cursor": { borderLeftColor: "var(--color-riso)" },
   ".cm-selectionBackground, ::selection": {
     backgroundColor: "rgba(237,63,114,0.18) !important",
   },

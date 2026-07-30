@@ -77,7 +77,7 @@ function Curve({
             y1={yFor(value)}
             x2={W}
             y2={yFor(value)}
-            stroke="#2e6a5c"
+            style={{ stroke: "var(--color-plot)" }}
             strokeOpacity="0.14"
             strokeWidth="1"
           />
@@ -86,7 +86,7 @@ function Curve({
             y={yFor(value) + 3}
             textAnchor="end"
             fontSize="9"
-            fill="#77806f"
+            style={{ fill: "var(--color-graphite)" }}
             fontFamily="IBM Plex Mono, monospace"
           >
             {value >= 1 ? value : value.toFixed(String(value).length - 2)}
@@ -99,12 +99,12 @@ function Curve({
         y1={yFor(0.6931)}
         x2={W}
         y2={yFor(0.6931)}
-        stroke="#77806f"
+        style={{ stroke: "var(--color-graphite)" }}
         strokeWidth="1"
         strokeDasharray="4 4"
       />
-      <path d={path("held")} fill="none" stroke="#ed3f72" strokeWidth="1.5" />
-      <path d={path("loss")} fill="none" stroke="#2e6a5c" strokeWidth="2" />
+      <path d={path("held")} fill="none" style={{ stroke: "var(--color-riso)" }} strokeWidth="1.5" />
+      <path d={path("loss")} fill="none" style={{ stroke: "var(--color-plot)" }} strokeWidth="2" />
     </svg>
   );
 }
