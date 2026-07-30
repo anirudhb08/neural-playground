@@ -68,7 +68,7 @@ const jsonLd = [
     datePublished: dates.published,
     dateModified: dates.modified,
     author,
-    publisher: { "@type": "Organization", name: SITE.name, url: Astro.site?.href },
+    publisher: { "@type": "Organization", name: SITE.org.name, url: SITE.org.url },
     isPartOf: {
       "@type": "Course",
       name: tutorial.data.title,

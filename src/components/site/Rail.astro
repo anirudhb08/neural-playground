@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import { SITE } from "../../site";
 
 /**
  * The left rail: every tutorial, with the current one opened to its parts.
@@ -28,11 +29,9 @@ const partsOf = (slug: string) =>
 <nav class="flex flex-col gap-7" aria-label="Tutorials">
   <a href="/" class="group block no-underline">
     <span class="font-display text-base font-extrabold tracking-[-0.01em] text-ink"
-      >Neulearn</span
+      >{SITE.wordmark}</span
     >
-    <span class="mono-note mt-0.5 block text-graphite"
-      >tutorials you can run</span
-    >
+    <span class="mono-note mt-0.5 block text-graphite">{SITE.tagline}</span>
   </a>
 
   <ul class="flex list-none flex-col gap-5 p-0">

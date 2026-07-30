@@ -1,4 +1,4 @@
-# Neulearn
+# Welldun Learn
 
 **[learn.welldun.ai](https://learn.welldun.ai)**
 

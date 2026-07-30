@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
+import { SITE } from "../site";
 
 /**
  * A plain-text index of the site for language models.
@@ -18,7 +19,7 @@ export const GET: APIRoute = async ({ site }) => {
   );
 
   const lines = [
-    "# Neulearn",
+    `# ${SITE.name}`,
     "",
     "> Long, interactive tutorials on how machine learning actually works.",
     "> Every one runs in the browser with every number visible, nothing hidden",

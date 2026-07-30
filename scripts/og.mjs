@@ -22,6 +22,9 @@ const PLOT = "#2e6a5c";
 const RISO = "#ed3f72";
 const GRAPHITE = "#77806f";
 
+/** Kept in step with SITE.wordmark in src/site.ts. */
+const WORDMARK = "Learn. Well dun.";
+
 const fonts = [
   { name: "Archivo", data: await readFile(".fonts/Archivo-800.ttf"), weight: 800, style: "normal" },
   { name: "Instrument Sans", data: await readFile(".fonts/InstrumentSans-400.ttf"), weight: 400, style: "normal" },
@@ -145,7 +148,7 @@ for (const file of await readdir(tutorialDir)) {
   const t = parse(await readFile(`${tutorialDir}/${file}`, "utf8"));
 
   count += await render(
-    { eyebrow: "Neulearn", title: t.title, blurb: fit(t.blurb, 150), values: t.plate },
+    { eyebrow: WORDMARK, title: t.title, blurb: fit(t.blurb, 150), values: t.plate },
     `${outDir}/${slug}.png`,
   ) && 1;
 
@@ -154,7 +157,7 @@ for (const file of await readdir(tutorialDir)) {
     const d = frontmatter(await readFile(`${partsDir}/${slug}/${p}`, "utf8"));
     await render(
       {
-        eyebrow: `Part ${String(d.order).padStart(2, "0")} of ${parts.length} · Neulearn`,
+        eyebrow: `Part ${String(d.order).padStart(2, "0")} of ${parts.length} · ${WORDMARK}`,
         title: d.searchTitle ?? d.title,
         blurb: fit(d.description ?? d.blurb, 150),
         values: t.plate,

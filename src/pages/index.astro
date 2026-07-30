@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import Shell from "../layouts/Shell.astro";
 import PlateMark from "../components/site/PlateMark.astro";
+import { SITE } from "../site";
 
 const tutorials = (await getCollection("tutorials"))
   .filter((t) => t.data.status === "published")
@@ -13,7 +14,7 @@ const countOf = (slug: string) =>
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "Neulearn",
+  name: SITE.name,
   url: Astro.site?.href,
   description:
     "Long, interactive tutorials on how machine learning actually works. Every one runs in the browser with every number visible.",
@@ -28,7 +29,7 @@ const jsonLd = {
 ---
 
 <Shell
-  title="Neulearn — tutorials you can run"
+  title={`${SITE.name} — ${SITE.tagline}`}
   description="Long, interactive tutorials on how machine learning actually works. Nothing hidden behind a library, every number visible, all of it running in your browser."
   canonical="/"
   jsonLd={jsonLd}

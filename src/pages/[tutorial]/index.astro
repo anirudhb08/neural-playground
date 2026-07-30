@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import Shell from "../../layouts/Shell.astro";
 import PlateMark from "../../components/site/PlateMark.astro";
+import { SITE } from "../../site";
 
 export async function getStaticPaths() {
   const tutorials = await getCollection("tutorials");
@@ -30,7 +31,7 @@ const jsonLd = {
   isAccessibleForFree: true,
   inLanguage: "en",
   educationalLevel: "Beginner",
-  provider: { "@type": "Organization", name: "Neulearn" },
+  provider: { "@type": "Organization", name: SITE.org.name, url: SITE.org.url },
   hasPart: parts.map((p) => ({
     "@type": "LearningResource",
     name: p.data.title,
@@ -42,7 +43,7 @@ const jsonLd = {
 ---
 
 <Shell
-  title={`${tutorial.data.title} — Neulearn`}
+  title={`${tutorial.data.title} — ${SITE.name}`}
   description={tutorial.data.blurb}
   canonical={canonical}
   tutorial={tutorial.id}
