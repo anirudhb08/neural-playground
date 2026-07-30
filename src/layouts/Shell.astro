@@ -44,6 +44,10 @@ const url = new URL(canonical, Astro.site).href;
     <meta property="og:url" content={url} />
     <meta property="og:image" content={new URL("/og.jpg", Astro.site).href} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@welldunai" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL("/og.jpg", Astro.site).href} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
