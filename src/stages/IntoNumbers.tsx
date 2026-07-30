@@ -91,20 +91,6 @@ export function IntoNumbers({ dataset, onBuildAlphabet }: Props) {
 
   return (
     <div className="mx-auto max-w-3xl px-5 pb-20">
-      <header className="pt-14">
-        <p className="eyebrow">Into numbers</p>
-        <h1 className="mt-1 font-display text-3xl leading-[1.15] font-extrabold tracking-[-0.02em] sm:text-4xl">
-          A network cannot look at a picture
-        </h1>
-        <p className="mt-5 body-text">
-          Everything a neural network does is arithmetic. Multiply, add,
-          compare. That is all it has.
-        </p>
-        <p className="mt-4 body-text">
-          A drawing is not arithmetic. So before anything else, your drawings
-          have to turn into numbers.
-        </p>
-      </header>
 
       <section className="mt-12">
         <p className="eyebrow">Laying a grid over it</p>

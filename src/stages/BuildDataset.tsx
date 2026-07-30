@@ -6,8 +6,6 @@ import { isBlank } from "../lib/raster";
 import { countByGlyph } from "../store";
 import { GRID, type Dataset } from "../types";
 
-/** Enough to train on without the drawing becoming a chore. */
-const SUGGESTED = 8;
 /** Below this the later stages have too little to work with. */
 const MINIMUM = 4;
 /**
@@ -16,15 +14,6 @@ const MINIMUM = 4;
  * the same picture twice. Three is where it gets interesting.
  */
 const SUGGESTED_CHARACTERS = 3;
-
-const REFERENCES = [
-  { name: "Omniglot", href: "https://github.com/brendenlake/omniglot" },
-  { name: "MNIST", href: "https://en.wikipedia.org/wiki/MNIST_database" },
-  {
-    name: "EMNIST",
-    href: "https://www.nist.gov/itl/products-and-services/emnist-dataset",
-  },
-];
 
 type Props = {
   dataset: Dataset;
@@ -77,69 +66,31 @@ export function BuildDataset({
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-5 pb-20">
-      <header className="max-w-2xl pt-14">
-        <p className="eyebrow">Your dataset</p>
-        <h1 className="mt-1 font-display text-3xl leading-[1.15] font-extrabold tracking-[-0.02em] sm:text-4xl">
-          Invent an alphabet
-        </h1>
-        <p className="mt-4 body-text">
-          Make up a few characters and draw each one a handful of times. A hook.
-          A spiral with a tail. A box with a dot inside. They only need to look
-          different enough that you could tell them apart yourself.
-        </p>
-        <p className="mt-4 body-text text-graphite">
-          Aim for {SUGGESTED_CHARACTERS} characters, with about {SUGGESTED}{" "}
-          drawings of each. Draw them a little differently every time — bigger,
-          smaller, leaning, rushed. You can come back and add more whenever you
-          like.
-        </p>
-        <p className="mt-4 body-text text-graphite">
-          Two will work, but everything downstream is more interesting with{" "}
-          {SUGGESTED_CHARACTERS}: with only two characters the network's
-          scorecards are forced to be exact mirror images of each other, so
-          several of the later stages end up showing you the same picture twice.
-        </p>
-        {dataset.glyphs.length === 0 && (
-          <div className="mt-7 border-l-2 border-riso bg-riso/6 py-4 pr-4 pl-5">
-            <p className="body-text">
-              In a hurry, or just want to see where this goes? Load a
-              ready-made alphabet of {SUGGESTED_CHARACTERS} characters and every
-              stage will have something to work with straight away.
-            </p>
-            <button
-              type="button"
-              onClick={onLoadSample}
-              className="mt-4 bg-riso px-5 py-2.5 font-mono text-xs tracking-[0.14em] text-paper uppercase transition-colors hover:bg-ink"
-            >
-              Load a sample alphabet
-            </button>
-            <p className="mt-3 mono-note text-graphite">
-              You can delete it and draw your own at any point — and drawing
-              your own is the better way round.
-            </p>
-          </div>
-        )}
+    <div className="pb-4">
+      {/* The page's prose lives beside this island; the shortcut is an action,
+          so it stays here where it is only offered while it is still useful. */}
+      {dataset.glyphs.length === 0 && (
+        <div className="border-l-2 border-riso bg-riso/6 py-4 pr-4 pl-5">
+          <p className="body-text">
+            In a hurry, or just want to see where this goes? Load a ready-made
+            alphabet of {SUGGESTED_CHARACTERS} characters and every part will
+            have something to work with straight away.
+          </p>
+          <button
+            type="button"
+            onClick={onLoadSample}
+            className="mt-4 bg-riso px-5 py-2.5 font-mono text-xs tracking-[0.14em] text-paper uppercase transition-colors hover:bg-ink"
+          >
+            Load a sample alphabet
+          </button>
+          <p className="mt-3 mono-note text-graphite">
+            You can delete it and draw your own at any point — and drawing your
+            own is the better way round.
+          </p>
+        </div>
+      )}
 
-        <p className="mt-5 font-mono text-xs text-graphite">
-          Real datasets, for reference:{" "}
-          {REFERENCES.map((reference, i) => (
-            <span key={reference.name}>
-              {i > 0 && " · "}
-              <a
-                href={reference.href}
-                target="_blank"
-                rel="noreferrer"
-                className="text-plot underline underline-offset-4 hover:text-riso"
-              >
-                {reference.name}
-              </a>
-            </span>
-          ))}
-        </p>
-      </header>
-
-      <div className="mt-12 grid gap-10 lg:grid-cols-[17rem_1fr]">
+      <div className="mt-10 grid gap-10 lg:grid-cols-[17rem_1fr]">
         <section className="flex flex-col gap-4">
           <h2 className="eyebrow">Characters</h2>
 

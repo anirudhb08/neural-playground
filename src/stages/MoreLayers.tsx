@@ -18,7 +18,7 @@ const PythonLab = lazy(() =>
   import("../components/PythonLab").then((m) => ({ default: m.PythonLab })),
 );
 
-const UNITS = 8;
+import { UNITS } from "../labs/moreLayers";
 const ROUNDS = 400;
 
 const torchFor = (classes: number) => `import torch.nn as nn

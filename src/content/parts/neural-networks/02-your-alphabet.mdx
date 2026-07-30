@@ -2,10 +2,51 @@
 tutorial: neural-networks
 order: 2
 title: Your alphabet
-teaches: []
+teaches: [dataset, labels, training examples]
 blurb: >-
-  Invent characters that have never existed and draw a dataset of them by hand. Nothing here mentions yet what the network will receive.
+  Invent characters that have never existed and draw a dataset of them by hand.
+  Nothing here mentions yet what the network will receive.
 ---
-import { StageIsland } from "../../../components/site/StageIsland";
 
-<StageIsland stage="your-alphabet" client:only="react" />
+import { Widget } from "../../../components/site/Widget";
+
+Make up a few characters and draw each one a handful of times. A hook. A spiral
+with a tail. A box with a dot inside. They only need to look different enough
+that you could tell them apart yourself.
+
+Aim for three characters with about eight drawings of each, and draw them a
+little differently every time — bigger, smaller, leaning, rushed. You can come
+back and add more whenever you like.
+
+Two characters will work, but everything downstream is more interesting with
+three: with only two, the network's scorecards are forced to be exact mirror
+images of each other, so several of the later parts end up showing you the same
+picture twice.
+
+<div class="mt-8"><Widget name="alphabet-builder" client:only="react" /></div>
+
+## Why you are drawing these by hand
+
+What you are making is a **dataset**: a pile of examples, each one labelled
+with the right answer. The label is the whole point. Without it there is
+nothing to be wrong about, and being wrong is the only way this network learns
+anything.
+
+Because you invented the characters, nothing out there has ever seen them. No
+pretrained model can help, and nothing can be looked up. Every number the
+network ends up with will have come from your hand.
+
+Drawing each character several times, differently each time, is not busywork
+either. Part 06 shows exactly what the variation buys you — the parts of your
+handwriting that change from drawing to drawing cancel each other out, and what
+survives is the character itself.
+
+Your drawings stay in this browser. There is no account and no server.
+
+If you want to see what real handwriting datasets look like:
+[Omniglot](https://github.com/brendenlake/omniglot) collects 1,623 characters
+from 50 alphabets, [MNIST](https://en.wikipedia.org/wiki/MNIST_database) is
+70,000 handwritten digits and the standard first exercise, and
+[EMNIST](https://www.nist.gov/itl/products-and-services/emnist-dataset)
+extends it to letters. Yours will be about twenty drawings — which turns out
+to be enough, because you invented characters that look nothing alike.

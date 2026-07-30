@@ -1,9 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { EMPTY_DATASET, type Dataset, type Glyph, type Specimen } from "./types";
 
-const STORAGE_KEY = "neural-playground:dataset:v1";
+/**
+ * Namespaced per tutorial, so a second one cannot fight this one for the slot.
+ */
+const STORAGE_KEY = "neulearn:neural-networks:dataset:v1";
+/** The key this tutorial used when it was the whole site. Read once, then retired. */
+const LEGACY_KEY = "neural-playground:dataset:v1";
 /** Where an unreadable save is parked rather than being thrown away. */
-const RESCUE_KEY = "neural-playground:dataset:unreadable";
+const RESCUE_KEY = "neulearn:neural-networks:dataset:unreadable";
 
 function looksLikeDataset(value: unknown): value is Dataset {
   if (typeof value !== "object" || value === null) return false;
@@ -16,7 +21,11 @@ function looksLikeDataset(value: unknown): value is Dataset {
 function load(): Dataset {
   let raw: string | null = null;
   try {
-    raw = localStorage.getItem(STORAGE_KEY);
+    // Anyone who drew an alphabet before the site had more than one tutorial
+    // still has it under the old key. Nobody should lose their drawings to a
+    // rename, so fall back to it once; the next save writes the new key.
+    raw =
+      localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_KEY);
   } catch {
     // Storage is blocked outright; the session runs in memory only.
     return EMPTY_DATASET;

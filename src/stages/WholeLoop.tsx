@@ -87,7 +87,7 @@ export function WholeLoop({ dataset, onBuildAlphabet }: Props) {
           {[
             ["Your drawing", "part 03 — a grid laid over the ink, 256 numbers out"],
             ["The scorecards", "part 04 — one number per square, per character"],
-            ["A score, then a share", "stages 04 and 05 — multiply and add, then softmax"],
+            ["A score, then a share", "parts 04 and 05 — multiply and add, then softmax"],
             ["How wrong", "part 05 — the cost of the belief placed on the truth"],
             ["Blame", "part 06 — what it said minus what it should have said"],
             ["Nudge", "part 06 — ink times blame, subtracted from every number"],

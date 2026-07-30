@@ -83,18 +83,6 @@ export function ReadMyWriting({ dataset, onBuildAlphabet }: Props) {
 
   return (
     <div className="mx-auto max-w-3xl px-5 pb-20">
-      <header className="pt-14">
-        <p className="eyebrow">Read my writing</p>
-        <h1 className="mt-1 font-display text-3xl leading-[1.15] font-extrabold tracking-[-0.02em] sm:text-4xl">
-          Write something it has never seen
-        </h1>
-        <p className="lede measure mt-6">
-          The network below has been trained on {train.length} of your drawings,
-          for {ROUNDS} rounds, using the rule from the last stage. Nothing else
-          about it is special. Draw one of your characters and it will tell you
-          which one it thinks you drew.
-        </p>
-      </header>
 
       <section className="mt-12">
         <div className="border bg-paper-raised p-5 hairline">
@@ -150,6 +138,27 @@ export function ReadMyWriting({ dataset, onBuildAlphabet }: Props) {
               )}
             </div>
           </div>
+
+          <dl className="mt-6 flex flex-wrap gap-x-10 gap-y-3 border-t pt-4 hairline">
+            <div>
+              <dt className="eyebrow">Trained on</dt>
+              <dd className="mt-0.5 font-mono text-sm">
+                {train.length} drawings
+              </dd>
+            </div>
+            <div>
+              <dt className="eyebrow">Kept back</dt>
+              <dd className="mt-0.5 font-mono text-sm">
+                {held.length} drawing{held.length === 1 ? "" : "s"}
+              </dd>
+            </div>
+            <div>
+              <dt className="eyebrow">Right on the kept-back ones</dt>
+              <dd className="mt-0.5 font-mono text-sm font-semibold text-plot">
+                {(heldReport.accuracy * 100).toFixed(0)}%
+              </dd>
+            </div>
+          </dl>
         </div>
       </section>
 
@@ -184,72 +193,6 @@ export function ReadMyWriting({ dataset, onBuildAlphabet }: Props) {
           </div>
         </section>
       )}
-
-      <section className="mt-14">
-        <h2 className="section-title">It can only ever say what you taught it</h2>
-        <p className="body-text measure mt-3">
-          Draw a spiral, a house, a letter from a real alphabet — anything at
-          all. It will still answer{" "}
-          {dataset.glyphs.map((g, i) => (
-            <span key={g.id}>
-              {i > 0 && (i === classes - 1 ? " or " : ", ")}
-              {g.label}
-            </span>
-          ))}
-          , often with great confidence. It has no category for "none of these"
-          and no way to invent one.
-        </p>
-        <p className="body-text measure mt-4">
-          That is not a fault in your network; it is what a classifier is. It
-          was asked to divide the world into {classes} boxes, so it divides the
-          world into {classes} boxes. Every one of these systems has an edge
-          like this, and knowing where the edge sits is most of using them
-          responsibly.
-        </p>
-      </section>
-
-      <section className="mt-14">
-        <h2 className="section-title">How much to trust it</h2>
-        <p className="body-text measure mt-3">
-          {held.length} drawing{held.length === 1 ? "" : "s"} were kept out of
-          training entirely. On those, it gets{" "}
-          <code>{(heldReport.accuracy * 100).toFixed(0)}%</code> right —{" "}
-          {heldReport.accuracy === 1
-            ? "which is the only result here worth anything, because those are the ones it could not have memorised."
-            : "which is a more honest figure than its score on the drawings it studied."}
-        </p>
-        <p className="body-text measure mt-4">
-          It has seen {train.length} drawings in its life, all by one person,
-          all with the same pen. If your handwriting drifts, or someone else
-          draws your characters, expect it to struggle. More drawings, and more
-          varied ones, is the cure for almost everything that goes wrong here.
-        </p>
-      </section>
-
-      <section className="mt-14 border-t pt-10 hairline">
-        <h2 className="section-title">What you built</h2>
-        <p className="body-text measure mt-3">
-          You invented an alphabet nobody had written before, turned it into
-          numbers, built a network out of nothing but a table and a
-          multiply-and-add, worked out how wrong it was, and taught it to be
-          less wrong — and now it reads your handwriting.
-        </p>
-        <p className="claim mt-7">
-          There was never anything in the box but numbers being nudged.
-        </p>
-        <p className="body-text measure mt-7">
-          The same rule, stacked into layers and pointed at photographs, is
-          image recognition. Pointed at sequences of characters, so it predicts
-          the next one rather than naming the whole, it becomes a language
-          model. Nothing new gets added — only more layers, more numbers, and a
-          great deal more data.
-        </p>
-        <p className="body-text measure mt-4">
-          If you want to keep going: draw more characters and watch it get
-          harder, add a third and a fourth, or go back and see what happens when
-          you train on four drawings instead of {train.length}.
-        </p>
-      </section>
     </div>
   );
 }

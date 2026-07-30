@@ -2,10 +2,58 @@
 tutorial: neural-networks
 order: 8
 title: Read my writing
-teaches: [inference, generalisation]
+teaches: [inference, generalisation, held-out data]
 blurb: >-
-  Draw something it has never seen and watch it read your handwriting, stroke by stroke.
+  Draw something it has never seen and watch it read your handwriting, stroke
+  by stroke.
 ---
-import { StageIsland } from "../../../components/site/StageIsland";
 
-<StageIsland stage="read-my-writing" client:only="react" />
+import { Widget } from "../../../components/site/Widget";
+
+The network below has been trained on your drawings for 400 rounds, using the
+rule from the last part. Nothing else about it is special. Draw one of your
+characters and it will tell you which one it thinks you drew.
+
+<div class="mt-8"><Widget name="read-my-writing" client:only="react" /></div>
+
+## It can only ever say what you taught it
+
+Draw a spiral, a house, a letter from a real alphabet — anything at all. It
+will still answer with one of your characters, often with great confidence. It
+has no category for "none of these" and no way to invent one.
+
+That is not a fault in your network; it is what a classifier is. It was asked
+to divide the world into a fixed number of boxes, so it divides the world into
+that many boxes. Every one of these systems has an edge like this, and knowing
+where the edge sits is most of using them responsibly.
+
+## How much to trust it
+
+Some of your drawings were kept out of training entirely. The score on those is
+the only one worth anything, because they are the ones it could not have
+memorised — which is why the figure above reports them separately.
+
+It has seen a few dozen drawings in its life, all by one person, all with the
+same pen. If your handwriting drifts, or someone else draws your characters,
+expect it to struggle. More drawings, and more varied ones, is the cure for
+almost everything that goes wrong here.
+
+## What you built
+
+You invented an alphabet nobody had written before, turned it into numbers,
+built a network out of nothing but a table and a multiply-and-add, worked out
+how wrong it was, and taught it to be less wrong — and now it reads your
+handwriting.
+
+<p class="claim mt-8">
+There was never anything in the box but numbers being nudged.
+</p>
+
+The same rule, stacked into layers and pointed at photographs, is image
+recognition. Pointed at sequences of characters, so it predicts the next one
+rather than naming the whole, it becomes a language model. Nothing new gets
+added — only more layers, more numbers, and a great deal more data.
+
+If you want to keep going: draw more characters and watch it get harder, add a
+third and a fourth, or go back and see what happens when you train on four
+drawings instead of all of them.

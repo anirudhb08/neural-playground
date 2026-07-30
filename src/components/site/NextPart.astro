@@ -1,0 +1,10 @@
+---
+/** The one action at the foot of a part that has a natural next step. */
+interface Props { href: string; label: string }
+const { href, label } = Astro.props;
+---
+<a
+  href={href}
+  class="mt-10 inline-block bg-ink px-7 py-3.5 font-mono text-xs tracking-[0.14em] text-paper uppercase no-underline transition-colors hover:bg-plot"
+  >{label}</a
+>
