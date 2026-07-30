@@ -68,6 +68,21 @@ const image = new URL(`/og/${ogImage ?? "index"}.png`, Astro.site).href;
     />
     <meta name="theme-color" content="#e7e9e1" />
 
+    <script is:inline>
+      // Runs before the body renders: a theme applied after first paint is a
+      // visible flash of the wrong one on every navigation.
+      (() => {
+        const root = document.documentElement;
+        try {
+          const theme = localStorage.getItem("welldun:theme");
+          if (theme === "dark" || theme === "light") root.dataset.theme = theme;
+          if (localStorage.getItem("welldun:rail") === "collapsed") {
+            root.dataset.rail = "collapsed";
+          }
+        } catch {}
+      })();
+    </script>
+
     <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={SITE.name} />
     <meta property="og:title" content={title} />
@@ -125,11 +140,22 @@ const image = new URL(`/og/${ogImage ?? "index"}.png`, Astro.site).href;
       </details>
 
       <div
-        class="sticky top-0 hidden h-screen shrink-0 overflow-y-auto border-r bg-paper-deep/40 px-6 py-10 hairline lg:block"
+        class="rail-column sticky top-0 hidden h-screen shrink-0 overflow-y-auto border-r bg-paper-deep/40 px-6 py-10 hairline lg:block"
         style="width: var(--rail-width)"
       >
         <Rail tutorial={tutorial} part={part} />
       </div>
+
+      {/* The only way back once the rail is hidden, short of the [ key. */}
+      <button
+        type="button"
+        data-rail-toggle
+        class="rail-reopen mono-note fixed top-3 left-3 z-40 hidden h-8 w-8 items-center justify-center border bg-paper-raised text-graphite hairline transition-colors hover:border-plot hover:text-plot"
+        title="Show the sidebar  ["
+      >
+        <span aria-hidden="true">⟩</span>
+        <span class="sr-only">Show the sidebar</span>
+      </button>
 
       <main id="content" class="min-w-0 flex-1">
         <div class={wide ? "" : "mx-auto max-w-3xl px-5"}>

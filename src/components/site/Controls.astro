@@ -1,0 +1,156 @@
+---
+/**
+ * Theme and rail controls.
+ *
+ * Plain DOM rather than an island: both have to work before React would have
+ * hydrated, and the theme in particular has to be decided before the first
+ * paint or the page flashes the wrong one.
+ */
+---
+
+<div class="flex items-center gap-1">
+  <button
+    type="button"
+    data-rail-toggle
+    class="control"
+    aria-keyshortcuts="["
+    title="Hide the sidebar  ["
+  >
+    <span aria-hidden="true">⟨</span>
+    <span class="sr-only">Hide the sidebar</span>
+  </button>
+
+  <button type="button" data-theme-toggle class="control" title="Switch to dark">
+    <span aria-hidden="true" class="theme-sun">☀</span>
+    <span aria-hidden="true" class="theme-moon">☾</span>
+    <span class="sr-only">Switch theme</span>
+  </button>
+</div>
+
+<style>
+  .control {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid transparent;
+    background: none;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    line-height: 1;
+    color: var(--color-graphite);
+    transition: color 120ms, border-color 120ms;
+  }
+
+  .control:hover {
+    color: var(--color-plot);
+    border-color: color-mix(in srgb, var(--color-plot) 35%, transparent);
+  }
+
+  /* Only one of the two glyphs is ever the offer. */
+  .theme-moon { display: none; }
+  :root[data-theme="dark"] .theme-moon { display: block; }
+  :root[data-theme="dark"] .theme-sun { display: none; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .theme-moon { display: block; }
+    :root:not([data-theme="light"]) .theme-sun { display: none; }
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    // The rail renders twice — desktop column and mobile drawer — so this
+    // script ships twice and must only initialise once.
+    if (window.__welldunControls) return;
+    window.__welldunControls = true;
+
+    const root = document.documentElement;
+    const THEME = "welldun:theme";
+    const RAIL = "welldun:rail";
+
+    const systemDark = () =>
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    const currentTheme = () =>
+      root.dataset.theme ?? (systemDark() ? "dark" : "light");
+
+    const save = (key, value) => {
+      try {
+        localStorage.setItem(key, value);
+      } catch {}
+    };
+
+    /** Re-read from the DOM every time: copies of these buttons appear later. */
+    function sync() {
+      const dark = currentTheme() === "dark";
+      const collapsed = root.dataset.rail === "collapsed";
+      for (const b of document.querySelectorAll("[data-theme-toggle]")) {
+        b.title = dark ? "Switch to light" : "Switch to dark";
+      }
+      for (const b of document.querySelectorAll("[data-rail-toggle]")) {
+        b.title = collapsed ? "Show the sidebar  [" : "Hide the sidebar  [";
+        b.firstElementChild.textContent = collapsed ? "\u27E9" : "\u27E8";
+        b.lastElementChild.textContent = collapsed
+          ? "Show the sidebar"
+          : "Hide the sidebar";
+      }
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", dark ? "#121815" : "#e7e9e1");
+    }
+
+    function setTheme(theme) {
+      root.dataset.theme = theme;
+      save(THEME, theme);
+      sync();
+    }
+
+    function setRail(collapsed) {
+      root.dataset.rail = collapsed ? "collapsed" : "open";
+      save(RAIL, collapsed ? "collapsed" : "open");
+      sync();
+    }
+
+    /*
+     * Delegated, not bound per button. This script runs while the page is still
+     * parsing, so the desktop rail's copy of these buttons does not exist yet —
+     * binding listeners here would silently miss it, and the guard above stops
+     * the second copy of the script from ever catching up.
+     */
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (target.closest("[data-theme-toggle]")) {
+        setTheme(currentTheme() === "dark" ? "light" : "dark");
+      } else if (target.closest("[data-rail-toggle]")) {
+        setRail(root.dataset.rail !== "collapsed");
+      }
+    });
+
+    /**
+     * [ or ] toggles the rail — but not while someone is typing. This page has
+     * a text field for naming characters and a Python editor, and a bracket is
+     * a character both of them need.
+     */
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "[" && event.key !== "]") return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const el = event.target;
+      if (
+        el instanceof HTMLElement &&
+        (el.isContentEditable ||
+          el.closest("input, textarea, select, .cm-editor"))
+      ) {
+        return;
+      }
+      event.preventDefault();
+      setRail(root.dataset.rail !== "collapsed");
+    });
+
+    root.dataset.theme = currentTheme();
+    root.dataset.rail = root.dataset.rail === "collapsed" ? "collapsed" : "open";
+    sync();
+    // Labels for the buttons that had not been parsed yet when this first ran.
+    document.addEventListener("DOMContentLoaded", sync);
+  })();
+</script>

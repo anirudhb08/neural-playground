@@ -9,8 +9,10 @@ type Common = {
 };
 
 function cellRing(isCursor: boolean, seen: boolean) {
-  if (isCursor) return "inset 0 0 0 2px #ed3f72";
-  return seen ? undefined : "inset 0 0 0 999px rgba(231,233,225,0.55)";
+  if (isCursor) return "inset 0 0 0 2px var(--color-riso)";
+  return seen
+    ? undefined
+    : "inset 0 0 0 999px color-mix(in srgb, var(--color-paper) 62%, transparent)";
 }
 
 /** A drawing: how much ink is in each square. */
@@ -39,7 +41,7 @@ export function InkGrid({
           title={onPick ? `square ${i}: ink ${(value / 255).toFixed(4)}` : undefined}
           className={`aspect-square ${onPick ? "cursor-pointer" : ""}`}
           style={{
-            backgroundColor: `color-mix(in srgb, #2e6a5c ${(value / 255) * 100}%, #f2f3ed)`,
+            backgroundColor: `color-mix(in srgb, var(--color-plot) ${(value / 255) * 100}%, var(--color-paper-raised))`,
             boxShadow: cellRing(i === highlight, upTo === null || i < upTo),
           }}
         />
@@ -81,9 +83,9 @@ export function WeightMap({
           title={onPick ? `square ${i}: ${weight.toFixed(4)}` : undefined}
           className={`aspect-square ${onPick ? "cursor-pointer" : ""}`}
           style={{
-            backgroundColor: `color-mix(in srgb, rgb(${
-              weight >= 0 ? "46 106 92" : "237 63 114"
-            }) ${(Math.abs(weight) / (range || 1)) * 100}%, #f2f3ed)`,
+            backgroundColor: `color-mix(in srgb, ${
+              weight >= 0 ? "var(--color-plot)" : "var(--color-riso)"
+            } ${(Math.abs(weight) / (range || 1)) * 100}%, var(--color-paper-raised))`,
             boxShadow: cellRing(i === highlight, upTo === null || i < upTo),
           }}
         />
@@ -98,17 +100,17 @@ export function WeightLegend() {
   return (
     <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
       <li>
-        <span className={swatch} style={{ backgroundColor: "#2e6a5c" }} /> teal —
+        <span className={swatch} style={{ backgroundColor: "var(--color-plot)" }} /> teal —
         ink here counts <strong className="font-semibold">for</strong> this
         character
       </li>
       <li>
-        <span className={swatch} style={{ backgroundColor: "#ed3f72" }} /> pink —
+        <span className={swatch} style={{ backgroundColor: "var(--color-riso)" }} /> pink —
         ink here counts <strong className="font-semibold">against</strong> it
       </li>
       <li>
-        <span className={swatch} style={{ backgroundColor: "#f2f3ed" }} /> white
-        — this square makes no difference
+        <span className={swatch} style={{ backgroundColor: "var(--color-paper-raised)" }} />{" "}
+        blank — this square makes no difference
       </li>
     </ul>
   );

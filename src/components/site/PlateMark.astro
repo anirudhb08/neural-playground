@@ -26,8 +26,8 @@ const peak = plate?.length ? Math.max(...plate.map(Math.abs), 1) : 1;
  */
 const fill = (v: number) => {
   const strength = Math.pow(Math.abs(v) / peak, 1.7) * 100;
-  const hue = v >= 0 ? "46 106 92" : "237 63 114";
-  return `color-mix(in srgb, rgb(${hue}) ${strength.toFixed(1)}%, #f2f3ed)`;
+  const ink = v >= 0 ? "var(--color-plot)" : "var(--color-riso)";
+  return `color-mix(in srgb, ${ink} ${strength.toFixed(1)}%, var(--color-paper-raised))`;
 };
 ---
 

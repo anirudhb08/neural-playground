@@ -3,7 +3,8 @@
 
 @theme {
   /* Riso-print specimen plate: cool oatmeal paper, oxidised plotter teal,
-     fluorescent specimen pink reserved for anything live or capturing. */
+     fluorescent specimen pink reserved for anything live or capturing.
+     Dark is the same press in a darkroom — see the overrides below. */
   --color-paper: #e7e9e1;
   --color-paper-deep: #dadecf;
   --color-paper-raised: #f2f3ed;
@@ -13,6 +14,18 @@
   --color-riso: #ed3f72;
   --color-graphite: #77806f;
 
+  /* The quadrille under everything, and the syntax palette. Both need to
+     change with the theme, so neither can be a literal in a component. */
+  --grid-ink: color-mix(in srgb, #2e6a5c 7%, transparent);
+  --syntax-comment: #77806f;
+  --syntax-keyword: #c22c5e;
+  --syntax-string: #2e6a5c;
+  --syntax-number: #8a6d1f;
+  --syntax-name: #15201b;
+  --syntax-function: #1e4e6e;
+  --syntax-punctuation: #77806f;
+  --gutter-ink: #aab2a4;
+
   --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -21,6 +34,64 @@
      it — no new hues, only the deeper paper the palette already carries. */
   --rail-width: 17rem;
   --toc-width: 13rem;
+}
+
+/*
+ * Dark is not an inversion. The paper goes to the deep green-black the ink was
+ * always mixed from, and the two inks lift just enough to hold their own on it
+ * — a riso plate read in a darkroom rather than a negative of one.
+ *
+ * Declared as overrides of the same tokens, so every utility, every
+ * colour-mix and every chart follows without knowing a theme exists.
+ */
+@layer theme {
+  .dark-tokens,
+  :root[data-theme="dark"] {
+    --color-paper: #121815;
+    --color-paper-deep: #0d1210;
+    --color-paper-raised: #1a221e;
+    --color-ink: #e4e7de;
+    --color-plot: #5fa393;
+    --color-plot-soft: #3f7267;
+    --color-riso: #ff5183;
+    --color-graphite: #8a9389;
+
+    /* The quadrille needs more of itself to register on a dark ground. */
+    --grid-ink: color-mix(in srgb, #5fa393 11%, transparent);
+
+    --syntax-comment: #7c8a80;
+    --syntax-keyword: #ff7aa2;
+    --syntax-string: #7fc0ac;
+    --syntax-number: #d8b45f;
+    --syntax-name: #e4e7de;
+    --syntax-function: #79b8dd;
+    --syntax-punctuation: #8a9389;
+    --gutter-ink: #55605a;
+  }
+
+  /* Before any script runs, and for anyone with JavaScript off. An explicit
+     data-theme="light" still wins, because :not() excludes it. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-paper: #121815;
+      --color-paper-deep: #0d1210;
+      --color-paper-raised: #1a221e;
+      --color-ink: #e4e7de;
+      --color-plot: #5fa393;
+      --color-plot-soft: #3f7267;
+      --color-riso: #ff5183;
+      --color-graphite: #8a9389;
+      --grid-ink: color-mix(in srgb, #5fa393 11%, transparent);
+      --syntax-comment: #7c8a80;
+      --syntax-keyword: #ff7aa2;
+      --syntax-string: #7fc0ac;
+      --syntax-number: #d8b45f;
+      --syntax-name: #e4e7de;
+      --syntax-function: #79b8dd;
+      --syntax-punctuation: #8a9389;
+      --gutter-ink: #55605a;
+    }
+  }
 }
 
 @layer base {
@@ -37,14 +108,15 @@
     background-image:
       repeating-linear-gradient(
         to right,
-        color-mix(in srgb, var(--color-plot) 7%, transparent) 0 1px,
+        var(--grid-ink) 0 1px,
         transparent 1px 24px
       ),
       repeating-linear-gradient(
         to bottom,
-        color-mix(in srgb, var(--color-plot) 7%, transparent) 0 1px,
+        var(--grid-ink) 0 1px,
         transparent 1px 24px
       );
+    color-scheme: light dark;
   }
 
   *:focus-visible {
@@ -245,5 +317,20 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/*
+ * Rail collapse. Deliberately unlayered: these fight Tailwind utilities on the
+ * same elements — .rail-column carries lg:block and .rail-reopen carries hidden
+ * — and an unlayered rule outranks every @layer, whatever the specificity.
+ */
+:root[data-rail="collapsed"] .rail-column {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  :root[data-rail="collapsed"] .rail-reopen {
+    display: flex;
   }
 }

@@ -67,7 +67,7 @@ export function WreckTheRate({
         <path
           d={path}
           fill="none"
-          stroke={crawling ? "#ed3f72" : "#2e6a5c"}
+          style={{ stroke: crawling ? "var(--color-riso)" : "var(--color-plot)" }}
           strokeWidth="2"
           vectorEffect="non-scaling-stroke"
         />

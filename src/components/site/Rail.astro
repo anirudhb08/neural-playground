@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { SITE } from "../../site";
+import Controls from "./Controls.astro";
 
 /**
  * The left rail: every tutorial, with the current one opened to its parts.
@@ -27,12 +28,15 @@ const partsOf = (slug: string) =>
 ---
 
 <nav class="flex flex-col gap-7" aria-label="Tutorials">
-  <a href="/" class="group block no-underline">
-    <span class="font-display text-base font-extrabold tracking-[-0.01em] text-ink"
-      >{SITE.wordmark}</span
-    >
-    <span class="mono-note mt-0.5 block text-graphite">{SITE.tagline}</span>
-  </a>
+  <div class="flex items-start justify-between gap-2">
+    <a href="/" class="group block no-underline">
+      <span class="font-display text-base font-extrabold tracking-[-0.01em] text-ink"
+        >{SITE.wordmark}</span
+      >
+      <span class="mono-note mt-0.5 block text-graphite">{SITE.tagline}</span>
+    </a>
+    <Controls />
+  </div>
 
   <ul class="flex list-none flex-col gap-5 p-0">
     {
