@@ -51,8 +51,13 @@ stage 09 do not work as textbooks promise — a learning rate of ten million
 still trains fine, because cross-entropy on separable data throttles itself.
 The page explains why instead of faking the result.
 
-**Nothing leaves your browser.** Drawings live in `localStorage`. There is no
-account, no server, no analytics.
+**Your drawings never leave your browser.** They live in `localStorage`; there
+is no account and nothing to sign up for in order to read.
+
+The site counts page views through Cloudflare Web Analytics, which is
+cookieless and records no per-visitor identity — so there is nothing to consent
+to and no banner. The optional newsletter form posts straight to an email
+provider; the site keeps no list of its own and stores no addresses.
 
 ## Running it
 

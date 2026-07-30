@@ -4,6 +4,7 @@ import Shell from "../../layouts/Shell.astro";
 import { SITE } from "../../site";
 import { fileDates } from "../../lib/dates";
 import AlsoCovered from "../../components/site/AlsoCovered.astro";
+import Subscribe from "../../components/site/Subscribe.astro";
 
 export async function getStaticPaths() {
   const parts = await getCollection("parts");
@@ -167,6 +168,8 @@ const jsonLd = [
         )
       }
     </nav>
+
+    <Subscribe />
   </article>
 
   <Fragment slot="toc">

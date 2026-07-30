@@ -117,6 +117,20 @@ const image = new URL(`/og/${ogImage ?? "index"}.png`, Astro.site).href;
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="alternate" type="text/markdown" href={`${url.replace(/\/$/, "")}.md`} />
 
+    {/* Cookieless and with no per-visitor identity, so there is nothing to
+        consent to and no banner to show. Deferred, so it costs the first paint
+        nothing. */}
+    {
+      SITE.analyticsToken && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={`{"token": "${SITE.analyticsToken}"}`}
+        />
+      )
+    }
+
     {
       (Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []).map((entity) => (
         <script is:inline type="application/ld+json" set:html={JSON.stringify(entity)} />

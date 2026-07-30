@@ -1,0 +1,103 @@
+---
+import { SITE } from "../../site";
+
+/**
+ * One line at the end of a part, for the reader who just finished one and
+ * would read the next.
+ *
+ * Not a popup, not an overlay, and nothing that interrupts the reading — the
+ * whole site is built on not getting in the way, and an email address is not
+ * worth breaking that for. It sits after the part, where finishing is the
+ * natural moment to ask.
+ *
+ * Posts straight to whichever provider is configured, so the site still keeps
+ * no backend and holds no list of its own. Renders nothing when unconfigured:
+ * a form that quietly drops addresses is worse than no form.
+ */
+const { action, field } = SITE.newsletter;
+---
+
+{
+  action && (
+    <aside class="mt-16 border-t pt-8 hairline">
+      <p class="eyebrow">More of these are coming</p>
+      <p class="body-text measure mt-2">
+        The next tutorials are on training a tiny language model, and on
+        building agents that use tools. Leave an address and I will tell you
+        when they are out.
+      </p>
+
+      <form
+        data-subscribe
+        action={action}
+        method="post"
+        target="_blank"
+        class="mt-5 flex max-w-md flex-wrap gap-2"
+      >
+        <label class="sr-only" for="subscribe-email">
+          Email address
+        </label>
+        <input
+          id="subscribe-email"
+          type="email"
+          name={field}
+          required
+          autocomplete="email"
+          placeholder="you@example.com"
+          class="min-w-0 flex-1 border bg-paper-raised px-3 py-2.5 text-sm text-ink outline-none hairline focus:border-riso"
+        />
+        <button
+          type="submit"
+          class="shrink-0 bg-ink px-5 py-2.5 font-mono text-xs tracking-[0.14em] text-paper uppercase transition-colors hover:bg-plot"
+        >
+          Tell me
+        </button>
+      </form>
+
+      <p data-subscribe-done hidden class="caption mt-3 text-plot">
+        Almost there — open the confirmation link in your inbox and you are on
+        the list.
+      </p>
+
+      <p class="mono-note mt-3 text-graphite">
+        Only new tutorials. No other email, and one click to leave.
+      </p>
+    </aside>
+  )
+}
+
+{
+  action && (
+    <script is:inline>
+      (() => {
+        if (window.__welldunSubscribe) return;
+        window.__welldunSubscribe = true;
+
+        // Progressive enhancement. Without this the form still works — it
+        // posts in a new tab and the provider shows its own confirmation.
+        // With it, the reader never leaves the page they were reading.
+        document.addEventListener("submit", (event) => {
+          const form = event.target;
+          if (!(form instanceof HTMLFormElement)) return;
+          if (!form.matches("[data-subscribe]")) return;
+
+          event.preventDefault();
+          const done = form.parentElement?.querySelector("[data-subscribe-done]");
+
+          // no-cors: the providers do not send CORS headers, so the response
+          // is opaque and cannot be read. Double opt-in is what actually
+          // confirms it, which is why the message points at the inbox rather
+          // than claiming success here.
+          fetch(form.action, {
+            method: "POST",
+            mode: "no-cors",
+            body: new FormData(form),
+          }).finally(() => {
+            form.hidden = true;
+            if (done) done.hidden = false;
+          });
+        });
+      })();
+    </script>
+  )
+}

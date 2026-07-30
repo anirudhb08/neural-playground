@@ -30,6 +30,30 @@ export const SITE = {
   x: "https://x.com/welldunai",
   xHandle: "@welldunai",
   github: "https://github.com/anirudh-valyx/neural-playground",
+
+  /**
+   * Where the subscribe form posts. Any provider that accepts a plain form
+   * POST works — Buttondown, Kit, MailerLite — so this stays a URL rather than
+   * an SDK, and the site keeps no backend and no list of its own.
+   *
+   * Empty means the form is not rendered at all. A form that silently drops
+   * addresses is worse than no form.
+   */
+  newsletter: {
+    action: "",
+    /** The field name the provider expects. Buttondown and Kit both use this. */
+    field: "email",
+  },
+
+  /**
+   * Cloudflare Web Analytics token. Cookieless, no per-visitor identity, so it
+   * needs no consent banner — which is why it is the one that fits a site that
+   * promises to keep out of the reader's way.
+   *
+   * Empty means no script is sent. Pages can also inject this from the
+   * dashboard, in which case leave it empty and let Cloudflare do it.
+   */
+  analyticsToken: "",
 } as const;
 
 /** Everything the site claims as the same author, for `sameAs`. */
