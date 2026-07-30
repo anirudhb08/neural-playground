@@ -5,7 +5,7 @@ import sitemap from "@astrojs/sitemap";
 import tailwind from "@tailwindcss/vite";
 
 export default defineConfig({
-  site: "https://neulearn.welldun.ai",
+  site: "https://learn.welldun.ai",
   integrations: [mdx(), react(), sitemap()],
   vite: { plugins: [tailwind()] },
 });

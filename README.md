@@ -1,6 +1,6 @@
 # Neulearn
 
-**[neulearn.welldun.ai](https://neulearn.welldun.ai)**
+**[learn.welldun.ai](https://learn.welldun.ai)**
 
 A publication of long, interactive tutorials on how machine learning actually
 works. The first is *Neural networks, explained by building one*.

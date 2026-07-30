@@ -59,8 +59,8 @@ Allow: /
 User-agent: Meta-ExternalAgent
 Allow: /
 
-Sitemap: https://neulearn.welldun.ai/sitemap-index.xml
+Sitemap: https://learn.welldun.ai/sitemap-index.xml
 
 # A plain-text index of every tutorial and part, with a one-line
 # summary of each. Append .md to any page URL for clean markdown.
-# https://neulearn.welldun.ai/llms.txt
+# https://learn.welldun.ai/llms.txt
