@@ -17,6 +17,18 @@
 /og/*
   Cache-Control: public, max-age=604800
 
+# Not fingerprinted, and requested on every page load. A day is long enough to
+# stop the revalidation round trip and short enough that regenerating the plate
+# reaches people quickly.
+/favicon.svg
+  Cache-Control: public, max-age=86400
+
+/favicon-32.png
+  Cache-Control: public, max-age=86400
+
+/apple-touch-icon.png
+  Cache-Control: public, max-age=86400
+
 # The markdown twins exist to be read by crawlers and by anyone curious enough
 # to append .md. Without this Cloudflare serves them as a download.
 /*.md

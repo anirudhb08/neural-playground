@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/og.mjs && astro check && astro build",
+    "build": "node scripts/favicon.mjs && node scripts/og.mjs && astro check && astro build",
     "typecheck": "astro check",
     "preview": "astro preview",
     "og": "node scripts/og.mjs",
-    "fonts": "node scripts/fonts.mjs"
+    "fonts": "node scripts/fonts.mjs",
+    "favicon": "node scripts/favicon.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.0.0",

@@ -107,6 +107,13 @@ const image = new URL(`/og/${ogImage ?? "index"}.png`, Astro.site).href;
     <link rel="preload" href="/fonts/InstrumentSans-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/Archivo-800.woff2" as="font" type="font/woff2" crossorigin />
 
+    {/* The plate mark. A trained scorecard is 16x16, which is a favicon's
+        native resolution — one weight, one pixel. The SVG follows the
+        reader's theme where the browser supports it. */}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="alternate" type="text/markdown" href={`${url.replace(/\/$/, "")}.md`} />
 
