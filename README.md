@@ -90,20 +90,19 @@ Cloudflare Pages, static output, no adapter and no server.
 
 ### Configuration
 
-Nothing that varies by deployment is committed. Copy `.env.example` to `.env`
-for local work; on Cloudflare Pages the same names go in **Settings →
-Environment variables**.
+`src/site.ts` holds everything, and a fresh clone builds and deploys with no
+setup. The analytics key and the subscribe endpoint are committed deliberately:
+both are read by the browser, so they appear in the built HTML however they are
+supplied — write-only ingest identifiers rather than credentials, and nothing
+can be read with one. Committing them means a deploy cannot half-succeed with
+the form silently missing.
 
-Every one is `PUBLIC_` by necessity — an analytics key and a form endpoint are
-read by the browser, so they appear in the built HTML whichever way they are
-supplied. They are write-only ingest identifiers rather than credentials, and
-keeping them out of the repository is about not committing configuration, not
-about hiding them. A real secret cannot be `PUBLIC_` and cannot live in a
-static site at all; it needs a server.
+Each can be overridden with a `PUBLIC_` environment variable, which is what a
+preview deployment pointing at a separate project would use. See
+`.env.example`.
 
-Unset values disable their feature cleanly: no form is rendered, no analytics
-script is sent, and the privacy note on the home page says there is no tracking
-rather than describing some that is not running.
+A value that genuinely must stay secret cannot be `PUBLIC_`, and cannot live in
+a static site at all; it needs a server.
 
 `public/_headers` sets caching: fingerprinted assets and fonts immutable for a
 year, social cards for a week, HTML on Cloudflare's default revalidate. Note

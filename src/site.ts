@@ -1,15 +1,17 @@
 /**
  * Who publishes this, in one place.
  *
- * Anything that varies by deployment comes from the environment rather than
- * from here, so the repository can stay public without carrying configuration.
+ * The analytics key and the form endpoint are committed on purpose. Both have
+ * to reach the browser to do anything, so they sit in the built HTML whatever
+ * is done with them — they are write-only ingest identifiers, not credentials,
+ * and nothing can be read with one. Committing them means a fresh clone works
+ * and a deploy cannot half-succeed with the subscribe form silently missing.
  *
- * All of these are PUBLIC_ on purpose: an analytics key and a form endpoint
- * have to reach the browser to do anything, so they end up in the built HTML
- * whatever happens. Keeping them out of the source is about not committing
- * configuration, not about hiding them — they are write-only identifiers, not
- * credentials. Anything that genuinely must stay secret cannot be PUBLIC_ and
- * cannot live in a static site at all; it needs a server.
+ * Each can still be overridden by a PUBLIC_ environment variable, which is
+ * what a preview deployment pointing at a separate project would use.
+ *
+ * A value that genuinely must stay secret cannot be PUBLIC_, and cannot live
+ * in a static site at all; it needs a server.
  *
  * Every canonical, byline and structured-data entity is built from here, so a
  * name or handle is changed once rather than in nine templates.
@@ -50,7 +52,9 @@ export const SITE = {
    * addresses is worse than no form.
    */
   newsletter: {
-    action: import.meta.env.PUBLIC_NEWSLETTER_ACTION ?? "",
+    action:
+      import.meta.env.PUBLIC_NEWSLETTER_ACTION ??
+      "https://app.kit.com/forms/9748100/subscriptions",
     /**
      * The field name the provider expects, which is not the same everywhere:
      * Buttondown and MailerLite take `email`, Kit and EmailOctopus take
@@ -84,7 +88,9 @@ export const SITE = {
    * Empty key means no script is sent at all.
    */
   posthog: {
-    key: import.meta.env.PUBLIC_POSTHOG_KEY ?? "",
+    key:
+      import.meta.env.PUBLIC_POSTHOG_KEY ??
+      "phc_sue9jZjMfAJhyUUkLVKG68uFWDsaaRRuQcAiwBdHUx3Y",
     /** us.i.posthog.com or eu.i.posthog.com — must match the project region,
      * because the wrong one accepts the request and drops the event. */
     host: import.meta.env.PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com",
