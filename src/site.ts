@@ -41,7 +41,12 @@ export const SITE = {
    */
   newsletter: {
     action: "",
-    /** The field name the provider expects. Buttondown and Kit both use this. */
+    /**
+     * The field name the provider expects, which is not the same everywhere:
+     * Buttondown and MailerLite take `email`, Kit and EmailOctopus take
+     * `email_address`. Copy it from the provider's own raw-HTML embed rather
+     * than guessing — a wrong name posts successfully and subscribes nobody.
+     */
     field: "email",
   },
 
