@@ -51,8 +51,17 @@ stage 09 do not work as textbooks promise — a learning rate of ten million
 still trains fine, because cross-entropy on separable data throttles itself.
 The page explains why instead of faking the result.
 
-**Nothing leaves your browser.** Drawings live in `localStorage`. There is no
-account, no server, no analytics.
+**Your drawings never leave your browser.** They live in `localStorage`; there
+is no account and nothing to sign up for in order to read.
+
+Analytics are configured to store nothing: PostHog with memory-only
+persistence, no person profiles, no session replay and no autocapture, so no
+cookie is set and no identifier survives the tab closing. Three events are
+recorded — a page was read, a part was finished, someone subscribed — none of
+them tied to a person. There is nothing to consent to, and so no banner.
+
+The optional newsletter form posts straight to an email provider; the site
+keeps no list of its own and stores no addresses.
 
 ## Running it
 
@@ -78,6 +87,22 @@ Cloudflare Pages, static output, no adapter and no server.
 | Build command | `pnpm build` |
 | Output directory | `dist` |
 | Node version | from `.nvmrc` (20.19.0) |
+
+### Configuration
+
+`src/site.ts` holds everything, and a fresh clone builds and deploys with no
+setup. The analytics key and the subscribe endpoint are committed deliberately:
+both are read by the browser, so they appear in the built HTML however they are
+supplied — write-only ingest identifiers rather than credentials, and nothing
+can be read with one. Committing them means a deploy cannot half-succeed with
+the form silently missing.
+
+Each can be overridden with a `PUBLIC_` environment variable, which is what a
+preview deployment pointing at a separate project would use. See
+`.env.example`.
+
+A value that genuinely must stay secret cannot be `PUBLIC_`, and cannot live in
+a static site at all; it needs a server.
 
 `public/_headers` sets caching: fingerprinted assets and fonts immutable for a
 year, social cards for a week, HTML on Cloudflare's default revalidate. Note

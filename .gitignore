@@ -7,3 +7,6 @@ dist
 # `astro check` and `astro build` both run, so committing it only produces
 # diff noise on every build.
 .astro/
+
+# Local configuration. .env.example documents the shape.
+.env

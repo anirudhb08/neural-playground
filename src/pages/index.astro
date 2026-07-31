@@ -81,7 +81,21 @@ const jsonLd = {
       <p class="body-text measure mt-4">
         Every tutorial here is built the same way: you make something real in
         the first few minutes, and every term is demonstrated before it is
-        named. There is no video, no sign-up, and nothing to install.
+        named. There is no video, nothing to install, and nothing to sign up
+        for in order to read.
+      </p>
+      <p class="body-text measure mt-4">
+        Anything you draw stays in your own browser.{" "}
+        {SITE.posthog.key || SITE.analyticsToken ? (
+          <>
+            Which pages get read is counted, and nothing else: no cookie, no
+            identifier, nothing kept once the tab is closed. There is no record
+            of you to build, which is why there is no banner asking your
+            permission to build one.
+          </>
+        ) : (
+          <>There is no tracking of any kind.</>
+        )}
       </p>
       <p class="body-text measure mt-4">
         They are free, and they stay free. If something here teaches you the

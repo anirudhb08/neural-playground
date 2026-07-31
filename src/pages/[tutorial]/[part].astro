@@ -4,6 +4,7 @@ import Shell from "../../layouts/Shell.astro";
 import { SITE } from "../../site";
 import { fileDates } from "../../lib/dates";
 import AlsoCovered from "../../components/site/AlsoCovered.astro";
+import Subscribe from "../../components/site/Subscribe.astro";
 
 export async function getStaticPaths() {
   const parts = await getCollection("parts");
@@ -100,6 +101,7 @@ const jsonLd = [
   canonical={canonical}
   tutorial={entry.data.tutorial}
   part={slug}
+  order={entry.data.order}
   ogImage={`${entry.data.tutorial}-${slug}`}
   published={dates.published}
   modified={dates.modified}
@@ -167,6 +169,11 @@ const jsonLd = [
         )
       }
     </nav>
+
+    <Subscribe />
+
+    {/* Watched by the analytics finish event. */}
+    <div data-article-end aria-hidden="true" style="height:1px"></div>
   </article>
 
   <Fragment slot="toc">
