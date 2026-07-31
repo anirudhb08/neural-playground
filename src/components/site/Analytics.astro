@@ -43,6 +43,16 @@ const snippet = key
           disable_session_recording: true,
           // 256 clickable cells per figure would drown the useful events.
           autocapture: false,
+          // autocapture:false does not cover these. PostHog's remote config
+          // otherwise pulls three more bundles and starts recording dead
+          // clicks — a form of behaviour capture this site does not claim to
+          // do — plus surveys it will never show and web vitals nobody asked
+          // for. Turned off explicitly so the page stays as light as the rest
+          // of it and the promise stays exactly true.
+          capture_dead_clicks: false,
+          disable_surveys: true,
+          capture_performance: false,
+          advanced_disable_feature_flags: true,
           capture_pageview: false,
           capture_pageleave: true,
         });

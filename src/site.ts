@@ -85,8 +85,9 @@ export const SITE = {
    */
   posthog: {
     key: import.meta.env.PUBLIC_POSTHOG_KEY ?? "",
-    /** eu.i.posthog.com or us.i.posthog.com — whichever the project was made in. */
-    host: import.meta.env.PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com",
+    /** us.i.posthog.com or eu.i.posthog.com — must match the project region,
+     * because the wrong one accepts the request and drops the event. */
+    host: import.meta.env.PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com",
   },
 } as const;
 
