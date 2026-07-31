@@ -40,14 +40,14 @@ export const SITE = {
    * addresses is worse than no form.
    */
   newsletter: {
-    action: "",
+    action: "https://app.kit.com/forms/9748100/subscriptions",
     /**
      * The field name the provider expects, which is not the same everywhere:
      * Buttondown and MailerLite take `email`, Kit and EmailOctopus take
      * `email_address`. Copy it from the provider's own raw-HTML embed rather
      * than guessing — a wrong name posts successfully and subscribes nobody.
      */
-    field: "email",
+    field: "email_address",
   },
 
   /**
