@@ -51,14 +51,33 @@ export const SITE = {
   },
 
   /**
-   * Cloudflare Web Analytics token. Cookieless, no per-visitor identity, so it
-   * needs no consent banner — which is why it is the one that fits a site that
-   * promises to keep out of the reader's way.
+   * Cloudflare Web Analytics token. Counts page views and nothing else.
    *
-   * Empty means no script is sent. Pages can also inject this from the
-   * dashboard, in which case leave it empty and let Cloudflare do it.
+   * Redundant if PostHog is on — pick one rather than paying for two
+   * third-party requests on every page. Empty means no script is sent.
    */
   analyticsToken: "",
+
+  /**
+   * PostHog, deliberately configured so that nothing persists.
+   *
+   * The site promises no cookie and no per-visitor record, and that promise is
+   * worth more than cross-session funnels — so persistence is memory-only,
+   * profiles are never created for anonymous readers, and session replay is
+   * off. Nothing survives the tab closing, which is exactly why no consent
+   * banner is owed.
+   *
+   * Autocapture is off too. It is not a privacy matter: the figures here are
+   * grids of 256 clickable cells, and recording every click would bury the
+   * three events that answer anything under a landslide of noise.
+   *
+   * Empty key means no script is sent at all.
+   */
+  posthog: {
+    key: "",
+    /** eu.i.posthog.com or us.i.posthog.com — whichever the project was made in. */
+    host: "https://eu.i.posthog.com",
+  },
 } as const;
 
 /** Everything the site claims as the same author, for `sameAs`. */

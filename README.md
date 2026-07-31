@@ -54,10 +54,14 @@ The page explains why instead of faking the result.
 **Your drawings never leave your browser.** They live in `localStorage`; there
 is no account and nothing to sign up for in order to read.
 
-The site counts page views through Cloudflare Web Analytics, which is
-cookieless and records no per-visitor identity — so there is nothing to consent
-to and no banner. The optional newsletter form posts straight to an email
-provider; the site keeps no list of its own and stores no addresses.
+Analytics are configured to store nothing: PostHog with memory-only
+persistence, no person profiles, no session replay and no autocapture, so no
+cookie is set and no identifier survives the tab closing. Three events are
+recorded — a page was read, a part was finished, someone subscribed — none of
+them tied to a person. There is nothing to consent to, and so no banner.
+
+The optional newsletter form posts straight to an email provider; the site
+keeps no list of its own and stores no addresses.
 
 ## Running it
 

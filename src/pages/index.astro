@@ -86,11 +86,12 @@ const jsonLd = {
       </p>
       <p class="body-text measure mt-4">
         Anything you draw stays in your own browser.{" "}
-        {SITE.analyticsToken ? (
+        {SITE.posthog.key || SITE.analyticsToken ? (
           <>
-            Page views are counted with Cloudflare Web Analytics, which sets no
-            cookie and records nothing about you individually — which is why
-            there is no banner asking your permission for one.
+            Which pages get read is counted, and nothing else: no cookie, no
+            identifier, nothing kept once the tab is closed. There is no record
+            of you to build, which is why there is no banner asking your
+            permission to build one.
           </>
         ) : (
           <>There is no tracking of any kind.</>

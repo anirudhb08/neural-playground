@@ -101,6 +101,7 @@ const jsonLd = [
   canonical={canonical}
   tutorial={entry.data.tutorial}
   part={slug}
+  order={entry.data.order}
   ogImage={`${entry.data.tutorial}-${slug}`}
   published={dates.published}
   modified={dates.modified}
@@ -170,6 +171,9 @@ const jsonLd = [
     </nav>
 
     <Subscribe />
+
+    {/* Watched by the analytics finish event. */}
+    <div data-article-end aria-hidden="true" style="height:1px"></div>
   </article>
 
   <Fragment slot="toc">

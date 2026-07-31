@@ -2,6 +2,7 @@
 import "../styles/tokens.css";
 import Rail from "../components/site/Rail.astro";
 import { SITE } from "../site";
+import Analytics from "../components/site/Analytics.astro";
 
 /**
  * Every page on the site. Rail on the left, one reading column, an optional
@@ -19,6 +20,8 @@ interface Props {
   tutorial?: string;
   part?: string;
   wide?: boolean;
+  /** Part number, so events can be grouped by how deep into a tutorial it is. */
+  order?: number;
   /** Keeps a page out of the index. Error pages, chiefly. */
   noindex?: boolean;
   /** Path under /og/, without extension. Falls back to the site card. */
@@ -36,6 +39,7 @@ const {
   tutorial,
   part,
   wide = false,
+  order,
   noindex = false,
   ogImage,
   published,
@@ -139,6 +143,8 @@ const image = new URL(`/og/${ogImage ?? "index"}.png`, Astro.site).href;
   </head>
 
   <body class="min-h-screen">
+    <Analytics tutorial={tutorial} part={part} order={order} />
+
     <a
       href="#content"
       class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
