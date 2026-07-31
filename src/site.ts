@@ -1,6 +1,16 @@
 /**
  * Who publishes this, in one place.
  *
+ * Anything that varies by deployment comes from the environment rather than
+ * from here, so the repository can stay public without carrying configuration.
+ *
+ * All of these are PUBLIC_ on purpose: an analytics key and a form endpoint
+ * have to reach the browser to do anything, so they end up in the built HTML
+ * whatever happens. Keeping them out of the source is about not committing
+ * configuration, not about hiding them — they are write-only identifiers, not
+ * credentials. Anything that genuinely must stay secret cannot be PUBLIC_ and
+ * cannot live in a static site at all; it needs a server.
+ *
  * Every canonical, byline and structured-data entity is built from here, so a
  * name or handle is changed once rather than in nine templates.
  */
@@ -40,14 +50,14 @@ export const SITE = {
    * addresses is worse than no form.
    */
   newsletter: {
-    action: "https://app.kit.com/forms/9748100/subscriptions",
+    action: import.meta.env.PUBLIC_NEWSLETTER_ACTION ?? "",
     /**
      * The field name the provider expects, which is not the same everywhere:
      * Buttondown and MailerLite take `email`, Kit and EmailOctopus take
      * `email_address`. Copy it from the provider's own raw-HTML embed rather
      * than guessing — a wrong name posts successfully and subscribes nobody.
      */
-    field: "email_address",
+    field: import.meta.env.PUBLIC_NEWSLETTER_FIELD ?? "email_address",
   },
 
   /**
@@ -56,7 +66,7 @@ export const SITE = {
    * Redundant if PostHog is on — pick one rather than paying for two
    * third-party requests on every page. Empty means no script is sent.
    */
-  analyticsToken: "",
+  analyticsToken: import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN ?? "",
 
   /**
    * PostHog, deliberately configured so that nothing persists.
@@ -74,9 +84,9 @@ export const SITE = {
    * Empty key means no script is sent at all.
    */
   posthog: {
-    key: "",
+    key: import.meta.env.PUBLIC_POSTHOG_KEY ?? "",
     /** eu.i.posthog.com or us.i.posthog.com — whichever the project was made in. */
-    host: "https://eu.i.posthog.com",
+    host: import.meta.env.PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com",
   },
 } as const;
 

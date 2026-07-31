@@ -88,6 +88,23 @@ Cloudflare Pages, static output, no adapter and no server.
 | Output directory | `dist` |
 | Node version | from `.nvmrc` (20.19.0) |
 
+### Configuration
+
+Nothing that varies by deployment is committed. Copy `.env.example` to `.env`
+for local work; on Cloudflare Pages the same names go in **Settings →
+Environment variables**.
+
+Every one is `PUBLIC_` by necessity — an analytics key and a form endpoint are
+read by the browser, so they appear in the built HTML whichever way they are
+supplied. They are write-only ingest identifiers rather than credentials, and
+keeping them out of the repository is about not committing configuration, not
+about hiding them. A real secret cannot be `PUBLIC_` and cannot live in a
+static site at all; it needs a server.
+
+Unset values disable their feature cleanly: no form is rendered, no analytics
+script is sent, and the privacy note on the home page says there is no tracking
+rather than describing some that is not running.
+
 `public/_headers` sets caching: fingerprinted assets and fonts immutable for a
 year, social cards for a week, HTML on Cloudflare's default revalidate. Note
 that Cloudflare *appends* every matching rule rather than letting the most
