@@ -5,6 +5,8 @@ import { SITE } from "../../site";
 import { fileDates } from "../../lib/dates";
 import AlsoCovered from "../../components/site/AlsoCovered.astro";
 import Subscribe from "../../components/site/Subscribe.astro";
+import Byline from "../../components/site/Byline.astro";
+import Share from "../../components/site/Share.astro";
 
 export async function getStaticPaths() {
   const parts = await getCollection("parts");
@@ -124,6 +126,7 @@ const jsonLd = [
         {entry.data.title}
       </h1>
       <p class="lede measure mt-5">{entry.data.blurb}</p>
+      <Byline modified={dates.modified} />
     </header>
 
     <div class="prose mt-12">
@@ -169,6 +172,10 @@ const jsonLd = [
         )
       }
     </nav>
+
+    <div class="mt-16 border-t pt-8 hairline">
+      <Share title={entry.data.searchTitle ?? entry.data.title} url={url} />
+    </div>
 
     <Subscribe />
 

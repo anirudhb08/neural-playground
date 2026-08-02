@@ -1,0 +1,35 @@
+---
+import { SITE } from "../../site";
+
+/**
+ * Who wrote this.
+ *
+ * A reader could finish forty minutes of the tutorial and still not know —
+ * the name was in the structured data, which only crawlers read. Set quietly,
+ * in the plotter annotation voice, because it is a credit and not a pitch.
+ */
+interface Props {
+  /** ISO date, shown as the month it was last touched. */
+  modified?: string;
+}
+const { modified } = Astro.props;
+
+const month = modified
+  ? new Date(modified).toLocaleDateString("en-GB", {
+      month: "long",
+      year: "numeric",
+    })
+  : null;
+---
+
+<p class="mono-note mt-5 flex flex-wrap items-center gap-x-2 text-graphite">
+  <span>Written by</span>
+  <a
+    href={SITE.author.url}
+    rel="author"
+    class="text-plot underline underline-offset-4 hover:text-riso"
+    >{SITE.author.name}</a
+  >
+  {month && <span aria-hidden="true">·</span>}
+  {month && <time datetime={modified}>{month}</time>}
+</p>
