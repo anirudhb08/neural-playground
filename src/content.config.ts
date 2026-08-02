@@ -29,6 +29,13 @@ const tutorials = defineCollection({
      */
     plate: z.array(z.number()).length(256).optional(),
     plateCaption: z.string().optional(),
+    /**
+     * Parts that are intended but not written, listed so a reader can see where
+     * a tutorial is going. Deliberately titles rather than content entries:
+     * they generate no page, so there is nothing thin for a search engine to
+     * index and no url that promises something it cannot deliver.
+     */
+    planned: z.array(z.string()).default([]),
   }),
 });
 

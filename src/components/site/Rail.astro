@@ -75,6 +75,17 @@ const partsOf = (slug: string) =>
                     </a>
                   </li>
                 ))}
+                {t.data.planned.map((title, i) => (
+                  <li
+                    class="mono-note border-l-2 border-transparent py-1.5 pl-3.5 text-graphite/55"
+                    title="Not written yet"
+                  >
+                    <span class="pr-2">
+                      {String(parts.length + i + 1).padStart(2, "0")}
+                    </span>
+                    {title}
+                  </li>
+                ))}
               </ol>
             )}
           </li>

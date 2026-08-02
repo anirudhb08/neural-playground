@@ -1,0 +1,35 @@
+import { BigramTable } from "../BigramTable";
+import { WeightedDie } from "../WeightedDie";
+import { PythonLab } from "../PythonLab";
+import { bigramLab } from "../../labs/bigram";
+
+/**
+ * Figures for the language-model tutorial.
+ *
+ * A registry of its own rather than an addition to the neural network's: that
+ * one imports canvases, grids and a training loop, none of which a page about
+ * counting character pairs should be made to download.
+ *
+ * Nothing here needs the reader to have drawn anything, so there is no guard —
+ * every figure works on first load.
+ */
+type Props = { name: string };
+
+export function GptWidget({ name }: Props) {
+  switch (name) {
+    case "bigram-table":
+      return <BigramTable />;
+    case "weighted-die":
+      return <WeightedDie />;
+    case "bigram-lab":
+      return (
+        <PythonLab
+          steps={bigramLab()}
+          prepare={async () => {}}
+          closing="That is a language model, complete. It has no parameters, learned nothing, and still produces text that is locally plausible and globally nonsense. The next part starts on why."
+        />
+      );
+    default:
+      return null;
+  }
+}

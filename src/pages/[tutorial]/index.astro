@@ -116,6 +116,32 @@ const jsonLd = {
           ))
         }
       </ol>
+
+      {
+        tutorial.data.planned.length > 0 && (
+          <>
+            <h2 class="section-title mt-14">Still to come</h2>
+            <p class="body-text measure mt-3">
+              Written in order, and published as each one is finished. There is
+              no page for these yet — they are listed so you can see where this
+              goes.
+            </p>
+            <ol
+              class="mt-6 flex list-none flex-col p-0"
+              start={parts.length + 1}
+            >
+              {tutorial.data.planned.map((title, i) => (
+                <li class="flex gap-5 border-b py-3.5 hairline last:border-0">
+                  <span class="mono-note w-7 shrink-0 text-graphite/60">
+                    {String(parts.length + i + 1).padStart(2, "0")}
+                  </span>
+                  <span class="text-sm text-graphite">{title}</span>
+                </li>
+              ))}
+            </ol>
+          </>
+        )
+      }
     </section>
 
     <Subscribe />
