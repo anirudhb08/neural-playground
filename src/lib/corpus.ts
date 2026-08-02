@@ -7,6 +7,10 @@
  * rather than being something a reader has to take on trust. The figure states
  * the size on screen, so the smallness is part of the exhibit rather than a
  * weakness of it.
+ *
+ * Edit this text and the figure follows, but the prose does not: the table in
+ * 01-the-problem.mdx quotes counts measured against exactly this corpus. Rerun
+ * followers() over the target sentence and update the table if it changes.
  */
 export const CORPUS = `the cat sat on the mat and watched the rain come down the window in long slow lines. it had been raining since the morning and the garden had gone soft and dark. the cat did not mind the rain so long as it was on the other side of the glass. it liked to watch things move.
 

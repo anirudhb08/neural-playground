@@ -202,7 +202,12 @@
     padding-left: 1rem;
   }
 
-  /* A single sentence the section rests on. */
+  /* A single sentence the section rests on.
+     Must be a <div> in MDX, never a <p>: markdown re-parses the contents of a
+     multi-line HTML block, so the sentence comes back wrapped in its own <p>,
+     and the parser splits <p><p> into an empty element plus loose text. The
+     computed styles still look correct on the empty one, so this fails
+     silently — check textContent, or look at the page. */
   .claim {
     font-family: var(--font-display);
     font-weight: 700;
