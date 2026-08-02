@@ -1,6 +1,6 @@
 ---
 tutorial: tiny-gpt
-order: 1
+order: 2
 title: Counting pairs
 teaches: [language model, distribution, sampling, bigram]
 blurb: >-
@@ -14,9 +14,9 @@ import { GptWidget } from "../../../components/site/GptWidget";
 
 Every language model answers one question, over and over:
 
-<p class="claim mt-7">
+<div class="claim mt-7">
 Given the text so far, what comes next?
-</p>
+</div>
 
 GPT-4 answers it. So does the thing you are about to build, which is a table of
 tallies you could work out on paper. The difference between them is how much of
@@ -51,10 +51,10 @@ After `t`, the text has `h` twice and a space twice. Asked what follows `t`, the
 honest answer is not `h` and not a space — it is **both, equally**. The model's
 job is to report `{h: 0.5, ␣: 0.5}` and stop there.
 
-<p class="claim mt-7">
+<div class="claim mt-7">
 A model outputs a distribution. Choosing one answer from it is a separate act,
 and it happens afterwards.
-</p>
+</div>
 
 That separation is why the same prompt gives different text each time you run
 it. Nothing about the model changed between runs; only the draw did.
@@ -105,9 +105,9 @@ The only thing it knows is *the last character was `t`*. Not that a word is in
 progress, not that `sa` came before, not that it has produced `the` already. One
 character of memory, and everything before it is gone.
 
-<p class="claim mt-7">
+<div class="claim mt-7">
 It is not choosing badly. It is choosing well, with almost nothing to go on.
-</p>
+</div>
 
 That is the shape of the whole problem. Every piece added from here — embeddings,
 context windows, attention, a stack of transformer blocks — is a way of letting

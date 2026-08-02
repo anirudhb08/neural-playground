@@ -1,4 +1,5 @@
 import { BigramTable } from "../BigramTable";
+import { HowMuchContext } from "../HowMuchContext";
 import { WeightedDie } from "../WeightedDie";
 import { PythonLab } from "../PythonLab";
 import { bigramLab } from "../../labs/bigram";
@@ -17,6 +18,8 @@ type Props = { name: string };
 
 export function GptWidget({ name }: Props) {
   switch (name) {
+    case "how-much-context":
+      return <HowMuchContext />;
     case "bigram-table":
       return <BigramTable />;
     case "weighted-die":
