@@ -1,0 +1,44 @@
+---
+import { SITE } from "../../site";
+
+/**
+ * Offered at the foot, where someone has just finished and might feel like
+ * saying so. Not a floating bar, not a hover rail — the same rule the rest of
+ * the site follows about not interrupting the reading.
+ *
+ * The text is the part's search title rather than its headline, because
+ * "Learning" means nothing out of context and "Gradient descent explained
+ * without calculus" is the reason someone would click.
+ */
+interface Props {
+  title: string;
+  url: string;
+}
+const { title, url } = Astro.props;
+
+// utm_source so the analytics can tell a click from X apart from a search
+// result — the whole point of posting is knowing whether it worked.
+const shared = `${url}?utm_source=x&utm_medium=social`;
+const handle = SITE.xHandle.replace(/^@/, "");
+const intent = `https://x.com/intent/post?text=${encodeURIComponent(title)}&url=${encodeURIComponent(shared)}&via=${handle}`;
+---
+
+<a
+  href={intent}
+  target="_blank"
+  rel="noopener"
+  class="mono-note inline-flex items-center gap-2 border px-4 py-2.5 text-graphite no-underline hairline transition-colors hover:border-plot hover:text-plot"
+>
+  <svg
+    viewBox="0 0 24 24"
+    width="12"
+    height="12"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path
+      d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.65l-5.22-6.82-5.96 6.82H1.68l7.73-8.84L1.25 2.25h6.82l4.71 6.23 5.46-6.23Zm-1.16 17.52h1.83L7.08 4.13H5.11l11.97 15.64Z"
+    ></path>
+  </svg>
+  Share this on X
+</a>

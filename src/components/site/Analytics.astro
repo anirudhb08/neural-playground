@@ -58,6 +58,13 @@ const snippet = key
         });
 
         const context = ${JSON.stringify(context)};
+        // Where the reader came from, when a link carried it. Read off the URL
+        // rather than stored, so it stays as impermanent as everything else.
+        const params = new URLSearchParams(location.search);
+        for (const k of ["utm_source", "utm_medium", "utm_campaign"]) {
+          const v = params.get(k);
+          if (v) context[k] = v;
+        }
         posthog.capture("page_viewed", context);
 
         // Deferred until the document is parsed. This script sits at the top
