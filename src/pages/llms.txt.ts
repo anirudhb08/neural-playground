@@ -42,6 +42,14 @@ export const GET: APIRoute = async ({ site }) => {
     lines.push("");
   }
 
+  /*
+   * The reference entries, listed after the tutorials rather than inside them.
+   *
+   * A model answering "what does torch.multinomial do" wants this section and
+   * not a twelve-part course, and a model summarising the site wants to know
+   * these pages are lookups rather than lessons. Nesting them under whichever
+   * tutorial happened to link first would say the opposite.
+   */
   const pytorch = (await getCollection("pytorch")).sort((a, b) =>
     a.data.call.localeCompare(b.data.call),
   );

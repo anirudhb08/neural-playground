@@ -10,6 +10,9 @@ import { SITE } from "../../site";
  * written in advance would be a worse copy of the official docs; this one is
  * only ever the calls a reader has actually just met.
  */
+// Alphabetical, not newest-first. This is a list you arrive at knowing the
+// name you want, so the useful order is the one that lets you stop reading as
+// soon as you have passed where your call would have been.
 const entries = (await getCollection("pytorch")).sort((a, b) =>
   a.data.call.localeCompare(b.data.call),
 );
@@ -17,6 +20,10 @@ const entries = (await getCollection("pytorch")).sort((a, b) =>
 const description =
   "PyTorch calls explained in plain words, each one shown first as the few lines of ordinary Python it replaces, so nothing is taken on trust.";
 
+// CollectionPage with hasPart, so the entries are discoverable from here even
+// before anything links to them individually. Each part repeats its own
+// headline rather than only a url, because that headline is the whole of what
+// a model needs to decide the page is worth fetching.
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
@@ -80,6 +87,9 @@ const jsonLd = {
     </ul>
 
     {
+      /* Reachable: the section is meant to start near-empty and grow one call
+         at a time, so the first state it can be in is no calls at all. A bare
+         heading over a blank page reads as broken rather than as new. */
       entries.length === 0 && (
         <p class="body-text mt-10 text-graphite">Nothing here yet.</p>
       )
