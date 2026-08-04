@@ -37,7 +37,7 @@ print("every row sums to 1:",
   },
   {
     title: "sample from a distribution",
-    lead: "The model reports a distribution; picking one is a separate act. Draw a number in [0, 1), walk the probabilities keeping a running total, and take the first that pushes the total past your draw. That is all torch.multinomial does.",
+    lead: "The model reports a distribution; picking one is a separate act. Draw a number in [0, 1), walk the probabilities keeping a running total, and take the first that pushes the total past your draw. PyTorch spells these six lines torch.multinomial.",
     code: `import random
 random.seed(7)
 

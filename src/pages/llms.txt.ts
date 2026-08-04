@@ -42,6 +42,25 @@ export const GET: APIRoute = async ({ site }) => {
     lines.push("");
   }
 
+  const pytorch = (await getCollection("pytorch")).sort((a, b) =>
+    a.data.call.localeCompare(b.data.call),
+  );
+  if (pytorch.length > 0) {
+    lines.push("## PyTorch, in plain words", "");
+    lines.push(
+      `${base}/pytorch/ — One page per call. Each shows the mechanism first as`,
+      "ordinary Python you can run, then the single line the library replaces it",
+      "with. Grown as the tutorials reach for calls, not written in advance.",
+      "",
+    );
+    for (const e of pytorch) {
+      lines.push(
+        `- [${e.data.call}](${base}/pytorch/${e.id}/): ${e.data.summary.replace(/\s+/g, " ")}`,
+      );
+    }
+    lines.push("");
+  }
+
   return new Response(lines.join("\n"), {
     headers: { "Content-Type": "text/plain; charset=utf-8" },
   });

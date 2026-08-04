@@ -74,8 +74,14 @@ Roll it two hundred times and the observed percentages settle towards the
 model's. They will not match exactly, and that is not a flaw — it is what
 sampling is.
 
-This is exactly what `torch.multinomial` does inside. Worth seeing once as a
-ruler and a random number, before it becomes a function call you trust.
+That ruler is the entire mechanism, and it is worth doing once by hand because
+from here on it is one line of somebody else's code. **PyTorch** is the library
+almost everyone builds these models with, and it has a call named
+`torch.multinomial`: you give it the probabilities, it lays out the ruler,
+drops the pin, and tells you which character it landed on. Same ruler, same
+pin — you just stop writing it out.
+
+<p class="mt-2"><a href="/pytorch/multinomial/">What <code>torch.multinomial</code> does, in plain words →</a></p>
 
 ## What happens when you feed it back in?
 

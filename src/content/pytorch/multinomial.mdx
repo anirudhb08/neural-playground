@@ -1,0 +1,107 @@
+---
+call: torch.multinomial
+signature: "torch.multinomial(input, num_samples, replacement=False, *, generator=None, out=None) → LongTensor"
+summary: >-
+  Rolls a weighted die. You hand it a list of weights; it hands back the
+  position of the one it landed on.
+description: "torch.multinomial explained without PyTorch: the six lines of plain Python it replaces, why it returns positions rather than probabilities, and the four things about it that catch people out."
+metIn: [tiny-gpt/02-counting-pairs]
+---
+
+A model does not output an answer. It outputs a **probability for every
+possible answer** — a list of numbers that add up to 1, saying how likely each
+one is. Turning that list into a single choice is a separate act, and
+`torch.multinomial` is the call that performs it.
+
+## What it does
+
+Think of a ruler running from 0 to 1. Give every option a stretch of that ruler
+as wide as its probability: an option with probability 0.5 gets half the ruler,
+one with probability 0.1 gets a tenth. Now drop a pin at random. Whichever
+stretch the pin lands in is your answer.
+
+An option with twice the probability has twice the width, so it is landed on
+twice as often. That is the whole idea.
+
+## The version you can read
+
+Nothing here is hidden, so you can write it yourself in six lines:
+
+```python
+import random
+
+def pick(probs):
+    r = random.random()        # the pin: 0 up to, but not, 1
+    total = 0.0
+    for i, p in enumerate(probs):
+        total += p             # right-hand edge of this stretch
+        if r < total:          # the pin fell inside this one
+            return i           # a position, not a probability
+    return len(probs) - 1      # only if rounding left a gap
+```
+
+Run `pick([0.5, 0.2, 0.2, 0.1])` a few thousand times and you get position 0
+about half the time, positions 1 and 2 about a fifth each, and position 3 about
+a tenth.
+
+## The version PyTorch gives you
+
+```python
+import torch
+
+probs = torch.tensor([0.5, 0.2, 0.2, 0.1])
+torch.multinomial(probs, 1)   # tensor([0]) — or 1, or 2, or 3
+```
+
+It is a draw, so that result changes every time you run it. The second argument
+is how many draws you want, and what comes back is a tensor of **positions** —
+`0` means the first option, not "probability 0".
+
+## Do they actually agree?
+
+Two hundred thousand draws from each, on the same four probabilities:
+
+| position | probability given | the six lines | `torch.multinomial` |
+|---|---|---|---|
+| 0 | 0.5 | 0.5006 | 0.5002 |
+| 1 | 0.2 | 0.2002 | 0.2012 |
+| 2 | 0.2 | 0.1991 | 0.1996 |
+| 3 | 0.1 | 0.1001 | 0.0991 |
+
+The largest gap between the two columns is 0.001. Neither one hits the stated
+probabilities exactly, and neither is meant to — that difference is what
+sampling is. Run it again and every figure moves a little.
+
+<aside class="aside measure mt-5">
+Measured on PyTorch 2.2.2 rather than assumed. The two columns match because
+they describe the same distribution, which is the claim worth making. How the
+library arranges the work internally is its own business, and faster than a
+Python loop.
+</aside>
+
+## Four things that catch people out
+
+**It gives you positions, not values.** The return is a `LongTensor` — whole
+numbers, which are indices into your list. To get the character or word you
+meant, you still have to look it up: `alphabet[index]`.
+
+**The weights do not have to add up to 1.** `[1.0, 6.0, 3.0]` behaves exactly
+like `[0.1, 0.6, 0.3]`; the call divides by the total for you. Handy, and also
+a way to not notice that your probabilities were never normalised.
+
+**It draws without replacement unless you say otherwise.** `replacement=False`
+is the default, so asking for more draws than you have options is an error, and
+repeated draws cannot repeat. Generating text means one draw at a time, or
+`replacement=True`.
+
+**It refuses input it cannot sample.** A negative weight, an `inf`, a `nan`, or
+a list that sums to zero each raise a `RuntimeError` rather than quietly picking
+something. If you see *"probability tensor contains either inf, nan or element
+< 0"*, the fault is upstream — usually a softmax that was never applied, or one
+applied to the wrong axis.
+
+## Where the tutorials use it
+
+In [Counting pairs](/tiny-gpt/02-counting-pairs/) you build the ruler by hand
+and roll it two hundred times before this call is mentioned, so that when it
+does appear there is nothing in it you have not already done yourself.

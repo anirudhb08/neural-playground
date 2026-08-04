@@ -1,0 +1,88 @@
+---
+import { getCollection } from "astro:content";
+import Shell from "../../layouts/Shell.astro";
+import { SITE } from "../../site";
+
+/**
+ * The index of PyTorch entries.
+ *
+ * Grown one call at a time, as the tutorials reach for them. A glossary
+ * written in advance would be a worse copy of the official docs; this one is
+ * only ever the calls a reader has actually just met.
+ */
+const entries = (await getCollection("pytorch")).sort((a, b) =>
+  a.data.call.localeCompare(b.data.call),
+);
+
+const description =
+  "PyTorch calls explained in plain words, each one shown first as the few lines of ordinary Python it replaces, so nothing is taken on trust.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "PyTorch, in plain words",
+  description,
+  url: new URL("/pytorch/", Astro.site).href,
+  isAccessibleForFree: true,
+  inLanguage: "en",
+  hasPart: entries.map((e) => ({
+    "@type": "TechArticle",
+    name: e.data.call,
+    headline: `${e.data.call} — ${e.data.summary}`,
+    url: new URL(`/pytorch/${e.id}/`, Astro.site).href,
+  })),
+};
+---
+
+<Shell
+  title={`PyTorch, in plain words — ${SITE.name}`}
+  description={description}
+  canonical="/pytorch/"
+  reference
+  jsonLd={jsonLd}
+>
+  <div class="pb-24">
+    <header class="border-b pt-10 pb-8 hairline">
+      <p class="plate-no">Reference</p>
+      <h1
+        class="mt-2 font-display text-3xl leading-[1.12] font-extrabold tracking-[-0.02em] sm:text-4xl"
+      >
+        PyTorch, in plain words
+      </h1>
+      <p class="lede measure mt-5">
+        One page per call, written the way the tutorials are: the mechanism
+        first, in ordinary Python you can run, and only then the one line the
+        library collapses it into.
+      </p>
+    </header>
+
+    <p class="body-text measure mt-8 text-graphite">
+      This list grows as the tutorials reach for things. There is no attempt to
+      cover PyTorch — the official documentation does that, and does it better.
+      What is here is the handful of calls a reader has just watched something
+      do by hand, explained while the mechanism is still fresh.
+    </p>
+
+    <ul class="mt-10 flex list-none flex-col gap-px border-t p-0 hairline">
+      {
+        entries.map((e) => (
+          <li>
+            <a
+              href={`/pytorch/${e.id}/`}
+              class="group flex flex-col gap-1 border-b py-5 no-underline hairline hover:bg-paper-raised"
+            >
+              <code class="w-fit text-sm group-hover:text-plot">{e.data.call}</code>
+              <span class="caption measure text-graphite">{e.data.summary}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    {
+      entries.length === 0 && (
+        <p class="body-text mt-10 text-graphite">Nothing here yet.</p>
+      )
+    }
+  </div>
+</Shell>

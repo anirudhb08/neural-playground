@@ -64,4 +64,36 @@ const parts = defineCollection({
   }),
 });
 
-export const collections = { tutorials, parts };
+/**
+ * Plain-language entries for the PyTorch calls the tutorials reach for.
+ *
+ * Torch cannot run in this browser — Pyodide gives CPython and NumPy and stops
+ * there — so an entry here can never demonstrate the call itself. It would only
+ * be able to assert, which is the one thing this site does not do. So every
+ * entry owes the reader the mechanism written out in plain Python they can run,
+ * and then the one line the library collapses it into. Naming a call is not an
+ * entry; showing what it replaces is.
+ *
+ * Unordered on purpose. These are looked up when a tutorial sends you here, not
+ * read front to back, so there is no `order` and no next/previous.
+ */
+const pytorch = defineCollection({
+  loader: glob({ pattern: "*.mdx", base: "./src/content/pytorch" }),
+  schema: z.object({
+    /** Exactly as it is written in code. This is the page's h1. */
+    call: z.string(),
+    /** The full signature, so the page answers "what are the arguments?". */
+    signature: z.string(),
+    /** One line, in words a reader who has never used it would use. */
+    summary: z.string(),
+    /** Meta description, when the summary is too short for a snippet. */
+    description: z.string().optional(),
+    /**
+     * Where the tutorials use it, as `tutorial/part` ids. Data rather than
+     * prose, so a new mention cannot silently fail to be listed here.
+     */
+    metIn: z.array(z.string()).default([]),
+  }),
+});
+
+export const collections = { tutorials, parts, pytorch };
