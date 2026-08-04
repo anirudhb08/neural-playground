@@ -37,11 +37,14 @@ A model that writes essays is running the same loop as your phone's keyboard:
 predict the next symbol, append it, predict again. Nothing else is happening.
 
 What separates them is how far back they can look, and how well they judge which
-of the things they can see actually matters.
+of the things they can see actually matters. The second of those is bought with
+**parameters** — the individual numbers inside a model that get adjusted while
+it learns. They are the whole of what a model knows, and counting them is the
+usual way of saying how big one is.
 
 | | how far back it sees | parameters |
 |---|---|---|
-| The bigram in part 02 | 1 character | none at all |
+| The counting model in part 02 | 1 character | none at all |
 | The model this tutorial builds | tens of characters | tens of thousands |
 | GPT-2, 2019 | 1,024 tokens | 124 million |
 | GPT-3, 2020 | 2,048 tokens | 175 billion |
@@ -64,28 +67,33 @@ of memory, and every part after adds a way of using more of what came before.
 Not an essay-writer. Being straight about that matters, because the gap between
 this and GPT-4 is real and no amount of enthusiasm closes it.
 
-But a character-level model trained on a few megabytes of text — the size you
-can train on a laptop in minutes — genuinely does the following, and people have
-built all of them:
+The model this tutorial builds works one character at a time. Nobody tells it
+what a word is, or a sentence — it sees letters and spaces and punctuation, and
+nothing else. Show it a few megabytes of text, a few novels' worth, and
+leave it running on a laptop for a few minutes. People have built all of the
+following that way:
 
-- **Text in the style of a corpus** — a corpus being just the body of text a
-  model learns from. Train on Shakespeare and it produces plausible-looking
-  pentameter with invented words. The classic demonstration, and still a good
-  one.
-- **Names.** Baby names, band names, place names, fantasy species. Anything
-  where the goal is *plausible and new* rather than correct, and a short model
-  with no memory of the wider world is exactly right for it.
-- **Music**, written as text. ABC notation is a sequence of symbols with strong
-  local structure, which is precisely what these models capture well.
-- **Molecules.** SMILES strings are text, and small sequence models are used to
-  propose candidate structures.
-- **Code in a narrow syntax** — configuration files, regular expressions, a
-  domain-specific language with few keywords.
+- **Writing in the style of whatever it was shown.** Give it Shakespeare and it
+  returns lines with the rhythm of Shakespeare, spoken by characters who never
+  existed, using words that do not exist either.
+- **Names** — for babies, bands, towns, invented species. What you want here is
+  *plausible and new* rather than correct, which is exactly what a model that
+  knows nothing about the world is good at.
+- **Music.** Tunes can be written down as ordinary text. In a format called ABC
+  notation a letter stands for a note and the punctuation marks the rhythm, so a
+  whole folk tune fits on one line of typing. Predicting the next character in
+  that line is composing.
+- **Molecules.** Chemists write structures as text too. In a format called
+  SMILES, ethanol is `CCO` — each letter an atom, the punctuation saying how
+  they connect — so a model that predicts characters can propose compounds.
+- **Small, strict languages.** Configuration files, or any language built from a
+  handful of keywords and rigid punctuation.
 
-The pattern is that anything expressible as a sequence of symbols with local
-regularities is fair game. The model does not know it is producing music or
-chemistry; it is predicting the next character, which is the only thing it ever
-does.
+What all of these share is that the next symbol is mostly settled by the few
+symbols just before it. That is the kind of pattern a small model picks up,
+which is why the list runs past text. The model has no idea whether it is
+producing music or chemistry. It is predicting the next character, which is the
+only thing it ever does.
 
 <div class="claim mt-8">
 The task never changes. Only how much you can see, and how well you weigh it.
