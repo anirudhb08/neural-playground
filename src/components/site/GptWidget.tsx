@@ -1,7 +1,9 @@
 import { BigramTable } from "../BigramTable";
+import { Tokenizer } from "../Tokenizer";
 import { WeightedDie } from "../WeightedDie";
 import { PythonLab } from "../PythonLab";
 import { bigramLab } from "../../labs/bigram";
+import { tokenizerLab } from "../../labs/tokenizer";
 
 /**
  * Figures for the language-model tutorial.
@@ -23,6 +25,8 @@ export function GptWidget({ name }: Props) {
   switch (name) {
     case "bigram-table":
       return <BigramTable />;
+    case "tokenizer":
+      return <Tokenizer />;
     case "weighted-die":
       return <WeightedDie />;
     case "bigram-lab":
@@ -31,6 +35,14 @@ export function GptWidget({ name }: Props) {
           steps={bigramLab()}
           prepare={async () => {}}
           closing="That is a language model, complete. It has no parameters, learned nothing, and still produces text that is locally plausible and globally nonsense. The next part starts on why."
+        />
+      );
+    case "tokenizer-lab":
+      return (
+        <PythonLab
+          steps={tokenizerLab()}
+          prepare={async () => {}}
+          closing="Two dicts and a round-trip check. Everything from here reads the integers rather than the text, and the only thing standing between the model and gibberish is that these two tables keep agreeing."
         />
       );
     default:

@@ -13,13 +13,21 @@ type Props = {
   prepare: () => Promise<void>;
   /** Shown once every step has run at least once. */
   closing?: string;
+  /**
+   * Named only when the cells actually reach for something past the standard
+   * library. The bigram and tokenizer labs are plain Python, and claiming
+   * NumPy there would have a reader hunting for an import that is not in the
+   * cell — on a site whose whole promise is that the code on screen is the
+   * code that ran.
+   */
+  library?: string;
 };
 
 /**
  * A short notebook: each cell explains one idea, runs real Python, and only
  * reveals the next once it has worked.
  */
-export function PythonLab({ steps, prepare, closing }: Props) {
+export function PythonLab({ steps, prepare, closing, library }: Props) {
   const [unlocked, setUnlocked] = useState(0);
   // One counter across every cell, so re-running a cell bumps its number the
   // way it would in a notebook.
@@ -29,11 +37,12 @@ export function PythonLab({ steps, prepare, closing }: Props) {
   return (
     <div className="flex flex-col gap-8">
       <p className="aside">
-        This is real Python with NumPy, running inside this page — there is no
-        server. Change anything you like and run it again. Python remembers its
-        variables between cells, so each one builds on the one above. Its bridge
-        back into the browser is switched off, so nothing you run here can reach
-        the network or your saved drawings.
+        This is real Python{library ? ` with ${library}` : ""}, running inside
+        this page — there is no server. Change anything you like and run it
+        again. Python remembers its variables between cells, so each one builds
+        on the one above. Its bridge back into the browser is switched off, so
+        nothing you run here can reach the network or anything this site has
+        stored.
       </p>
 
       {steps.map((step, i) =>

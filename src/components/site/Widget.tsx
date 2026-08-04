@@ -297,6 +297,7 @@ export function Widget({ name, rate = 0.5 }: Props) {
         <PythonLab
           steps={howWrongLab}
           prepare={prepare}
+          library="NumPy"
           closing="You now have a number that says how wrong the network is. Next: how that one number tells every single weight which way to move."
         />
       );
@@ -305,6 +306,7 @@ export function Widget({ name, rate = 0.5 }: Props) {
         <PythonLab
           steps={learningLab(classes)}
           prepare={prepare}
+          library="NumPy"
           closing="That loop is the whole of it. Next: draw something it has never seen, and find out whether any of this worked."
         />
       );
@@ -313,6 +315,7 @@ export function Widget({ name, rate = 0.5 }: Props) {
         <PythonLab
           steps={moreLayersLab(classes)}
           prepare={prepare}
+          library="NumPy"
           closing="You have now written backpropagation. Every deep network ever trained is that same handing-back, repeated once per layer."
         />
       );
