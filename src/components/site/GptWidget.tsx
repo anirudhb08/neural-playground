@@ -1,5 +1,4 @@
 import { BigramTable } from "../BigramTable";
-import { HowMuchContext } from "../HowMuchContext";
 import { WeightedDie } from "../WeightedDie";
 import { PythonLab } from "../PythonLab";
 import { bigramLab } from "../../labs/bigram";
@@ -13,13 +12,15 @@ import { bigramLab } from "../../labs/bigram";
  *
  * Nothing here needs the reader to have drawn anything, so there is no guard —
  * every figure works on first load.
+ *
+ * HowMuchContext is deliberately absent: it is written and working but not yet
+ * placed on a page, and registering it here would ship it to every page that
+ * uses any figure at all. Add a case back when a part needs it.
  */
 type Props = { name: string };
 
 export function GptWidget({ name }: Props) {
   switch (name) {
-    case "how-much-context":
-      return <HowMuchContext />;
     case "bigram-table":
       return <BigramTable />;
     case "weighted-die":

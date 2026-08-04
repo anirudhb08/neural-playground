@@ -10,6 +10,11 @@ const show = (c: string) => (c === " " ? "␣" : c === "\n" ? "⏎" : c);
 /**
  * How much of the text before a character do you need in order to guess it?
  *
+ * Not currently on any page, and not registered in GptWidget for that reason.
+ * Part one states the problem and stops there; this argues against one
+ * particular answer to it, which belongs beside the model that gives that
+ * answer — the bigram — rather than before the reader has met one.
+ *
  * Measured against the corpus rather than asserted: for each length of context,
  * how many distinct characters actually followed that exact run of text, and
  * how often the run occurred at all.

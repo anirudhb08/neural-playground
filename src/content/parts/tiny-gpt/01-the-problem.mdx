@@ -2,19 +2,18 @@
 tutorial: tiny-gpt
 order: 1
 title: The problem
-teaches: [next-token prediction, context, generalisation]
+teaches: [next-token prediction, autoregressive generation, model scale]
 blurb: >-
-  Predicting the next character sounds trivial and is not. Why looking things up
-  fails, why rules fail, and what the same task looks like at every scale.
+  Every language model does one thing: guess the next symbol, then do it again.
+  What the task is, how far the big models take it, and what a small one is
+  genuinely good for.
 searchTitle: "How language models work: predicting the next character"
-description: "Every language model does one thing — guess what comes next. Why a lookup table runs out of data almost immediately, and why that failure is the reason neural networks exist."
+description: "Every language model does one thing — predict the next symbol, append it, and predict again. What that task is, how it scales from a phone keyboard to GPT-3, and what you can build with a small one."
 ---
 
-import { GptWidget } from "../../../components/site/GptWidget";
-
 Start typing a message on your phone and a few suggested words appear above the
-keyboard, offering to finish the sentence for you. Type into a search box and it
-completes the query before you have. Ask ChatGPT anything and it writes back.
+keyboard. Type into a search box and it completes the query before you have.
+Ask ChatGPT anything and it writes back.
 
 Those three feel like different sizes of thing. They are the same thing, and it
 is smaller than it looks:
@@ -27,79 +26,9 @@ That is the entire task. Not "understand this sentence", not "answer this
 question" — just *what is the next symbol likely to be*, asked over and over,
 each answer becoming part of the text for the next question.
 
-It sounds trivial. It is worth ten minutes finding out why it isn't.
-
-## Why not just look it up?
-
-The obvious approach: keep every stretch of text you have ever seen, and when
-you need to predict, find the same stretch and see what followed.
-
-Below is that idea, measured. The slider controls how much of the sentence the
-model is allowed to see. For each amount, it reports how many distinct
-characters followed that exact run of text anywhere in a small body of text —
-a **corpus**, which is just the word for the text a model learns from — and,
-more importantly, how many times that run occurred at all.
-
-<div class="mt-7"><GptWidget name="how-much-context" client:only="react" /></div>
-
-Drag it and watch both numbers at once. The corpus is 1,552 characters — four
-paragraphs — and the whole story is over in six:
-
-| context | occurs | distinct characters seen after it |
-|---|---|---|
-| 1 character | 295 times | 21 |
-| 2 characters | 32 times | 12 |
-| 3 characters | 5 times | 4 |
-| 4 characters | 3 times | 2 |
-| 6 characters | **once** | — |
-
-The narrowing is real: twenty-one plausible next characters become four. That
-is the argument for looking further back, and it works.
-
-But read the middle column while you do. The same characters that narrowed the
-answer from twenty-one to four also cut the evidence from 295 examples to five.
-By six characters there is one match left, and that one match is the sentence we
-were trying to predict — it is the answer key, not evidence. For a sentence the
-corpus has never seen, the count at six characters is zero.
-
-<div class="claim mt-7">
-Longer context makes prediction easier and evidence rarer, and the second effect
-wins long before the first pays off.
-</div>
-
-These are not two stages. Every character that helps also costs, in the same
-step, and the cost compounds faster than the help.
-
-Nor is this an artefact of a small corpus. Scale it up and the wall moves a few
-characters further out — it does not go away. There are more possible
-twenty-character passages than have ever been written down, by an enormous
-margin, so almost every context a model meets in real use is one it has never
-seen exactly.
-
-## Why not write rules instead?
-
-The other obvious approach. Encode what you know about English — `q` is followed
-by `u`, sentences end with a full stop, adjectives come before nouns — and
-predict from that.
-
-This fails in a way worth naming precisely, because it is the same way it failed
-for handwriting in the [other tutorial here](/neural-networks/01-the-problem/).
-You can read the sentence *the cat sat on the* and know that `mat` is more
-likely than `mathematics`, but you cannot write down the rule you used. It
-involves knowing what cats do, what sentences of that shape usually mean, and
-what sounds right. Rules capture the parts of language that are mechanical, and
-those are the parts that were never the difficulty.
-
-## So what is left?
-
-Neither remembering nor rules. What remains is to build something that has seen
-a great deal of text and has extracted from it a *general* sense of what follows
-what — one that can produce a sensible answer for a passage it has never
-encountered, because it is not looking anything up.
-
-That is what the rest of this tutorial builds, one piece at a time. Each piece
-exists because the version without it fails in a specific way, and you will
-watch each failure before the fix arrives.
+It sounds trivial. The difficulty is that the answer can depend on anything:
+the letter just typed, the word before it, or something written a paragraph
+ago — and nothing announces in advance which one matters this time.
 
 ## Is this really what the big models do?
 
@@ -139,9 +68,10 @@ But a character-level model trained on a few megabytes of text — the size you
 can train on a laptop in minutes — genuinely does the following, and people have
 built all of them:
 
-- **Text in the style of a corpus.** Train on Shakespeare and it produces
-  plausible-looking pentameter with invented words. The classic demonstration,
-  and still a good one.
+- **Text in the style of a corpus** — a corpus being just the body of text a
+  model learns from. Train on Shakespeare and it produces plausible-looking
+  pentameter with invented words. The classic demonstration, and still a good
+  one.
 - **Names.** Baby names, band names, place names, fantasy species. Anything
   where the goal is *plausible and new* rather than correct, and a short model
   with no memory of the wider world is exactly right for it.
