@@ -18,18 +18,34 @@ server is small enough to read before trusting it — which you should, because
 it does exactly what it looks like it does: executes code that a web page sends
 it, as you, on your machine.
 
-Security, stated plainly rather than buried:
+There are two ways to run it, and they have genuinely different risks. Both are
+stated plainly here rather than buried, because this is a program that executes
+code a web page sends it.
+
+Locally (the default):
 
   * It binds to 127.0.0.1 and nothing else, so nobody on your network can
     reach it. Only programs on this machine can.
-  * Every request must carry a token that is generated fresh at startup and
-    printed once. Without this, any website you visited while the runner was
-    running could execute code on your machine — the browser will happily send
-    a cross-origin POST to localhost, and the runner cannot tell which page it
-    came from. The token is the whole of the authorisation.
-  * It executes arbitrary Python with your privileges. That is the point, and
-    it is also why you should stop it when you are done rather than leaving it
-    running.
+  * A token is generated fresh at startup and printed once. Without it, any
+    website open in your browser could execute code on your machine — the
+    browser will happily send a cross-origin POST to localhost, and the runner
+    cannot tell which page it came from. The token is the whole of the
+    authorisation, not a formality.
+  * It runs Python with your privileges, on your files. Stop it when you are
+    done rather than leaving it running.
+
+Deployed to a host such as Railway (set PORT, or pass --host):
+
+  * It must bind 0.0.0.0 to be reachable, which puts an arbitrary-code-execution
+    endpoint on the public internet. It will refuse to start that way unless
+    WELLDUN_TOKEN is set, because a printed random token is no use when nobody
+    is watching the logs, and no token at all would be an open shell.
+  * The worst case is different from the local one. A stranger cannot read your
+    files — but they can run whatever they like on your bill, and mining or
+    reselling compute is exactly what Railway's fair-use policy prohibits. A
+    leaked token is your account's problem.
+  * Pick a long token, keep it out of screenshots, and delete the service when
+    you have finished the tutorial.
 """
 
 from __future__ import annotations
@@ -39,6 +55,7 @@ import contextlib
 import http.server
 import io
 import json
+import os
 import secrets
 import sys
 import traceback
@@ -48,7 +65,10 @@ import traceback
 # reset between requests; "Restart" in the page is a restart of this process.
 SESSION: dict[str, object] = {}
 
-TOKEN = secrets.token_urlsafe(24)
+# Set your own when deploying: a generated one is printed to stdout, which is
+# fine in a terminal you are looking at and useless in a platform's log viewer
+# — and it would change on every redeploy, invalidating the URL you pasted.
+TOKEN = os.environ.get("WELLDUN_TOKEN") or secrets.token_urlsafe(24)
 
 # Bodies larger than this are refused unread. A tutorial cell is a few hundred
 # bytes; anything at this size is not one.
@@ -177,24 +197,54 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--port", type=int, default=8731)
+    # A platform that assigns a port is a platform that expects a public bind,
+    # so PORT being present is what switches the defaults over. Railway, Fly
+    # and Render all set it; nothing sets it on a laptop.
+    hosted = "PORT" in os.environ
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", 8731)))
+    parser.add_argument(
+        "--host",
+        default="0.0.0.0" if hosted else "127.0.0.1",  # noqa: S104 — see the guard below
+        help="127.0.0.1 keeps it on this machine. Anything else is public.",
+    )
     args = parser.parse_args()
 
-    # 127.0.0.1, never 0.0.0.0. Binding to all interfaces would put an
-    # arbitrary-code-execution endpoint on whatever café wifi you are on.
-    server = http.server.ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
+    public = args.host not in ("127.0.0.1", "::1", "localhost")
+
+    # Refusing here rather than warning. A public endpoint that executes
+    # arbitrary Python, guarded by a random token nobody read out of the logs,
+    # is an open shell with extra steps — and on a hosted platform it is an
+    # open shell someone else is paying for.
+    if public and not os.environ.get("WELLDUN_TOKEN"):
+        sys.exit(
+            "\n  Refusing to start.\n\n"
+            f"  Binding to {args.host} puts an endpoint that runs arbitrary Python\n"
+            "  on the public internet, so the token cannot be one this process\n"
+            "  invented and printed — set your own:\n\n"
+            "    WELLDUN_TOKEN=<a long random string>\n\n"
+            "  On Railway that is a service variable. Locally, leave --host alone\n"
+            "  and this does not apply.\n"
+        )
+
+    server = http.server.ThreadingHTTPServer((args.host, args.port), Handler)
 
     env = describe_environment()
-    url = f"http://127.0.0.1:{args.port}?token={TOKEN}"
     print("\n  welldun-runner is listening.\n")
     print(f"  Python  {env['python']}")
     if env["torch"]:
         print(f"  PyTorch {env['torch']} on {env['device']}")
     else:
         print("  PyTorch not found — install it with:  pip install torch")
-    print("\n  Paste this into the tutorial page:\n")
-    print(f"    {url}\n")
-    print("  It runs code this page sends, as you. Stop it with Ctrl-C when done.\n")
+
+    if public:
+        print(f"\n  Bound to {args.host}:{args.port} — reachable from the internet.")
+        print("  Connect with your service's public URL plus ?token=<your token>")
+        print("\n  Delete the service when you have finished. Anyone with the token")
+        print("  can run anything on it, on your bill.\n")
+    else:
+        print("\n  Paste this into the tutorial page:\n")
+        print(f"    http://127.0.0.1:{args.port}?token={TOKEN}\n")
+        print("  It runs code this page sends, as you. Stop it with Ctrl-C when done.\n")
 
     try:
         server.serve_forever()

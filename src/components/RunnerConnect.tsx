@@ -34,6 +34,8 @@ export function RunnerConnect({ connection, onChange }: Props) {
   const [env, setEnv] = useState<RunnerEnvironment | null>(null);
   const [open, setOpen] = useState(false);
   const [safari, setSafari] = useState(false);
+  /** Hostname awaiting a yes, when it is not this machine. */
+  const [confirming, setConfirming] = useState<string | null>(null);
 
   // navigator is read in an effect rather than at module scope, because this
   // module is evaluated during the build where no such object exists.
@@ -53,17 +55,26 @@ export function RunnerConnect({ connection, onChange }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function connect() {
-    const parsed = parseConnectUrl(url);
-    if (!parsed.ok) return setProblem(parsed.reason);
+  async function connect(confirmedRemote = false) {
+    const result = parseConnectUrl(url);
+    if (!result.ok) return setProblem(result.reason);
+
+    // A remote host gets one question first, naming it. The reader pasted the
+    // URL, but pasting is not consent when the line may have been handed to
+    // them — and the thing on the other end runs whatever this page sends.
+    if (result.parsed.remote && !confirmedRemote) {
+      setProblem(null);
+      return setConfirming(new URL(result.parsed.connection.origin).hostname);
+    }
+    setConfirming(null);
 
     setBusy(true);
     setProblem(null);
     try {
-      const info = await checkRunner(parsed.connection);
-      rememberConnection(parsed.connection);
+      const info = await checkRunner(result.parsed.connection);
+      rememberConnection(result.parsed.connection);
       setEnv(info);
-      onChange(parsed.connection, info);
+      onChange(result.parsed.connection, info);
       setUrl("");
     } catch (error) {
       // A refused fetch and a wrong token look identical from here unless we
@@ -144,6 +155,15 @@ python welldun_runner.py`}</code>
             The token is what stops any other site you have open from reaching
             the runner, so it is new every time the runner starts.
           </p>
+          <p className="caption mt-2 max-w-[34rem]">
+            <a href="/pytorch/run-it/" className="underline underline-offset-4">
+              Can’t install Python where you are? →
+            </a>{" "}
+            <span className="text-graphite">
+              deploying one costs about $5 a month and works from anything,
+              including Safari.
+            </span>
+          </p>
         </div>
       )}
 
@@ -161,6 +181,7 @@ python welldun_runner.py`}</code>
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && connect()}
+          onFocus={() => setConfirming(null)}
           placeholder="http://127.0.0.1:8731?token=…"
           spellCheck={false}
           className="min-w-0 flex-1 border bg-paper px-3 py-2 font-mono text-xs hairline focus:outline-none"
@@ -168,13 +189,39 @@ python welldun_runner.py`}</code>
         />
         <button
           type="button"
-          onClick={connect}
+          onClick={() => connect()}
           disabled={busy}
           className="border border-plot bg-plot px-4 py-2 font-mono text-[0.6875rem] tracking-[0.14em] text-paper uppercase disabled:opacity-50"
         >
           {busy ? "Checking…" : "Connect"}
         </button>
       </div>
+
+      {confirming && (
+        <div className="mt-3 border-l-2 border-riso pl-3">
+          <p className="caption max-w-[34rem]">
+            <strong>{confirming}</strong> is not this machine. Whatever is
+            running there will receive every cell you run, and can send back
+            anything it likes as the output. Connect only if you deployed it.
+          </p>
+          <div className="mt-2 flex gap-4">
+            <button
+              type="button"
+              onClick={() => connect(true)}
+              className="mono-note text-riso underline underline-offset-4"
+            >
+              yes, it is mine — connect
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirming(null)}
+              className="mono-note text-graphite underline underline-offset-4"
+            >
+              cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {problem && <p className="caption mt-3 max-w-[34rem] text-riso">{problem}</p>}
     </div>

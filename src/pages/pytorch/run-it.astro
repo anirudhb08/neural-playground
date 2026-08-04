@@ -1,0 +1,225 @@
+---
+import Shell from "../../layouts/Shell.astro";
+import { SITE } from "../../site";
+
+/**
+ * The three ways to run the PyTorch snippets, compared honestly.
+ *
+ * This page carries an affiliate link, so it is written to be useful to
+ * somebody who ignores it. The comparison says plainly that running locally is
+ * free and faster, and that nothing in these tutorials is big enough for a GPU
+ * to help — both of which argue against the paid option, and both of which are
+ * measured rather than guessed. A reader who cannot tell whether a
+ * recommendation is bought will not trust the parts that were not, and this
+ * site has nothing else to sell.
+ *
+ * The disclosure renders off SITE.railway.paid, so it appears exactly when the
+ * link actually earns and can never be forgotten.
+ */
+const description =
+  "Three ways to run the PyTorch snippets on this site: in your browser on NumPy, on your own machine, or on a small deployed server if you cannot install Python locally. What each costs, and which is fastest.";
+
+const rows = [
+  {
+    what: "In this page",
+    how: "Already running",
+    cost: "Free",
+    speed: "2.4 ms/step",
+    catch: "NumPy, not PyTorch. This is what every tutorial part uses.",
+  },
+  {
+    what: "Your own machine",
+    how: "pip install torch",
+    cost: "Free",
+    speed: "0.5 ms/step",
+    catch: "Needs Python and about 2 GB of disk. Safari cannot connect to it.",
+  },
+  {
+    what: "A deployed runner",
+    how: "One Dockerfile",
+    cost: "~$5/month",
+    // Not measured, and not guessed at in the table either. It depends on the
+    // container size, and inventing a figure here would be the one thing this
+    // page cannot afford while it also carries a paid link.
+    speed: null,
+    catch: "Works from a Chromebook, an iPad, or a locked-down work laptop.",
+  },
+];
+---
+
+<Shell
+  title={`Running the PyTorch snippets — ${SITE.name}`}
+  description={description}
+  canonical="/pytorch/run-it/"
+  reference
+>
+  <div class="pb-24">
+    <nav class="mono-note flex flex-wrap gap-x-2 pt-10 text-graphite" aria-label="Breadcrumb">
+      <a href="/" class="underline underline-offset-4 hover:text-plot">Tutorials</a>
+      <span aria-hidden="true">/</span>
+      <a href="/pytorch/" class="underline underline-offset-4 hover:text-plot">PyTorch</a>
+    </nav>
+
+    <header class="mt-8 border-b pb-8 hairline">
+      <p class="plate-no">Reference</p>
+      <h1
+        class="mt-2 font-display text-3xl leading-[1.12] font-extrabold tracking-[-0.02em] sm:text-4xl"
+      >
+        Running the PyTorch snippets
+      </h1>
+      <p class="lede measure mt-5">
+        The tutorials need none of this. They run in the browser on NumPy and
+        always will. This is only for the reference pages, where the point is
+        the library itself.
+      </p>
+    </header>
+
+    <div class="prose mt-12">
+      <h2>Which one do you want?</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Where</th>
+            <th>Setup</th>
+            <th>Cost</th>
+            <th>Speed</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rows.map((r) => (
+              <tr>
+                <td>
+                  <strong>{r.what}</strong>
+                  <span class="mt-1 block text-graphite">{r.catch}</span>
+                </td>
+                <td>{r.how}</td>
+                <td>{r.cost}</td>
+                <td>
+                  {r.speed ? <code>{r.speed}</code> : <span class="text-graphite">not measured</span>}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+
+      <p class="mt-6">
+        Those two figures are measured, on one training step of the transformer
+        the later parts build — same code, same size, both places. Your own
+        machine wins, and it is free. If you can install Python, install Python.
+      </p>
+
+      <p>
+        The deployed row says <em>not measured</em> because it is not. It
+        depends on the container you rent, and I am not going to put a number
+        next to the option I am paid to recommend without having run it. Expect
+        somewhere between the other two: native PyTorch, on a CPU that is
+        probably slower than your laptop's.
+      </p>
+
+      <h2>Do you need a GPU?</h2>
+
+      <p>
+        No, and paying for one here would be worse than not. The model in these
+        tutorials has a few thousand parameters. Moving numbers to a graphics
+        card and back costs more time than arithmetic at that size saves, so a
+        GPU is slower for this and bills by the hour for the privilege.
+      </p>
+
+      <p>
+        That changes the moment you train on real text at real width, which is
+        past where this tutorial stops. Until then, a $5 CPU container is the
+        whole of what is worth renting.
+      </p>
+
+      <h2>Running it on your own machine</h2>
+
+      <p>Two commands, and nothing leaves your laptop.</p>
+
+      <pre><code>{`curl -O https://learn.welldun.ai/runner/welldun_runner.py
+pip install torch
+python welldun_runner.py`}</code></pre>
+
+      <p>
+        It prints a URL with a token. Paste that into any reference page and the
+        Run buttons come alive. The runner binds to <code>127.0.0.1</code>, so
+        nothing outside your machine can reach it.
+      </p>
+
+      <aside class="aside measure mt-5">
+        Safari will not connect to a local runner. It blocks an https page from
+        reaching <code>http://localhost</code> and, unlike Chrome and Firefox,
+        makes no exception for your own machine. There is no fix worth the
+        trouble on your side — use Chrome or Firefox for this, or deploy a
+        runner instead, which is https and works everywhere.
+      </aside>
+
+      <h2>Deploying one instead</h2>
+
+      <p>
+        Worth it if you cannot install Python where you are reading — a work
+        machine you do not control, a Chromebook, an iPad — or if you would
+        rather not install PyTorch at all. It is also the only option that
+        works in Safari.
+      </p>
+
+      <p>
+        <a href={SITE.railway.url} rel="noopener">Railway</a> builds the
+        Dockerfile in <code>public/runner/</code> straight from a fork of this
+        repository. New Project → Deploy from GitHub repo → set the root
+        directory to <code>public/runner</code>, then add one service variable
+        before the first deploy:
+      </p>
+
+      <pre><code>{`WELLDUN_TOKEN=<a long random string of your own>`}</code></pre>
+
+      <p>
+        The runner refuses to start on a public address without it. Connect with
+        your service's URL and <code>?token=</code> plus what you chose.
+      </p>
+
+      {
+        SITE.railway.paid && (
+          <p class="claim mt-7 !border-graphite !font-sans !text-base !font-normal !tracking-normal">
+            That Railway link is a referral link. If you sign up through it you
+            get $20 of credit and I earn a commission on what you spend for the
+            first year. It costs you nothing extra, and it is the reason to say
+            plainly that the free option above this one is faster.
+          </p>
+        )
+      }
+
+      <h2>What you are agreeing to</h2>
+
+      <p>
+        The runner executes whatever the page sends it. That is the feature, and
+        it is worth reading the file — it is one page of standard library —
+        before you run it.
+      </p>
+
+      <ul>
+        <li>
+          <strong>Locally</strong>, it runs as you, on your files. Stop it when
+          you are done.
+        </li>
+        <li>
+          <strong>Deployed</strong>, it is an endpoint on the public internet
+          that runs arbitrary Python, and the token is the only thing in front of
+          it. Anyone who gets that token can run anything on your bill — and
+          mining or reselling compute is exactly what Railway's fair-use policy
+          prohibits, so it would be your account that answers for it. Keep the
+          token out of screenshots, and delete the service when you finish.
+        </li>
+      </ul>
+
+      <p>
+        The page will not connect to anything but your own machine without
+        asking you first, by name, and will not accept a runner address over
+        plain http. Neither of those is paranoia: a connect URL is a thing
+        somebody could hand you.
+      </p>
+    </div>
+  </div>
+</Shell>

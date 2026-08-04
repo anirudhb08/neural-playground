@@ -314,6 +314,11 @@
    * a short line, code wants about eighty characters.
    */
   :where(.prose) pre {
+    /* Shiki paints its own background with an inline style, which beats this.
+       So it only lands on blocks with no language on the fence — shell
+       commands, sample output — which would otherwise be unbordered text
+       floating in the page. */
+    background-color: var(--color-paper-deep);
     max-width: 40rem;
     margin-block: 1.5rem 0;
     padding: 1.125rem 1.25rem;

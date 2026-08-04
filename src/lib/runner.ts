@@ -24,17 +24,41 @@ export type RunnerResult = {
   error: string | null;
 };
 
-/**
- * Hostnames we are willing to send code to. Anything else is refused.
- *
- * This is the load-bearing rule of the whole feature, and it is not about
- * politeness. The page POSTs arbitrary Python to whatever endpoint it is
- * given, so a link like ?runner=https://someone-elses-host/exec would turn
- * "paste your connect URL" into a way of running the reader's cells — and
- * their data — on a stranger's machine. Loopback only means the worst a
- * crafted link can do is fail.
- */
 const LOOPBACK = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
+
+export function isLoopback(origin: string): boolean {
+  try {
+    return LOOPBACK.has(new URL(origin).hostname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * A runner does not have to be on this machine — a reader with no local Python
+ * can deploy one — and that changes the threat model rather than removing it.
+ *
+ * The page POSTs arbitrary Python to whatever endpoint it is given, so a URL
+ * someone else chose is a way to run a reader's cells, and anything those cells
+ * read, on a stranger's host. Two rules make that survivable:
+ *
+ *   1. Remote origins must be https. The token travels in the header on every
+ *      request, and a plaintext remote hop hands it to anyone on the path.
+ *      Loopback is exempt: it never leaves the machine, and localhost has no
+ *      certificate to offer.
+ *   2. A remote origin is never connected to without the reader saying yes to
+ *      that specific hostname first — see `needsConfirmation`. Pasting is not
+ *      consent when the thing pasted may have come from somewhere else.
+ *
+ * A runner URL is also never read from the query string or the hash. That is
+ * the shape this attack would take, and the absence is deliberate: there is no
+ * code here to remove, and this comment is why nobody should add it.
+ */
+export type ParsedConnection = {
+  connection: RunnerConnection;
+  /** True for anything that is not this machine, which the UI must confirm. */
+  remote: boolean;
+};
 
 /**
  * Safari refuses to load http:// subresources from an https:// page and makes
@@ -62,7 +86,7 @@ export function blockedByMixedContent(): boolean {
  */
 export function parseConnectUrl(
   input: string,
-): { ok: true; connection: RunnerConnection } | { ok: false; reason: string } {
+): { ok: true; parsed: ParsedConnection } | { ok: false; reason: string } {
   const trimmed = input.trim();
   if (!trimmed) return { ok: false, reason: "Paste the URL the runner printed." };
 
@@ -74,10 +98,12 @@ export function parseConnectUrl(
     return { ok: false, reason: "That does not look like a URL." };
   }
 
-  if (!LOOPBACK.has(url.hostname)) {
+  const remote = !LOOPBACK.has(url.hostname);
+
+  if (remote && url.protocol !== "https:") {
     return {
       ok: false,
-      reason: `Only a runner on this machine can be used — localhost or 127.0.0.1, not ${url.hostname}.`,
+      reason: `A runner anywhere but this machine has to be https — the token is sent on every request, and over http anyone between here and ${url.hostname} can read it.`,
     };
   }
 
@@ -86,7 +112,7 @@ export function parseConnectUrl(
     return { ok: false, reason: "That URL has no token on the end of it. Copy the whole line." };
   }
 
-  return { ok: true, connection: { origin: url.origin, token } };
+  return { ok: true, parsed: { connection: { origin: url.origin, token }, remote } };
 }
 
 async function call(
@@ -151,10 +177,12 @@ export function recallConnection(): RunnerConnection | null {
     const raw = sessionStorage.getItem(KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as RunnerConnection;
-    // Re-check the origin on the way out. Storage is writable by anything else
-    // running on this origin, so trusting it without re-validating would put
-    // the loopback rule behind a door that does not lock.
-    return LOOPBACK.has(new URL(parsed.origin).hostname) ? parsed : null;
+    // Re-check on the way out. Storage is writable by anything else running on
+    // this origin, so trusting it without re-validating would put the rules
+    // above behind a door that does not lock. Loopback, or https — the same
+    // two conditions parseConnectUrl enforces on the way in.
+    const url = new URL(parsed.origin);
+    return LOOPBACK.has(url.hostname) || url.protocol === "https:" ? parsed : null;
   } catch {
     return null;
   }
