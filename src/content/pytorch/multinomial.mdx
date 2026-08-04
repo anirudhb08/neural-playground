@@ -8,6 +8,8 @@ description: "torch.multinomial explained without PyTorch: the six lines of plai
 metIn: [tiny-gpt/02-counting-pairs]
 ---
 
+import { TorchWidget } from "../../components/site/TorchWidget";
+
 A model does not output an answer. It outputs a **probability for every
 possible answer** — a list of numbers that add up to 1, saying how likely each
 one is. Turning that list into a single choice is a separate act, and
@@ -99,6 +101,18 @@ a list that sums to zero each raise a `RuntimeError` rather than quietly picking
 something. If you see *"probability tensor contains either inf, nan or element
 < 0"*, the fault is upstream — usually a softmax that was never applied, or one
 applied to the wrong axis.
+
+## Check any of this yourself
+
+Every number above was measured once and then written down, which is the
+weakest evidence on this site. PyTorch cannot be compiled into a browser, so
+unlike the tutorials this page cannot simply run in front of you — but it can
+run on your machine, and below is each claim as a cell you can execute there.
+
+The snippets are readable and copyable with nothing connected. Attaching a
+runner only adds the ability to press Run.
+
+<div class="mt-7"><TorchWidget name="multinomial" client:only="react" /></div>
 
 ## Where the tutorials use it
 

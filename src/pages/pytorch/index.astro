@@ -70,6 +70,23 @@ const jsonLd = {
       do by hand, explained while the mechanism is still fresh.
     </p>
 
+    <div class="aside measure mt-6">
+      <p>
+        PyTorch cannot be compiled into a browser, so these pages cannot run in
+        front of you the way the tutorials do. Each one instead carries its
+        claims as cells you can run against your own PyTorch: start{" "}
+        <a href="/runner/welldun_runner.py" class="underline underline-offset-4"
+          >a small server</a
+        > on your machine and paste the URL it prints into the page. One file, standard
+        library only, and worth reading before you run it — it executes what the
+        page sends it, as you.
+      </p>
+      <p class="mt-2">
+        Nothing needs it. The tutorials themselves run in the browser on NumPy
+        and always will.
+      </p>
+    </div>
+
     <ul class="mt-10 flex list-none flex-col gap-px border-t p-0 hairline">
       {
         entries.map((e) => (

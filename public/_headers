@@ -39,6 +39,14 @@
   Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=3600
 
+# The local PyTorch runner. Served as text so it can be read in a browser
+# before anyone runs it — a file that executes arbitrary code on the reader's
+# machine should not be something they can only download unseen. curl -O is
+# unaffected either way.
+/runner/*
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
+
 # Deliberately no Cache-Control here. Cloudflare *appends* every matching rule
 # rather than letting the most specific one win, so a Cache-Control on /* is
 # concatenated onto the rules above — "max-age=31536000, immutable, max-age=0,
