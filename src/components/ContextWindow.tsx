@@ -4,9 +4,14 @@ import { useState } from "react";
  * One chunk of text, cut into inputs and answers by shifting it one along.
  *
  * The figure exists for a single moment: the reader widening the window and
- * watching the count of training examples go up with it, from a text nobody
- * annotated. Everything else here — the two rows, the offset, the pairs — is in
- * service of making that arithmetic visible rather than asserted.
+ * watching the count of training examples go up with it. Everything else here
+ * — the two rows, the offset, the pairs — is in service of making that
+ * arithmetic visible rather than asserted.
+ *
+ * It deliberately reports only what changes. A third readout used to say
+ * "answers anyone wrote down: 0", which was a slogan wearing a measurement's
+ * clothes: it never moved, no control affected it, and it announced the
+ * conclusion of the section underneath before the reader reached it.
  *
  * The same sentence as the lab on this page, deliberately. A reader who runs
  * the cells should see the figure's numbers come back out of Python.
@@ -108,10 +113,6 @@ export function ContextWindow() {
           <dt className="eyebrow">Training examples in them</dt>
           <dd className="mt-0.5 font-mono text-sm text-riso">{block}</dd>
         </div>
-        <div>
-          <dt className="eyebrow">Answers anyone wrote down</dt>
-          <dd className="mt-0.5 font-mono text-sm">0</dd>
-        </div>
       </dl>
 
       <ul className="mt-4 flex list-none flex-col gap-1 p-0">
@@ -126,11 +127,12 @@ export function ContextWindow() {
         ))}
       </ul>
 
+      {/* Describes the arithmetic on screen and stops there. What it means —
+          that nothing here was labelled by anyone — is the section below the
+          figure, and a caption that says it first takes the discovery away. */}
       <p className="caption mt-5 max-w-[34rem]">
-        Every pair was already in the sentence. Widening the window does not
-        need more text or more labelling — it cuts the same text into longer
-        questions, and the answer to each one was always the character sitting
-        after it.
+        Every pair came out of the same sentence. Widen the window and you get
+        more of them out of it: the same text, cut into longer questions.
       </p>
     </div>
   );
