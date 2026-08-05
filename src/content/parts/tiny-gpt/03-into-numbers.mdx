@@ -80,7 +80,8 @@ later problem, and it has a name.
 That problem is real, and you can see it from here: a network doing arithmetic
 on these numbers will happily conclude that `t` and `s` are close, because 9 and
 8 are close, when nothing about the language says so. Fixing that is what
-embeddings do, in part 05. For now the numbers only have to be consistent.
+embeddings do, a few parts from here. For now the numbers only have to be
+consistent.
 
 ## What happens to a character it has never seen?
 
@@ -137,8 +138,8 @@ every name, every typo, every coined word is a new entry, and anything you
 failed to see during training arrives later as a word you have no number for.
 
 <aside class="aside measure mt-5">
-Real models split the difference, into the **tokens** described in
-[part 01](/tiny-gpt/01-the-problem/) — chunks of roughly three or four
+Real models split the difference, into the **tokens**
+[described earlier](/tiny-gpt/01-the-problem/) — chunks of roughly three or four
 characters, chosen so common words stay whole and rare ones break into pieces.
 That keeps the vocabulary finite, at tens of thousands rather than under a
 hundred, and the sequences shorter. The mechanism in this part is unchanged:
@@ -147,7 +148,7 @@ build a vocabulary, map both ways, never lose the table.
 
 The price of characters is length. `hello` is one word but five characters, so
 every sentence the model reads is several times longer, and it has to hold more
-of it in view to see the same amount of language. That bill arrives in part 04.
+of it in view to see the same amount of language. That bill comes due next.
 
 ## Build it yourself
 

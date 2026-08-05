@@ -13,7 +13,7 @@ description: "Where a language model's training data comes from: how shifting te
 
 import { GptWidget } from "../../../components/site/GptWidget";
 
-The bigram in part 02 could not learn. It was a tally — there was nothing in it
+The model built by counting could not learn. It was a tally — there was nothing in it
 to adjust, and nothing that got better with practice. Everything built from here
 on **trains**, in the same loop as the network in the other tutorial: show it an
 example, let it answer, tell it what the answer should have been, repeat.
@@ -121,7 +121,7 @@ is a **batch**, and the rows have nothing whatever to do with each other.
 <aside class="aside measure mt-5">
 Nothing from row 0 reaches row 3. The model would give identical answers if you
 ran the rows one at a time, and batching is a throughput trick and nothing else.
-Worth holding on to: when attention arrives in part 07 and characters genuinely
+Worth holding on to: when attention arrives and characters genuinely
 do start affecting each other, it will matter that they only ever do so *within*
 a row.
 </aside>

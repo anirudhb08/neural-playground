@@ -17,7 +17,7 @@
 export const contextWindowLab = () => [
   {
     title: "the whole text, as one long line of numbers",
-    lead: "Part 03 turned characters into integers. Do that to everything at once and the training data is a single flat sequence — no examples, no labels, no structure. Cutting it into examples is this part's whole job.",
+    lead: "Characters are integers now. Do that to a whole text at once and the training data is a single flat sequence — no examples, no labels, no structure. Cutting it into examples is this part's whole job.",
     code: `text = "the cat sat on the mat and the dog sat on the log"
 
 chars = sorted(set(text))

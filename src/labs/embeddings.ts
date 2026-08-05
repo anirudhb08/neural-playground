@@ -15,7 +15,7 @@
 export const embeddingsLab = () => [
   {
     title: "one row per character, instead of one number",
-    lead: "Part 03 gave every character an integer, and warned that the integer means nothing. Here each one gets a whole row of numbers instead — as wide as the vocabulary, so a row can hold a score for every character that might come next.",
+    lead: "Every character already has an integer, and the integer means nothing. Here each one gets a whole row of numbers instead — as wide as the vocabulary, so a row can hold a score for every character that might come next.",
     code: `import numpy as np
 rng = np.random.default_rng(0)
 
@@ -27,7 +27,7 @@ V = len(chars)
 
 # V rows, V columns. Row i belongs to character i and holds one score
 # for each character that could follow it. Random, because nothing has
-# been learned yet — this is the counted table from part 02, unlearned.
+# been learned yet. This is the counted bigram table, unlearned.
 table = rng.normal(0, 1, (V, V))
 
 print("vocabulary:", V)
@@ -36,7 +36,7 @@ print("the row for 't':", np.round(table[stoi["t"]], 2))`,
   },
   {
     title: "looking up a whole batch at once",
-    lead: "The batch from part 04 is a rectangle of integers. Indexing the table with the whole rectangle replaces every integer with its row, in one expression — no loop, and this is exactly what a library's embedding layer does inside.",
+    lead: "The batch is a rectangle of integers. Indexing the table with the whole rectangle replaces every integer with its row, in one expression — no loop, and this is exactly what a library's embedding layer does inside.",
     code: `block_size, batch_size = 8, 4
 starts = rng.integers(0, len(data) - block_size, batch_size)
 xb = np.stack([data[s : s + block_size] for s in starts])

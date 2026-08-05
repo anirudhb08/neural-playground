@@ -14,17 +14,17 @@ description: "Why feeding token ids into a network implies things that are not t
 
 import { GptWidget } from "../../../components/site/GptWidget";
 
-Part 04 finished the dataset. There are questions, there are answers, and there
+The dataset is finished. There are questions, there are answers, and there
 is a function that produces as many as you like. What there still is not is
-anything that can **learn** — part 02's model was a tally, with nothing in it
+anything that can **learn**. The counting model was a tally, with nothing in it
 to adjust.
 
-So: build one that can. And it fails immediately, on a problem part 03 flagged
-and left standing.
+So: build one that can. It fails immediately, on a problem we walked past
+earlier and left standing.
 
 ## The numbers were never quantities
 
-In the vocabulary from part 03, `t` is 9 and `a` is 1. Feed those into
+In the vocabulary, `t` is 9 and `a` is 1. Feed those into
 arithmetic and you have told the model three things, all of them false: that
 `t` is nine times `a`, that `t` and `s` are nearly the same because 9 and 8 are
 adjacent, and that `d` sits neatly between `c` and `e`.
@@ -47,15 +47,15 @@ numbers — as wide as the vocabulary, holding one score for every character tha
 might come next. Stack one row per character and you have a table, vocabulary
 tall and vocabulary wide.
 
-That is the shape of the bigram table from part 02. Exactly the shape. The only
+That is the shape of the counted bigram table. Exactly the shape. The only
 difference is where the numbers in it come from.
 
 <div class="mt-7"><GptWidget name="embedding-table" client:only="react" /></div>
 
 Counting produced a table that is accurate about one sentence and can never be
 anything else. This table starts as noise — genuinely meaningless, and you can
-roll it again to prove it — but every number in it can be nudged. Part 06 does
-the nudging. This part gets everything into position for it.
+roll it again to prove it — but every number in it can be nudged. The next part does
+the nudging. This one gets everything into position for it.
 
 <aside class="aside measure mt-5">
 The table is called an **embedding table**, and looking a character up in it is
@@ -67,7 +67,7 @@ to earn itself.
 
 ## Looking up a whole batch at once
 
-Part 04 hands over a rectangle of integers — rows of characters, several rows at
+Batching hands over a rectangle of integers — rows of characters, several rows at
 a time. Indexing the table with that whole rectangle replaces every integer with
 its row in a single expression, turning `(4, 8)` integers into `(4, 8, 13)`
 scores.
@@ -142,12 +142,12 @@ hurt, or nothing corrects it.
 ## It still only sees one character
 
 Nothing here bought any context. The model in this part looks at one character
-and predicts the next, exactly like the bigram in part 02 — same window, same
+and predicts the next, exactly like the counted bigram — same window, same
 blindness, same `sathe`.
 
 What changed is that its table can be corrected. That is the whole of the
-progress, and it is enough to build on: part 06 trains it, and part 07 finally
-lets it look further back than one character.
+progress, and it is enough to build on: next it gets trained, and after that it
+finally gets to look further back than one character.
 
 ## Build it yourself
 
