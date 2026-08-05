@@ -47,8 +47,11 @@ export function ContextWindow() {
 
       <div className="mt-6 flex flex-wrap gap-x-10 gap-y-4">
         <label className="min-w-[12rem] flex-1">
+          {/* Not "window". The figure now comes before the section that
+              introduces the term, so its controls use ordinary words and let
+              the prose do the naming. */}
           <span className="mono-note text-graphite">
-            window: {block} character{block === 1 ? "" : "s"}
+            {block} character{block === 1 ? "" : "s"} at a time
           </span>
           <input
             type="range"
@@ -61,7 +64,7 @@ export function ContextWindow() {
               setStart((s) => Math.min(s, TEXT.length - next - 1));
             }}
             className="mt-2 w-full accent-riso"
-            aria-label="Context window size"
+            aria-label="How many characters the model sees at a time"
           />
         </label>
         <label className="min-w-[12rem] flex-1">
