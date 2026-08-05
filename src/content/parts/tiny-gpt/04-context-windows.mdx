@@ -1,0 +1,120 @@
+---
+tutorial: tiny-gpt
+order: 4
+title: Context windows, and why the text is its own answer key
+teaches: [context window, block size, shift-by-one targets, batching]
+blurb: >-
+  A model needs a fixed amount to look at, so you choose it in advance. Then the
+  surprising part: nobody labels the training data, because shifting the text
+  one character along produces every answer you need.
+searchTitle: "Context windows and self-supervised targets, from scratch"
+description: "Why a language model looks at a fixed number of characters, how one chunk of text contains as many training examples as its window is wide, and why no one ever labelled any of it."
+---
+
+import { GptWidget } from "../../../components/site/GptWidget";
+
+The bigram in part 02 looked at exactly one character and forgot everything
+else. Part 03 made the text into numbers so something better could read it.
+Better means looking at more — which raises the question this part answers
+first: **how much more?**
+
+## Why not simply everything before it?
+
+Because a model is a fixed piece of arithmetic. The same multiplications run on
+every input, so every input has to be the same size, every time. "Everything so
+far" is one character at the start of a book and three hundred thousand by the
+end, and there is no shape that is both.
+
+So you pick a number in advance and it never changes. The model sees that many
+characters and not one more. It is called the **context window**, and in code it
+is usually `block_size`.
+
+<div class="claim mt-7">
+Everything before the window may as well not exist. The model cannot see it,
+and has no way of knowing it is there.
+</div>
+
+That is the same limitation the bigram had, moved. A bigram's window is one
+character wide. Nothing in this tutorial ever removes the wall — the rest of it
+is about pushing the wall further back and using what is inside it better.
+
+## Where do the training examples come from?
+
+Here is where it gets strange, and it is the reason models like this can be
+trained on more text than anyone could ever label.
+
+Take one chunk of text, one character longer than the window. Call the first
+part `x` and the same run shifted one along `y`. Then `y[0]` is what followed
+`x[0]`, `y[1]` is what followed `x[0]` and `x[1]` together, and so on — so one
+chunk is not one training example. It is as many as the window is wide.
+
+<div class="mt-7"><GptWidget name="context-window" client:only="react" /></div>
+
+Widen the window and the count goes up with it, out of the same sentence. Move
+the chunk and it is a different eight examples, out of the same sentence again.
+
+## Nobody wrote the answers down
+
+Look at what the model is being taught with. There is a question, `the ca`, and
+an answer, `t`. That looks exactly like labelled training data — the kind
+somebody sits down and produces.
+
+Nobody produced it. The answer to *what follows `the ca`* is the character
+sitting immediately after `the ca` in a sentence that was written for its own
+reasons. The label was already there, and shifting by one is the whole of how it
+was extracted.
+
+<div class="claim mt-8">
+The text is its own answer key.
+</div>
+
+This is worth comparing against the [other tutorial](/neural-networks/02-your-alphabet/),
+where you drew each character and then told the network which one it was. That
+labelling is the expensive part of most machine learning, and it is the reason
+training data usually runs out long before compute does. Here there is none of
+it. Any text at all is training data the moment you have it — which is why these
+models could be trained on quantities of text that nobody could have annotated
+in a hundred lifetimes.
+
+## The off-by-one worth being careful about
+
+`y[3]` is the answer after seeing **four** characters, not three. It is the
+character that follows `x[0]` through `x[3]` inclusive.
+
+That is easy to nod along to and easy to get wrong in code, and getting it wrong
+does not crash anything. It trains the model to predict the character it has
+just been shown, which it learns to do extremely well, producing a loss curve
+that looks wonderful and a model that is useless. Data-pipeline mistakes are
+quiet in exactly this way.
+
+The last cell below does the boundary arithmetic for the same reason. With 49
+characters and a window of 8, the largest legal starting point is 40 — because
+`y` for that row has to reach index 48, which is the last one there is.
+
+## Why several chunks at once?
+
+One more idea and then the code. Training on one chunk at a time works and
+wastes the machine: the arithmetic for one row of eight characters does not
+come close to occupying a processor that is built to do thousands of such
+things simultaneously.
+
+So chunks are stacked. Pick several random starting points, cut a chunk at each,
+and put them in a rectangle — `x` and `y` both come out as *rows × window*. This
+is a **batch**, and the only thing the rows have in common is that they are
+being processed together.
+
+<aside class="aside measure mt-5">
+The rows do not interact. Nothing from row 0 reaches row 3, and the model would
+give identical answers if you ran them one at a time. Batching is a throughput
+trick and nothing else — which is worth holding on to, because when attention
+arrives in part 07 and characters genuinely do start affecting each other, it
+will matter that they only ever do so *within* a row.
+</aside>
+
+## Build it yourself
+
+Five cells: the text as one flat sequence, one chunk cut two ways, the eight
+examples hiding inside it, a batch of four, and the boundary arithmetic —
+including what it looks like when you get it wrong by one.
+
+<div class="mt-8"><GptWidget name="context-window-lab" client:only="react" /></div>
