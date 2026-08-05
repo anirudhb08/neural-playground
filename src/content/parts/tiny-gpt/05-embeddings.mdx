@@ -1,0 +1,157 @@
+---
+tutorial: tiny-gpt
+order: 5
+title: Embeddings, softmax and the loss
+teaches: [embedding table, logits, softmax over a batch, cross-entropy]
+blurb: >-
+  Part 03 gave every character a number and warned that the number is a lie. The
+  fix is to give each one a whole row instead — the same table part 02 counted,
+  except that this one can be corrected.
+searchTitle: "Embeddings explained: why a token id cannot be fed to a network"
+description: "Why feeding token ids into a network implies things that are not true, how an embedding table fixes it, and how the same table produces scores, probabilities and a loss you can train on."
+---
+
+import { GptWidget } from "../../../components/site/GptWidget";
+
+Part 04 finished the dataset. There are questions, there are answers, and there
+is a function that produces as many as you like. What there still is not is
+anything that can **learn** — part 02's model was a tally, with nothing in it
+to adjust.
+
+So: build one that can. And it fails immediately, on a problem part 03 flagged
+and left standing.
+
+## The numbers were never quantities
+
+In the vocabulary from part 03, `t` is 9 and `a` is 1. Feed those into
+arithmetic and you have told the model three things, all of them false: that
+`t` is nine times `a`, that `t` and `s` are nearly the same because 9 and 8 are
+adjacent, and that `d` sits neatly between `c` and `e`.
+
+None of that is about language. It is about alphabetical order, which is how
+the numbers were assigned. A model doing sums on them will find that structure,
+because it is really there in the numbers, and it means nothing.
+
+<div class="claim mt-7">
+The integers identify characters. They do not describe them. Arithmetic cannot
+tell the difference.
+</div>
+
+## Give each character a row instead
+
+Here is the fix, and you have already built the thing it produces.
+
+Instead of replacing `t` with the number 9, replace it with an entire **row** of
+numbers — as wide as the vocabulary, holding one score for every character that
+might come next. Stack one row per character and you have a table, vocabulary
+tall and vocabulary wide.
+
+That is the shape of the bigram table from part 02. Exactly the shape. The only
+difference is where the numbers in it come from.
+
+<div class="mt-7"><GptWidget name="embedding-table" client:only="react" /></div>
+
+Counting produced a table that is accurate about one sentence and can never be
+anything else. This table starts as noise — genuinely meaningless, and you can
+roll it again to prove it — but every number in it can be nudged. Part 06 does
+the nudging. This part gets everything into position for it.
+
+<aside class="aside measure mt-5">
+The table is called an **embedding table**, and looking a character up in it is
+an *embedding*. The word suggests something more elaborate than a table lookup.
+It is a table lookup. Later parts make the rows wider than the vocabulary and
+let them carry more than next-character scores, which is where the name starts
+to earn itself.
+</aside>
+
+## Looking up a whole batch at once
+
+Part 04 hands over a rectangle of integers — rows of characters, several rows at
+a time. Indexing the table with that whole rectangle replaces every integer with
+its row in a single expression, turning `(4, 8)` integers into `(4, 8, 13)`
+scores.
+
+No loop. This is precisely what a library's embedding layer does inside, and
+writing it once is the reason the library version will never be mysterious.
+
+## Scores, not probabilities
+
+What comes out of that lookup are **logits**: raw scores, one per possible next
+character. Any real number, negative included, adding up to nothing in
+particular.
+
+Leaving them raw is deliberate. It is more numerically stable than having the
+model produce probabilities directly, and it is exactly what the loss function
+wants to be given. Converting them is a separate step, and it is one you have
+already seen.
+
+## Softmax and cross-entropy, on a rectangle
+
+Both of these are explained from scratch in the other tutorial, and they work
+here exactly as they do there:
+
+- **[Softmax](/neural-networks/05-how-wrong/)** — exponentiate every score, then
+  divide by the total. Everything becomes positive, order is preserved, and the
+  result sums to 1.
+- **[Cross-entropy](/neural-networks/05-how-wrong/)** — look only at the
+  probability the model gave the character that actually came next, and take
+  `-log` of it. The rest of the distribution is ignored.
+
+What is new is the shape. There, one drawing produced one row of scores. Here
+there are four rows of eight positions, and each position needs its own
+independent softmax across the vocabulary — never mixing across positions, never
+across rows. That is what `axis=-1` is for, and why `keepdims=True` matters: the
+sum has to stay `(4, 8, 1)` so it lines up against `(4, 8, 13)`. Drop it and the
+division is a shape error.
+
+For the loss, the two axes get flattened together first — 4 rows of 8 becomes 32
+independent predictions — because "32 predictions" is easier to hold in your
+head than a pair of axes.
+
+## What an untrained model should score
+
+Worth knowing before training starts, because it tells you whether anything is
+working.
+
+A table of zeros gives every character the same score, so every character gets
+the same probability: one in thirteen. The loss of that is `-log(1/13)`, which
+is `ln(13)`, which is **2.5649**. The lab prints exactly that.
+
+Random numbers do *worse* — 2.8912 for the table in the lab. That is not a bug.
+A random table is confident about things at random, and confident mistakes are
+expensive:
+
+| probability given to the right answer | `1 - p` | `-log p` |
+|---|---|---|
+| 0.9 — nearly right | 0.10 | 0.11 |
+| 0.4 — unsure | 0.60 | 0.92 |
+| 0.01 — confidently wrong | 0.99 | 4.61 |
+
+Both are zero for a perfect answer, so the obvious question is why bother with a
+logarithm. The last two rows answer it. Going from *unsure* to *confidently
+wrong*, `1 - p` grows 1.65 times and `-log p` grows 5.03 times. `1 - p` can
+never exceed 1 no matter how bad things get, so it barely reacts to a disaster.
+`-log` has no ceiling.
+
+<div class="claim mt-8">
+Training moves fastest where the loss is steepest. A confident mistake has to
+hurt, or nothing corrects it.
+</div>
+
+## It still only sees one character
+
+Nothing here bought any context. The model in this part looks at one character
+and predicts the next, exactly like the bigram in part 02 — same window, same
+blindness, same `sathe`.
+
+What changed is that its table can be corrected. That is the whole of the
+progress, and it is enough to build on: part 06 trains it, and part 07 finally
+lets it look further back than one character.
+
+## Build it yourself
+
+Five cells: the table, looking up a batch in one expression, softmax along the
+right axis, the loss of a zero table against a random one, and the three rows
+of the comparison above.
+
+<div class="mt-8"><GptWidget name="embeddings-lab" client:only="react" /></div>

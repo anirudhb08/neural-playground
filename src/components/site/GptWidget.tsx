@@ -1,10 +1,12 @@
 import { BigramTable } from "../BigramTable";
 import { ContextWindow } from "../ContextWindow";
+import { EmbeddingTable } from "../EmbeddingTable";
 import { Tokenizer } from "../Tokenizer";
 import { WeightedDie } from "../WeightedDie";
 import { PythonLab } from "../PythonLab";
 import { bigramLab } from "../../labs/bigram";
 import { contextWindowLab } from "../../labs/contextWindow";
+import { embeddingsLab } from "../../labs/embeddings";
 import { tokenizerLab } from "../../labs/tokenizer";
 
 /**
@@ -31,6 +33,8 @@ export function GptWidget({ name }: Props) {
       return <Tokenizer />;
     case "context-window":
       return <ContextWindow />;
+    case "embedding-table":
+      return <EmbeddingTable />;
     case "weighted-die":
       return <WeightedDie />;
     case "bigram-lab":
@@ -39,6 +43,15 @@ export function GptWidget({ name }: Props) {
           steps={bigramLab()}
           prepare={async () => {}}
           closing="That is a language model, complete. It has no parameters, learned nothing, and still produces text that is locally plausible and globally nonsense. The next part starts on why."
+        />
+      );
+    case "embeddings-lab":
+      return (
+        <PythonLab
+          steps={embeddingsLab()}
+          prepare={async () => {}}
+          library="NumPy"
+          closing="A model that can learn, and a number that says how badly it is doing. Nothing has adjusted a single weight yet — that is the next part, and it is the shortest one in the tutorial."
         />
       );
     case "context-window-lab":
