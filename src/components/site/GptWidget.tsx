@@ -1,3 +1,4 @@
+import { AttentionGrid } from "../AttentionGrid";
 import { BigramTable } from "../BigramTable";
 import { ContextWindow } from "../ContextWindow";
 import { EmbeddingTable } from "../EmbeddingTable";
@@ -9,6 +10,7 @@ import { bigramLab } from "../../labs/bigram";
 import { contextWindowLab } from "../../labs/contextWindow";
 import { embeddingsLab } from "../../labs/embeddings";
 import { tokenizerLab } from "../../labs/tokenizer";
+import { attentionLab } from "../../labs/attention";
 import { trainingLab } from "../../labs/training";
 
 /**
@@ -39,6 +41,8 @@ export function GptWidget({ name }: Props) {
       return <EmbeddingTable />;
     case "train-bigram":
       return <TrainBigram />;
+    case "attention-grid":
+      return <AttentionGrid />;
     case "weighted-die":
       return <WeightedDie />;
     case "bigram-lab":
@@ -47,6 +51,15 @@ export function GptWidget({ name }: Props) {
           steps={bigramLab()}
           prepare={async () => {}}
           closing="That is a language model, complete. It has no parameters, learned nothing, and still produces text that is locally plausible and globally nonsense. The next part starts on why."
+        />
+      );
+    case "attention-lab":
+      return (
+        <PythonLab
+          steps={attentionLab()}
+          prepare={async () => {}}
+          library="NumPy"
+          closing="One head, complete. Every position now carries what it read behind it — which is the thing that was missing when the model wrote sathe and could not remember sat."
         />
       );
     case "training-lab":
