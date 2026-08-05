@@ -1,31 +1,38 @@
 ---
 tutorial: tiny-gpt
 order: 4
-title: Context windows, and why the text is its own answer key
+title: Context windows, and where the answers come from
 teaches: [context window, block size, shift-by-one targets, batching]
 blurb: >-
-  A model needs a fixed amount to look at, so you choose it in advance. Then the
-  surprising part: nobody labels the training data, because shifting the text
-  one character along produces every answer you need.
+  Training anything needs questions with known answers. Part 03 left a few
+  thousand integers in a row — no questions, no answers, nobody to write them.
+  Both have to come out of the text itself.
 searchTitle: "Context windows and self-supervised targets, from scratch"
-description: "Why a language model looks at a fixed number of characters, how one chunk of text contains as many training examples as its window is wide, and why no one ever labelled any of it."
+description: "Where a language model's training data comes from: why it reads a fixed number of characters at a time, and how shifting the text one place along turns any text at all into labelled examples."
 ---
 
 import { GptWidget } from "../../../components/site/GptWidget";
 
-The bigram in part 02 looked at exactly one character and forgot everything
-else. Part 03 made the text into numbers so something better could read it.
-Better means looking at more — which raises the question this part answers
-first: **how much more?**
+Training anything means showing it a question, letting it answer, and then
+telling it what the answer should have been. Repeat until it improves.
 
-## Why not simply everything before it?
+That plan needs two things this tutorial does not yet have. Part 03 left a few
+thousand integers in a row, and there is not one question in that pile and not
+one answer. Before a single step of training can happen, both have to be
+manufactured — and the only raw material available is the text itself.
 
-Because a model is a fixed piece of arithmetic. The same multiplications run on
-every input, so every input has to be the same size, every time. "Everything so
-far" is one character at the start of a book and three hundred thousand by the
-end, and there is no shape that is both.
+Two problems, then, in order.
 
-So you pick a number in advance and it never changes. The model sees that many
+## How much text is one question?
+
+The obvious answer is *everything written so far*, and it cannot be done.
+
+A model is a fixed piece of arithmetic: the same multiplications, in the same
+arrangement, on every input. So every input has to be the same size, every
+time. "Everything so far" is one character at the start of a book and three
+hundred thousand by the end, and no fixed arrangement is both.
+
+So the size is chosen in advance and never changes. The model sees that many
 characters and not one more. It is called the **context window**, and in code it
 is usually `block_size`.
 
@@ -38,15 +45,24 @@ That is the same limitation the bigram had, moved. A bigram's window is one
 character wide. Nothing in this tutorial ever removes the wall — the rest of it
 is about pushing the wall further back and using what is inside it better.
 
-## Where do the training examples come from?
+## And where does the right answer come from?
 
-Here is where it gets strange, and it is the reason models like this can be
-trained on more text than anyone could ever label.
+This is the harder half. A question is a slice of text, and slicing is easy. An
+answer is what *should* come next — and normally somebody has to say so.
 
-Take one chunk of text, one character longer than the window. Call the first
-part `x` and the same run shifted one along `y`. Then `y[0]` is what followed
-`x[0]`, `y[1]` is what followed `x[0]` and `x[1]` together, and so on — so one
-chunk is not one training example. It is as many as the window is wide.
+That somebody is expensive. In the [other tutorial](/neural-networks/02-your-alphabet/)
+it was you: you drew each character and then told the network which one it was.
+Every drawing needed a person. Scale that to the amount of text a language model
+needs and the sums stop working long before the compute does.
+
+So look again at what is actually being asked. Given `the ca`, what comes next?
+The text says `t`. It says so by having a `t` sitting in the next position,
+because somebody wrote the sentence and that is how the sentence goes.
+
+Take a chunk one character longer than the window. Call the first part `x` and
+the same run shifted one along `y`. Now `y[0]` is what followed `x[0]`, and
+`y[1]` is what followed `x[0]` and `x[1]` together, and so on down the chunk —
+so one chunk is not one training example. It is as many as the window is wide.
 
 <div class="mt-7"><GptWidget name="context-window" client:only="react" /></div>
 
@@ -55,14 +71,12 @@ the chunk and it is a different eight examples, out of the same sentence again.
 
 ## Nobody wrote the answers down
 
-Look at what the model is being taught with. There is a question, `the ca`, and
-an answer, `t`. That looks exactly like labelled training data — the kind
-somebody sits down and produces.
+That is worth stopping on, because on screen it looks exactly like labelled
+training data — a question, `the ca`, and an answer, `t`.
 
-Nobody produced it. The answer to *what follows `the ca`* is the character
-sitting immediately after `the ca` in a sentence that was written for its own
-reasons. The label was already there, and shifting by one is the whole of how it
-was extracted.
+Nobody produced it. The label was already in the sentence, and shifting by one
+is the whole of how it was extracted. There is no annotation step in this
+project, and there never will be.
 
 <div class="claim mt-8">
 The text is its own answer key.
@@ -72,13 +86,11 @@ Learning this way — where the answers are recovered from the data itself rathe
 than supplied alongside it — is called **self-supervised** learning. The name
 makes it sound like a technique. It is really just this: shift by one.
 
-This is worth comparing against the [other tutorial](/neural-networks/02-your-alphabet/),
-where you drew each character and then told the network which one it was. That
-labelling is the expensive part of most machine learning, and it is the reason
-training data usually runs out long before compute does. Here there is none of
-it. Any text at all is training data the moment you have it — which is why these
-models could be trained on quantities of text that nobody could have annotated
-in a hundred lifetimes.
+And it is the reason these models got as large as they did. Labelling is
+usually what runs out first — before compute, before money, before ideas.
+Remove it and any text at all becomes training data the moment you have it,
+which is how anyone came to train on quantities nobody could have annotated in
+a hundred lifetimes.
 
 ## The off-by-one worth being careful about
 
