@@ -4,9 +4,9 @@ order: 4
 title: Context windows, and where the answers come from
 teaches: [context window, block size, shift-by-one targets, batching]
 blurb: >-
-  Training anything needs questions with known answers. Part 03 left a few
-  thousand integers in a row — no questions, no answers, nobody to write them.
-  Both have to come out of the text itself.
+  Training anything needs questions with known answers. Encoding leaves you an
+  unbroken run of integers containing neither, and nobody to write them. Both
+  have to come out of the text itself.
 searchTitle: "Context windows and self-supervised targets, from scratch"
 description: "Where a language model's training data comes from: why it reads a fixed number of characters at a time, and how shifting the text one place along turns any text at all into labelled examples."
 ---
@@ -16,10 +16,13 @@ import { GptWidget } from "../../../components/site/GptWidget";
 Training anything means showing it a question, letting it answer, and then
 telling it what the answer should have been. Repeat until it improves.
 
-That plan needs two things this tutorial does not yet have. Part 03 left a few
-thousand integers in a row, and there is not one question in that pile and not
-one answer. Before a single step of training can happen, both have to be
-manufactured — and the only raw material available is the text itself.
+That plan needs two things this tutorial does not yet have. Part 03 built the
+machinery for turning text into numbers; run a whole text through it and what
+comes out is one unbroken run of integers, start to finish, with nothing marking
+where anything begins or ends. There is not a question in it and not an answer.
+
+Both have to be manufactured before a single step of training can happen, and
+the only raw material available is the run of integers itself.
 
 Two problems, then, in order.
 
