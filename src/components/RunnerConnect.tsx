@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { SITE } from "../site";
 import {
   blockedByMixedContent,
   checkRunner,
@@ -135,44 +136,87 @@ export function RunnerConnect({ connection, onChange }: Props) {
 
       <p className="caption mt-2 max-w-[34rem] text-graphite">
         The cells above run in this page and need nothing. PyTorch cannot be
-        compiled into a browser, so to run the library version you start a small
-        server on your machine and point the page at it.
+        compiled into a browser, so to run the library version you point the
+        page at a PyTorch somewhere you control. There are two ways to have one.
       </p>
 
       {open && (
-        <div className="mt-4 border-t pt-4 hairline">
-          <p className="caption max-w-[34rem]">
-            One file, standard library only, and short enough to read before you
-            trust it — which you should, because it executes the code this page
-            sends it, as you.
-          </p>
-          <pre className="mt-3 overflow-x-auto rounded-[2px] bg-ink/90 p-4 font-mono text-[0.8125rem] leading-[1.7] text-paper">
-            <code>{`curl -O https://learn.welldun.ai/runner/welldun_runner.py
+        <div className="mt-4 grid gap-px border-t pt-4 hairline sm:grid-cols-2 sm:gap-6">
+          {/* Both offered at the moment of choosing, rather than the local one
+              with the paid one as a footnote. They suit different readers and
+              the panel should not decide which reader this is. */}
+          <div>
+            <p className="mono-note text-ink">On this machine</p>
+            <p className="caption mt-1 text-graphite">
+              Free, and the fastest of the three. Needs Python and about 2 GB of
+              disk. One file, standard library only, and short enough to read
+              before you trust it — which you should, because it runs what this
+              page sends it, as you.
+            </p>
+            {/* Wraps rather than scrolls: this sits in a half-width column, and
+                a command the reader has to drag sideways to read is worse than
+                one that takes two lines. */}
+            <pre className="mt-3 rounded-[2px] bg-ink/90 p-3 font-mono text-[0.75rem] leading-[1.7] break-words whitespace-pre-wrap text-paper">
+              <code>{`curl -O https://learn.welldun.ai/runner/welldun_runner.py
+pip install torch
 python welldun_runner.py`}</code>
-          </pre>
-          <p className="caption mt-3 max-w-[34rem] text-graphite">
-            It prints a URL with a token on the end. Paste the whole line below.
-            The token is what stops any other site you have open from reaching
-            the runner, so it is new every time the runner starts.
-          </p>
-          <p className="caption mt-2 max-w-[34rem]">
-            <a href="/pytorch/run-it/" className="underline underline-offset-4">
-              Can’t install Python where you are? →
-            </a>{" "}
-            <span className="text-graphite">
-              deploying one costs about $5 a month and works from anything,
-              including Safari.
-            </span>
+            </pre>
+            {safari && (
+              <p className="caption mt-2 text-riso">Safari cannot reach this one.</p>
+            )}
+          </div>
+
+          <div>
+            <p className="mono-note text-ink">Somewhere you deploy it</p>
+            <p className="caption mt-1 text-graphite">
+              About $5 a month, and nothing to install. Worth it if you cannot
+              run Python where you are reading — a work machine you do not
+              control, a Chromebook, an iPad — and it is the only one that works
+              in Safari, because it is https.
+            </p>
+            <p className="caption mt-3">
+              <a
+                href={SITE.railway.url}
+                rel="noopener"
+                className="underline underline-offset-4"
+              >
+                Deploy it on Railway →
+              </a>
+            </p>
+            <p className="caption mt-1 text-graphite">
+              Builds the Dockerfile in{" "}
+              <code>public/runner/</code> straight from a fork.{" "}
+              <a href="/pytorch/run-it/" className="underline underline-offset-4">
+                The steps, and what you are agreeing to
+              </a>
+              .
+            </p>
+            {SITE.railway.paid && (
+              // Rendered from the same value as the link above, so the paid
+              // version cannot ship without this sentence beside it.
+              <p className="caption mt-2 text-graphite">
+                That is a referral link: you get $20 of credit, I earn a
+                commission. It is also the slower and more expensive of the two
+                — the free option on the left is faster.
+              </p>
+            )}
+          </div>
+
+          <p className="caption mt-1 text-graphite sm:col-span-2">
+            Either way you end up with a URL that has a token on the end. Paste
+            the whole line below. The token is the only thing stopping any other
+            site you have open from reaching the runner.
           </p>
         </div>
       )}
 
       {safari && (
         <p className="caption mt-3 max-w-[34rem] text-riso">
-          Safari will not connect to a runner. It blocks an https page from
-          reaching http://localhost and, unlike Chrome and Firefox, makes no
-          exception for your own machine. Everything else on this page still
-          works.
+          Safari will not connect to a runner on this machine. It blocks an
+          https page from reaching http://localhost and, unlike Chrome and
+          Firefox, makes no exception for your own machine. A deployed runner
+          works, because it is https — everything else on this page is
+          unaffected either way.
         </p>
       )}
 
