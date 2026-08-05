@@ -4,9 +4,10 @@ order: 5
 title: Embeddings, softmax and the loss
 teaches: [embedding table, logits, softmax over a batch, cross-entropy]
 blurb: >-
-  Part 03 gave every character a number and warned that the number is a lie. The
-  fix is to give each one a whole row instead — the same table part 02 counted,
-  except that this one can be corrected.
+  A network can only do arithmetic, and arithmetic on “t is 9” concludes that t
+  is nine times a, and nearly the same as s. None of that is true. So each
+  character gets a list of numbers instead of a single one — numbers that start
+  out meaningless and are corrected as the model learns.
 searchTitle: "Embeddings explained: why a token id cannot be fed to a network"
 description: "Why feeding token ids into a network implies things that are not true, how an embedding table fixes it, and how the same table produces scores, probabilities and a loss you can train on."
 ---
