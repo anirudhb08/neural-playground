@@ -68,6 +68,10 @@ was extracted.
 The text is its own answer key.
 </div>
 
+Learning this way — where the answers are recovered from the data itself rather
+than supplied alongside it — is called **self-supervised** learning. The name
+makes it sound like a technique. It is really just this: shift by one.
+
 This is worth comparing against the [other tutorial](/neural-networks/02-your-alphabet/),
 where you drew each character and then told the network which one it was. That
 labelling is the expensive part of most machine learning, and it is the reason
@@ -82,10 +86,11 @@ in a hundred lifetimes.
 character that follows `x[0]` through `x[3]` inclusive.
 
 That is easy to nod along to and easy to get wrong in code, and getting it wrong
-does not crash anything. It trains the model to predict the character it has
-just been shown, which it learns to do extremely well, producing a loss curve
-that looks wonderful and a model that is useless. Data-pipeline mistakes are
-quiet in exactly this way.
+does not crash anything. Forget the shift and `y[i]` becomes `x[i]` — the answer
+is the character the model was just shown, so it learns to copy its own input,
+which it can do perfectly. Every measurement you have says training is going
+beautifully. The model is useless. Data-pipeline mistakes are quiet in exactly
+this way.
 
 The last cell below does the boundary arithmetic for the same reason. With 49
 characters and a window of 8, the largest legal starting point is 40 — because
