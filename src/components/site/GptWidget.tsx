@@ -2,12 +2,14 @@ import { BigramTable } from "../BigramTable";
 import { ContextWindow } from "../ContextWindow";
 import { EmbeddingTable } from "../EmbeddingTable";
 import { Tokenizer } from "../Tokenizer";
+import { TrainBigram } from "../TrainBigram";
 import { WeightedDie } from "../WeightedDie";
 import { PythonLab } from "../PythonLab";
 import { bigramLab } from "../../labs/bigram";
 import { contextWindowLab } from "../../labs/contextWindow";
 import { embeddingsLab } from "../../labs/embeddings";
 import { tokenizerLab } from "../../labs/tokenizer";
+import { trainingLab } from "../../labs/training";
 
 /**
  * Figures for the language-model tutorial.
@@ -35,6 +37,8 @@ export function GptWidget({ name }: Props) {
       return <ContextWindow />;
     case "embedding-table":
       return <EmbeddingTable />;
+    case "train-bigram":
+      return <TrainBigram />;
     case "weighted-die":
       return <WeightedDie />;
     case "bigram-lab":
@@ -43,6 +47,15 @@ export function GptWidget({ name }: Props) {
           steps={bigramLab()}
           prepare={async () => {}}
           closing="That is a language model, complete. It has no parameters, learned nothing, and still produces text that is locally plausible and globally nonsense. The next part starts on why."
+        />
+      );
+    case "training-lab":
+      return (
+        <PythonLab
+          steps={trainingLab()}
+          prepare={async () => {}}
+          library="NumPy"
+          closing="That is a complete, trained language model. It still sees one character, which is the only thing left standing between it and something worth reading — and it is what attention removes."
         />
       );
     case "embeddings-lab":
