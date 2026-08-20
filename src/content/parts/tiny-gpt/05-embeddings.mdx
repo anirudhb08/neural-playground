@@ -118,24 +118,23 @@ Both of these you have met in the other tutorial, and neither changes here:
 
 What is different here is how many groups there are. One drawing used to produce
 one group of scores. Now there are four rows of eight positions, so there are
-thirty-two groups of thirteen, and each one has to be handled by itself.
+thirty-two groups of thirteen, and each group is worked out entirely on its own.
 
-`axis=-1` is what says so. It means *work across the last number in the shape* —
-the thirteen — and leave the four and the eight alone. Every position gets its
-own percentages, and nothing is ever mixed between two positions or two rows.
+That matters more than it sounds. If two positions ever shared a total, a
+character's chances in one place would depend on what was happening somewhere
+else in the sentence — which is not what any of this is supposed to mean. Each
+position's percentages come from that position's own thirteen numbers and
+nothing else.
+
+Then the score for how wrong it all was: thirty-two predictions, thirty-two
+right answers, one cost each, averaged into a single number.
 
 <aside class="aside measure mt-5">
-`keepdims=True` is a small thing with a sharp edge. Softmax divides each score
-by its group's total, and there are thirty-two totals. They have to stay laid
-out as `(4, 8, 1)` — one total parked behind each position — so that NumPy can
-tell which total belongs to which group. Leave `keepdims` off and the totals come
-back flat, as `(4, 8)`, NumPy cannot match them up against `(4, 8, 13)`, and the
-division fails on the spot.
+Both steps have a detail that only makes sense with the code in front of you —
+which direction the totals are added up in, and why those totals have to keep
+their shape when they are divided back out. The cells at the foot of the page
+have both, with the lines they belong to.
 </aside>
-
-The loss does one more thing first. Four rows of eight is thirty-two predictions
-that have nothing to do with one another, so it is simpler to lay them out as
-thirty-two rows of thirteen and stop tracking which batch row each came from.
 
 ## What an untrained model should score
 

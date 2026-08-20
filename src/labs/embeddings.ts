@@ -57,12 +57,19 @@ print(np.round(logits[0, 0], 2))
     title: "scores into probabilities",
     lead: "Softmax, which you met in the other tutorial: make everything positive by exponentiating, then divide by the total. What is new here is the shape — this has to happen along the last axis only, separately for every position in every row.",
     code: `def softmax(z, axis=-1):
-    # Subtracting the largest score changes no answer and stops exp()
-    # overflowing on large numbers. Standard, and worth doing always.
+    # axis=-1 means "work across the last number in the shape" — the
+    # thirteen — leaving the four and the eight alone. Every position
+    # gets its own percentages and nothing mixes between positions.
+    #
+    # Subtracting the largest score first changes no answer and stops
+    # exp() overflowing on large numbers. Worth doing always.
     z = z - z.max(axis=axis, keepdims=True)
     e = np.exp(z)
-    # keepdims again: the sum must stay (4, 8, 1) so it lines up against
-    # (4, 8, V). Without it the division is a shape error.
+    # keepdims=True is the one with the sharp edge. There are 32 totals,
+    # one per position, and they have to stay shaped (4, 8, 1) — one
+    # parked behind each position — so NumPy can tell which total belongs
+    # to which group. Without it they come back flat as (4, 8), NumPy
+    # cannot match them against (4, 8, 13), and the division fails here.
     return e / e.sum(axis=axis, keepdims=True)
 
 probs = softmax(logits)
