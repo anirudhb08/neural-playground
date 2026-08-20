@@ -69,7 +69,7 @@ export function EmbeddingTable() {
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 border-t pt-4 hairline">
         <div className="flex gap-px">
           {[
-            { on: false, label: "counted in part 02" },
+            { on: false, label: "counted from the text" },
             { on: true, label: "learned, before training" },
           ].map((o) => (
             <button
