@@ -82,14 +82,28 @@ writing it once is the reason the library version will never be mysterious.
 
 ## Scores, not probabilities
 
-What comes out of that lookup are **logits**: raw scores, one per possible next
-character. Any real number, negative included, adding up to nothing in
-particular.
+Those numbers are called **logits**, and the quickest way to understand them is
+to read the three indices one at a time. Say the batch is called `logits` and
+has that shape `(4, 8, 13)`:
 
-Leaving them raw is deliberate. It is more numerically stable than having the
-model produce probabilities directly, and it is exactly what the loss function
-wants to be given. Converting them is a separate step, and it is one you have
-already seen.
+| ask for | and you get |
+|---|---|
+| `logits[0]` | the first of the four rows — eight positions, thirteen numbers each |
+| `logits[0][3]` | one position: the thirteen scores given after reading the first four characters of that row |
+| `logits[0][3][6]` | one number: how strongly it expects `h` there, `h` being index 6 in the vocabulary |
+
+So the last index always runs over the alphabet, and every one of those
+thirteen-number groups is a complete opinion about what comes next at one
+particular place in one particular row.
+
+They are opinions in raw form. Any real number, negative included, and a group
+of thirteen adds up to nothing in particular — 4.2 does not mean 420%, it only
+means *more than 1.7*.
+
+Leaving them that way is deliberate: it is more numerically stable than having
+the model produce probabilities directly, and it is exactly what the loss
+function wants to be handed. Turning them into probabilities is a separate step,
+and one you have already seen.
 
 ## Softmax and cross-entropy, on a rectangle
 
