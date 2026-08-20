@@ -19,8 +19,8 @@ is a function that produces as many as you like. What there still is not is
 anything that can **learn**. The counting model was a tally, with nothing in it
 to adjust.
 
-So: build one that can. It fails immediately, on a problem we walked past
-earlier and left standing.
+So: build one that can. It fails immediately, on a problem left standing back
+when [characters first became numbers](/tiny-gpt/03-into-numbers/#the-numbers-are-labels-not-quantities).
 
 ## The numbers were never quantities
 
@@ -47,8 +47,8 @@ numbers — as wide as the vocabulary, holding one score for every character tha
 might come next. Stack one row per character and you have a table, vocabulary
 tall and vocabulary wide.
 
-That is the shape of the counted bigram table. Exactly the shape. The only
-difference is where the numbers in it come from.
+That is the shape of [the table you built by counting](/tiny-gpt/02-counting-pairs/#what-does-count-the-pairs-mean). Exactly the
+shape. The only difference is where the numbers in it come from.
 
 <div class="mt-7"><GptWidget name="embedding-table" client:only="react" /></div>
 
@@ -143,7 +143,7 @@ hurt, or nothing corrects it.
 
 Nothing here bought any context. The model in this part looks at one character
 and predicts the next, exactly like the counted bigram — same window, same
-blindness, same `sathe`.
+blindness, [same `sathe`](/tiny-gpt/02-counting-pairs/#why-is-it-nonsense-if-every-pair-is-legal).
 
 What changed is that its table can be corrected. That is the whole of the
 progress, and it is enough to build on: next it gets trained, and after that it
