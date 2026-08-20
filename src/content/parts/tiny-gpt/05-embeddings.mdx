@@ -45,7 +45,8 @@ Here is the fix, and you have already built the thing it produces.
 Instead of replacing `t` with the number 9, replace it with an entire **row** of
 numbers — as wide as the vocabulary, holding one score for every character that
 might come next. Stack one row per character and you have a table, vocabulary
-tall and vocabulary wide.
+tall and vocabulary wide. The sentence the lab uses has **thirteen** distinct
+characters in it, so its table is thirteen by thirteen.
 
 That is the shape of [the table you built by counting](/tiny-gpt/02-counting-pairs/#what-does-count-the-pairs-mean). Exactly the
 shape. The only difference is where the numbers in it come from.
@@ -67,10 +68,14 @@ to earn itself.
 
 ## Looking up a whole batch at once
 
-Batching hands over a rectangle of integers — rows of characters, several rows at
-a time. Indexing the table with that whole rectangle replaces every integer with
-its row in a single expression, turning `(4, 8)` integers into `(4, 8, 13)`
-scores.
+Batching hands over a rectangle of integers: **four rows of eight characters**
+— four because that is the batch size, eight because that is the window, both
+settled before any of this.
+
+Index the table with that whole rectangle and every integer is replaced by its
+row, in one expression. So `(4, 8)` integers become `(4, 8, 13)` scores: the
+same four rows of eight, with thirteen numbers now hanging off each character
+instead of one.
 
 No loop. This is precisely what a library's embedding layer does inside, and
 writing it once is the reason the library version will never be mysterious.
