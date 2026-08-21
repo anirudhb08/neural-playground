@@ -1,0 +1,129 @@
+---
+tutorial: tiny-gpt
+order: 9
+title: The transformer block
+teaches: [feed-forward, residual connections, layer norm, transformer block]
+blurb: >-
+  Attention gathers and never thinks; a feed-forward thinks and never gathers.
+  Wrap the pair so a signal can survive twenty-four layers of them, and you have
+  the unit the whole architecture is stacked from.
+searchTitle: "The transformer block from scratch: feed-forward, residuals, layer norm"
+description: "Why attention needs a feed-forward after it, why two linear layers collapse into one without a bend, and how residual connections and layer norm let the pair stack twenty-four layers deep."
+---
+
+import { GptWidget } from "../../../components/site/GptWidget";
+
+Attention — one head or many — only ever gathers. Every output is a weighted
+blend of value notes, laid side by side. Nothing yet works out what the
+gathered material *means*, and a model that only collects is a filing cabinet.
+
+Two problems, then. Give each position something that thinks. And make the
+result stackable, because one round of gather-and-think is not going to be
+enough.
+
+## Think alone
+
+The thinking piece is small: two matrices with a bend between them, applied to
+each position separately.
+
+```python
+def feed_forward(z):
+    return np.maximum(z @ W1, 0) @ W2   # widen, bend, narrow back
+```
+
+`W1` widens each position's vector — conventionally to four times its width —
+and `W2` brings it back down. No position sees another anywhere in this;
+mixing between positions is attention's job, exclusively. The division of
+labour is total:
+
+<div class="claim mt-7">
+Attention is the only place positions meet. The feed-forward is each position
+alone at its desk, thinking about what it gathered.
+</div>
+
+## The bend is not decoration
+
+`maximum(z, 0)` clips negatives to zero. It looks like a detail and it is the
+entire reason depth exists, because two purely linear layers collapse:
+`(x @ W1) @ W2` equals `x @ (W1 @ W2)` — one matrix wearing two layers'
+clothes. The lab checks both: without the bend, equal to the digit; with it,
+not. A hundred linear layers would still be one matrix. One kink breaks the
+collapse, and suddenly stacking buys something.
+
+## Add, never replace
+
+Now the survival problem. Blocks are going to be stacked, and if each layer
+*replaces* what it was given, every layer's imperfection compounds. Make each
+of twenty-four layers just slightly timid — scale by 0.7 — and the signal
+arrives at size **0.0001**: nothing survives, because 0.7²⁴ is 0.000192.
+
+So a block never replaces. It **adds** what it computed to what it received:
+
+```python
+z = z + feed_forward(z)
+```
+
+A notebook passed down a line of people, where each may add a margin note and
+none may erase. A useless note — all zeros — costs nothing, and the original
+is still there at the bottom of the stack. The same lane matters in reverse:
+the slope flowing back during training always has the untouched `z` path,
+however unhelpful the notes were.
+
+## Tidy after every addition
+
+Adding has its own failure: the numbers only ever accumulate. The same
+twenty-four layers, adding instead of replacing, deliver a signal of size
+**108** — nothing was lost, but the scale has drifted far from anything the
+next layer expects. Same family of trouble as the √width divisor in attention.
+
+The repair is to rewrite each position to a standard size after every
+addition: subtract its mean, divide by its spread. Mean 0, spread 1, same
+information — this is **layer norm**, and it works on each position's own
+numbers only, never across positions.
+
+<div class="mt-7"><GptWidget name="deep-stack" client:only="react" /></div>
+
+<aside class="aside measure mt-5">
+The full version keeps a learned scale and shift per feature, born as 1 and 0
+so they start by doing nothing. Training can then relax the strict standard if
+it turns out to be wrong. Nothing trains on this page, so the lab leaves them
+out.
+</aside>
+
+## The block
+
+All four ideas, in the order tidy → gather → add, tidy → think → add:
+
+```python
+def block(z):
+    z = z + multi_head(layer_norm(z), heads)
+    z = z + feed_forward(layer_norm(z))
+    return z
+```
+
+Shape in equals shape out — the lab runs three blocks deep on the same input
+and the shape never moves. That property is the entire trick: anything that
+keeps its shape can be stacked as deep as the budget allows, and the depth of
+a model is just how many of these sit in a pile.
+
+<aside class="aside measure mt-5">
+Real blocks add one more linear layer after the heads are glued; ours
+concatenates straight into the addition. Worth adding when this is rebuilt
+with a library — not needed to understand the idea.
+</aside>
+
+## What the stack still cannot know
+
+A signal can now cross twenty-four layers and arrive intact, gathered and
+thought about at every step. But nothing in any of it — not the heads, not the
+feed-forward — ever asks *where* a character sits. The next part proves that
+blindness with one experiment, fixes it with one table, and assembles the
+whole model.
+
+## Build it yourself
+
+Six cells: the gathering packed into functions, the feed-forward, the collapse
+the bend prevents, the stack that dies by replacing, the drift that tidying
+holds at 1.00, and the block — three deep, shape unchanged.
+
+<div class="mt-8"><GptWidget name="block-lab" client:only="react" /></div>

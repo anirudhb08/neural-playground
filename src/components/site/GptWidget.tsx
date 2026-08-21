@@ -1,6 +1,7 @@
 import { AttentionGrid } from "../AttentionGrid";
 import { BigramTable } from "../BigramTable";
 import { ContextWindow } from "../ContextWindow";
+import { DeepStack } from "../DeepStack";
 import { EmbeddingTable } from "../EmbeddingTable";
 import { GradientStep } from "../GradientStep";
 import { MultiHead } from "../MultiHead";
@@ -9,6 +10,7 @@ import { TrainBigram } from "../TrainBigram";
 import { WeightedDie } from "../WeightedDie";
 import { PythonLab } from "../PythonLab";
 import { bigramLab } from "../../labs/bigram";
+import { blockLab } from "../../labs/block";
 import { contextWindowLab } from "../../labs/contextWindow";
 import { embeddingsLab } from "../../labs/embeddings";
 import { multiHeadLab } from "../../labs/multiHead";
@@ -50,6 +52,8 @@ export function GptWidget({ name }: Props) {
       return <AttentionGrid />;
     case "multi-head":
       return <MultiHead />;
+    case "deep-stack":
+      return <DeepStack />;
     case "weighted-die":
       return <WeightedDie />;
     case "bigram-lab":
@@ -58,6 +62,15 @@ export function GptWidget({ name }: Props) {
           steps={bigramLab()}
           prepare={async () => {}}
           closing="That is a language model, complete. It has no parameters, learned nothing, and still produces text that is locally plausible and globally nonsense. The next part starts on why."
+        />
+      );
+    case "block-lab":
+      return (
+        <PythonLab
+          steps={blockLab()}
+          prepare={async () => {}}
+          library="NumPy"
+          closing="A unit that gathers, thinks, and keeps its shape. What the stack still cannot do is tell ab from ba — that, and the final assembly, is the next part."
         />
       );
     case "multi-head-lab":
