@@ -162,10 +162,13 @@ The upper line, **2.5649**, is
 — the loss of knowing nothing. The grid starts at zeros, which is exactly that,
 so the curve begins on the line.
 
-The lower line, **0.7889**, is the best loss *any* model that sees one
-character can reach. It is a property of the text, not of the model: how
-unpredictable this sentence really is, given one character of context. No
-amount of training gets under it.
+The lower line, **0.7889**, is the counted table's own loss — the true shares,
+scored on every position of the text. Even they cannot reach zero, because the
+text itself is uncertain: after `t` the answer really is 50/50, so the best
+possible call still pays −log ½ ≈ 0.69 there. Fourteen of the 48 positions have
+only one possible follower and cost nothing; the other 34 pay, and the average
+is 0.7889. Nothing that sees one character does better than the true shares —
+you watched why: a row that leans away from them gets pushed straight back.
 
 <div class="claim mt-7">
 Six hundred steps take the loss from 2.5649 to about 0.86. The floor is

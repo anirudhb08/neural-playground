@@ -87,23 +87,19 @@ for step in range(1, 601):
   },
   {
     title: "how good is that?",
-    lead: "A number falling is not the same as a number being good. There are two marks worth measuring it against, and both come out of the text rather than out of the air.",
+    lead: "A number falling is not the same as a number being good. Two marks to measure against, both from the text itself.",
     code: `# Knowing nothing: every character equally likely.
 print("knowing nothing       :", round(float(np.log(V)), 4))
 
-# The best anything can do while seeing one character — the entropy of the
-# text's own bigram distribution. No model with this much context beats it.
+# The floor: the counted table's own loss. Count the pairs, turn each row
+# into true shares, then score those shares on every position of the text.
 pairs = np.zeros((V, V))
 for a, b in zip(data, data[1:]):
     pairs[a, b] += 1
 rows = pairs.sum(1, keepdims=True)
 P = np.divide(pairs, rows, out=np.zeros_like(pairs), where=rows > 0)
-weights = pairs.sum(1) / pairs.sum()
-floor = -sum(
-    weights[i] * sum(P[i, j] * np.log(P[i, j]) for j in range(V) if P[i, j] > 0)
-    for i in range(V)
-)
-print("the best one can do   :", round(float(floor), 4))
+floor = -np.log(P[data[:-1], data[1:]]).mean()
+print("the counted table     :", round(float(floor), 4))
 print("what training reached :", round(float(loss_over_text(table)), 4))`,
   },
   {
