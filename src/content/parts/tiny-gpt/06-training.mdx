@@ -4,116 +4,133 @@ order: 6
 title: The training loop
 teaches: [gradient, gradient descent, training loop, mini-batch noise]
 blurb: >-
-  There is a table full of meaningless numbers and a score saying how bad they
-  are. Nothing yet changes them. Four lines fix that — and the numbers they
-  arrive at turn out to be ones you have already seen.
+  The model is 169 numbers and a loss saying how bad they are. Training is
+  turning each number the right way, a little at a time — and the rule for
+  which way turns out to be readable straight off the percentages.
 searchTitle: "The training loop, written out: gradients without autograd"
-description: "How a model actually improves: what a gradient is, how to compute one by hand for a small model, and the four-line loop that turns a measure of wrongness into a model that works."
+description: "How a model actually improves: what a gradient is, how to read one off the model's own percentages, and the four-line loop that turns a measure of wrongness into a model that works."
 ---
 
 import { GptWidget } from "../../../components/site/GptWidget";
 
-Everything so far can *measure* how wrong the model is. Nothing reduces it.
+The model can now say how wrong it is — that is the loss. It cannot make itself
+less wrong. The grid scored 2.8912 and will score 2.8912 forever, because
+nothing changes its numbers.
 
-There is a table of numbers, and a single figure saying how badly they are
-doing. What is missing is the part that changes one because of the other — and
-it is smaller than you would expect.
+This part is the thing that changes them.
+
+## What training has to find
+
+The whole model is the grid: 13 rows of 13 scores, **169 numbers**, nothing
+else. The loss is computed from them, so turning any one of them moves the
+loss.
+
+Training means finding the setting of those 169 numbers where the loss is
+lowest. Trying settings is hopeless — allow each number just ten possible
+values and there are 10¹⁶⁹ combinations, against roughly 10⁸⁰ atoms in the
+observable universe. What is needed is not a faster search. It is a
+*direction*: for each number, from right where it stands, which way to turn it.
 
 ## Which way is downhill?
 
-Imagine looking for the lowest point of a valley in thick fog. You cannot see
-where the bottom is. But you can feel the ground under your feet, and that tells
-you which way is down and how steep it is.
+Ask one question of each number: **if this goes up a little, does the loss go
+up or down, and how fast?** The answer is that number's *slope*. The list of
+all 169 answers at once is called the **gradient**.
 
-Take a small step that way. Feel again. Repeat.
-
-That is the whole method, and the slope under your feet has a name: the
-**gradient**. It answers one question, asked of every number in the model at
-once — *if I nudge you up slightly, does the loss get better or worse, and by
-how much?* The step is then always the same rule:
+Downhill just means the direction that lowers the loss. Every number takes one
+small step that way:
 
 ```
 new value = old value − learning rate × slope
 ```
 
-Minus, because the slope points uphill and uphill is where the model is worse.
-The **learning rate** is how big a step to take: too small and you are there all
-day, too large and you stride straight past the bottom.
+The minus sign moves each number against its slope — down if raising it would
+raise the loss, up if raising it would lower the loss. The **learning rate**
+sets the size of the step: too small and training crawls, too large and every
+step strides past the point it was aiming for.
 
 <aside class="aside measure mt-5">
-The [other tutorial](/neural-networks/06-learning/) works through why that rule
-finds a minimum, with a network you can push around by hand. This part takes the
-rule as given and does something the other one could not: for a model this
-small, the gradient is short enough to write out and check.
+The [other tutorial](/neural-networks/06-learning/) works through why repeating
+that rule finds a minimum, on a network you can push around by hand. This part
+does something that one could not: the model is small enough to write the
+whole gradient out and check it.
 </aside>
 
-## Working out the slope
+## Push down what took, pull up what lacked
 
-The loss looks at one number only: the percentage given to the character that
-actually came next. So the question for every score is narrow — *if this score
-goes up a little, what happens to that percentage?*
+The loss cares about one number: the percentage given to the character that
+actually came next. And softmax hands out a fixed 100% between the thirteen
+characters, so this is a fight over shares. Raise the right answer's score and
+its share grows; raise any other score and it *takes* share from the right
+answer.
 
-There are only two answers.
+That is the entire logic, and the slopes fall straight out of it:
 
-Raise the right answer's own score and its percentage goes up, so the loss goes
-down. Raise anything else and it takes percentage away from the right answer,
-because softmax shares out a fixed 100% between the thirteen. The loss goes up.
+- every wrong character's score is **pushed down by exactly the share it
+  holds** — a character taking 40% of the percentage is doing real damage, a
+  character taking 1% is nearly harmless;
+- the right character's score is **pulled up by exactly the share it lacks** —
+  at 90% it barely needs help, at 8% it needs a lot.
 
-How much either way depends on how much of that 100% the character already holds.
-A character sitting on 70% is taking a great deal; one on 2% is barely
-interfering.
+Concretely: the model has just read `t`, the right answer is `h`, and the grid
+is still all zeros, so all thirteen characters hold the same 7.7%:
 
-Take three characters, where the right answer was the middle one:
-
-| character | percentage given | slope |
+| character | share held | what the step does |
 |---|---|---|
-| a | 70.1% | **+0.701** |
-| b — the right answer | 20.0% | 0.200 − 1 = **−0.800** |
-| c | 9.8% | **+0.098** |
+| `h` — the right answer | 7.7% | pulled up by 0.923 — the 92.3% it lacks |
+| `␣` | 7.7% | pushed down by 0.077 — the share it holds |
+| …every other character | 7.7% | pushed down by 0.077 |
 
-A positive slope means the score is pushing the loss up, so lower it. A negative
-slope means raising it would help. The right answer is the only one with anything
-to gain, and everything else is told to get out of the way — hardest for whoever
-is taking the most.
+The pushes balance exactly: twelve wrong characters lose 12 × 0.077 = 0.923,
+which is precisely what the right one gains. Every row's slopes sum to zero —
+share taken from the wrong answers is share handed to the right one.
 
 <div class="claim mt-7">
-Every score's slope is the percentage it was given. The right answer gets one
-subtracted, and that is the entire derivative.
+Wrong answers are pushed down by the share they hold. The right answer is
+pulled up by the share it lacks. That is the entire derivative.
 </div>
 
-Which is why it fits on one line. Given `probs`, the thirty-two rows of thirteen
-percentages, and `answers`, the right character for each of those rows:
+In code, with `probs` holding the thirty-two rows of thirteen percentages from
+a batch and `answers` holding each row's right character:
 
 ```python
-slopes = probs.copy()             # start from the percentages
-slopes[range(32), answers] -= 1   # take 1 off each row's answer
-slopes /= 32                      # the loss averages 32, so share it
+slopes = probs.copy()             # wrong answers: the share they hold
+slopes[range(32), answers] -= 1   # right answers: share minus 100%
+slopes /= 32                      # the loss averages 32, so share the blame
 ```
 
-The second line is picking one number out of each row — row 0 takes 1 off column
-`answers[0]`, row 1 off column `answers[1]`, and so on down all thirty-two.
+The second line picks one number out of each row — row 0 takes 1 off column
+`answers[0]`, row 1 off column `answers[1]`, and so on. The rest is
+bookkeeping: carry each prediction's slopes back to the grid row it was read
+from, adding up where a row was used more than once.
 
-Everything after that is bookkeeping: carry each prediction's slopes back to the
-table row they were read from, and add up where a row was used more than once.
-
-Notice what is missing. The loss itself is nowhere in that calculation — 2.5649
-gets worked out and printed, and then nothing reads it.
-
-What the loss supplied was the **rule**, not a number. That a score's slope is
-its percentage, and the right answer's is one less, follows from the definition
-of cross-entropy; it was worked out once, on paper, and after that the slope is
-arithmetic on percentages. You can see it in the lab below, where `gradient()`
-takes the table and a batch and never calls the loss function at all. The loss
-is computed alongside so you have something to watch.
+Notice that the loss's *value* appears nowhere. 2.5649 is printed and nothing
+reads it. The loss contributed the rule — worked out once from the definition
+of cross-entropy — and after that, the slopes are arithmetic on percentages.
 
 <aside class="aside measure mt-5">
-This is not a simplified stand-in for the real thing. Run the same batch through
-PyTorch's `loss.backward()` and the two gradients differ by 1.4 × 10⁻¹⁷ — the
-smallest gap two 64-bit numbers can have. The library computes exactly this,
-faster and for models where writing it out by hand would be unreasonable.
+This is not a simplified stand-in. Run the same batch through PyTorch's
+`loss.backward()` and the two gradients differ by 1.4 × 10⁻¹⁷ — the smallest
+gap two 64-bit numbers can have. The library computes exactly this, faster,
+for models too large to do it by hand.
 </aside>
 
-## Four lines, and it learns
+## Watch one row learn
+
+The text contains exactly eight facts about `t`: four times it was followed by
+`h`, four times by a space. Here is the row for `t`, and the eight facts as
+buttons. Each press is one gradient step.
+
+<div class="mt-7"><GptWidget name="gradient-step" client:only="react" /></div>
+
+The second experiment is the important one. Neither `h` nor `␣` can win,
+because whichever is ahead gets pushed down harder on the other's turn — the
+pushes only balance where the shares match how often each answer actually
+occurs. The row is being herded toward 50/50, which is the number
+[counting](/tiny-gpt/02-counting-pairs/#what-does-count-the-pairs-mean) read
+off the text directly.
+
+## The loop
 
 ```python
 for step in range(600):
@@ -121,85 +138,80 @@ for step in range(600):
     table -= learning_rate * gradient(table, xb, yb)
 ```
 
-Take a batch. Work out which way is downhill. Step. Repeat. Every model in this
-tutorial and every model anywhere is this loop with something more elaborate in
-the middle.
+The same thing, for all thirteen rows at once, on random batches. Take a
+batch, work out the slopes, step downhill, repeat. Every model in this
+tutorial — and every model anywhere — is this loop with something more
+elaborate in the middle.
 
 <div class="mt-7"><GptWidget name="train-bigram" client:only="react" /></div>
 
-## Is that good?
+## The two dashed lines
 
-A number going down is not the same as a number being good, so it is worth
-having something to measure against. There are two marks, and both come out of
-the text rather than out of the air.
+The chart draws two lines to judge the curve against, both computed from the
+text itself.
 
-The upper line is what a model that knows nothing scores: every character
-equally likely, which for a thirteen-character vocabulary is `ln(13)` —
-**2.5649**. The table starts as zeros, so training opens exactly there.
+The upper line, **2.5649**, is the loss of knowing nothing — every character
+given the same 1-in-13 chance. The grid starts at zeros, which is exactly
+that, so the curve begins on the line.
 
-The lower line is the best that *anything* seeing one character can possibly do.
-It is a property of the text, not of any model — how unpredictable this sentence
-actually is, given one character of context. That figure is **0.7889**, and no
-amount of training gets underneath it.
+The lower line, **0.7889**, is the best loss *any* model that sees one
+character can reach. It is a property of the text, not of the model: how
+unpredictable this sentence really is, given one character of context. No
+amount of training gets under it.
 
 <div class="claim mt-7">
-Six hundred steps take it from 2.5649 to about 0.86. The floor is 0.7889.
+Six hundred steps take the loss from 2.5649 to about 0.86. The floor is
+0.7889.
 </div>
 
-The figure above and the notebook below will not agree to the last digit, and
-neither is wrong: each draws its own random batches, so each takes a slightly
-different path down. They finish in the same place.
+Your run and the notebook below will not agree to the last digit — each draws
+its own random batches, so each takes a slightly different path down. They
+finish in the same place.
 
-## What it actually learned
+## What it learned
 
-Here is the part worth stopping on. Ask the trained table what follows `t`, and
-ask [the table built by counting](/tiny-gpt/02-counting-pairs/#what-does-count-the-pairs-mean) the same thing:
+Ask the trained grid what follows `t`, and ask the counted table the same:
 
 | after `t` | learned by training | counted directly |
 |---|---|---|
 | space | 55.4% | 50.0% |
 | `h` | 42.7% | 50.0% |
 
-Nobody told the loop to count anything. It never saw a tally. It was shown a
-loss and which way to move, six hundred times, and it arrived at
-approximately the table that counting produces in one pass.
+You watched the mechanism that makes this inevitable: the pushes settle where
+shares match frequencies. The loop was never told to count — it saw a loss and
+a direction, six hundred times, and landed next to the table counting produces
+in one pass.
 
 <div class="claim mt-8">
 Gradient descent rediscovered counting, without being told that counting was
 the answer.
 </div>
 
-That is the reason this is worth doing for a model where counting was already
-possible. Counting stops working the moment the model needs to weigh several
-characters against each other, which is the next thing that happens. Nudging
-does not.
+Which is why any of this is worth doing for a model where counting was
+available. Counting stops working the moment several characters have to be
+weighed against each other — the next part — and nudging does not.
 
-## Why the line wobbles
+## Why the curve wobbles
 
-The curve does not fall smoothly — it drops, jitters, sometimes climbs for a
-stretch. That is not a bug and it is not a failed run.
+Each step judges the grid on four short chunks picked at random, not on the
+whole text. Four chunks are not a fair sample, so the direction they suggest
+is roughly downhill rather than exactly. Individual steps go the wrong way;
+the trend does not.
 
-Each step judges the table on four short chunks picked at random, not on the
-whole text. Four chunks are not a fair sample of anything, so the direction they
-suggest is roughly downhill rather than exactly. Individual steps go the wrong
-way; the trend does not.
-
-Using the whole text every step would give a smooth curve and be far slower, and
-at real scale it is not an option at all. The noise is the price of not looking
-at everything, and it is a price worth paying.
+Judging on the whole text every step would smooth the curve and cost far more,
+and at real scale it is not an option at all. The noise is the price of not
+looking at everything.
 
 ## It still sees one character
 
-Same wall as ever. The model is a bigram — a good one now, near the best a
-bigram can be, and still incapable of remembering that it wrote `sat`.
-
-The difference is that it got there by being corrected. That mechanism does not
-care how complicated the thing in the middle is, which is why the next part can
-make it much more complicated.
+The model is a bigram — near the best a bigram can be now, and still unable to
+remember that it wrote `sat`. What changed is *how it got there*: by being
+corrected, and correction does not care how complicated the thing in the
+middle is. The next part makes it much more complicated.
 
 ## Build it yourself
 
-Five cells: the pieces gathered, the gradient written out, the loop, the two
-marks to judge it by, and the trained table set beside the counted one.
+Five cells: the pieces gathered, the slopes written out, the loop, the two
+dashed lines, and the trained row set beside the counted one.
 
 <div class="mt-8"><GptWidget name="training-lab" client:only="react" /></div>

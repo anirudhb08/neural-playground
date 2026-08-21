@@ -2,6 +2,7 @@ import { AttentionGrid } from "../AttentionGrid";
 import { BigramTable } from "../BigramTable";
 import { ContextWindow } from "../ContextWindow";
 import { EmbeddingTable } from "../EmbeddingTable";
+import { GradientStep } from "../GradientStep";
 import { Tokenizer } from "../Tokenizer";
 import { TrainBigram } from "../TrainBigram";
 import { WeightedDie } from "../WeightedDie";
@@ -39,6 +40,8 @@ export function GptWidget({ name }: Props) {
       return <ContextWindow />;
     case "embedding-table":
       return <EmbeddingTable />;
+    case "gradient-step":
+      return <GradientStep />;
     case "train-bigram":
       return <TrainBigram />;
     case "attention-grid":

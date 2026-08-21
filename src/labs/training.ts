@@ -49,10 +49,9 @@ print("vocabulary:", V, "| table:", table.shape)`,
     answers = yb.reshape(-1)
     N = len(answers)
 
-    # The whole derivative, and the same rule the page worked through:
-    # every score's slope is the percentage it was given, and the right
-    # answer gets one subtracted. Positive means lower this score,
-    # negative means raise it.
+    # The rule from the page: every wrong character is pushed down by
+    # the share it holds, and the right answer is pulled up by the share
+    # it lacks. d holds the slopes; subtracting them does the pushing.
     d = flat.copy()
     d[np.arange(N), answers] -= 1
     d /= N
