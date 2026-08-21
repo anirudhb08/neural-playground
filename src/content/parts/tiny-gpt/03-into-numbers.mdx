@@ -63,12 +63,11 @@ that looks fine in a print statement and is wrong.
 
 ## The numbers are labels, not quantities
 
-In the vocabulary above, `t` gets 9 and `a` gets 1. It is worth being explicit
-that this says nothing whatsoever about `t` and `a`.
+In the vocabulary above, `t` gets 9 and `a` gets 1 — and that says nothing
+about `t` or `a`.
 
-`t` is not nine times anything. It is not larger than `a`, not further along
-than `a`, not more important. The numbers are seat numbers — they identify, and
-they are otherwise empty. Sorting the characters gave us a *repeatable* set of
+`t` is not nine times anything, not larger, not more important. The numbers are
+seat numbers: they identify, nothing more. Sorting the characters gave us a *repeatable* set of
 seat numbers, not a meaningful one. Had we ordered them some other way, every
 number would change and nothing about the model would.
 
@@ -89,8 +88,7 @@ The vocabulary above was built from one short sentence, so most of the alphabet
 is missing from it. Type a `z` into the box and encoding stops with a
 `KeyError` — Python's way of saying the key you asked for is not in the table.
 
-That is the correct behaviour, and it is worth defending, because the obvious
-alternative is worse. A tokenizer could quietly map anything unrecognised to a
+That is the correct behaviour. The obvious alternative is worse. A tokenizer could quietly map anything unrecognised to a
 single spare number. Nothing would crash. The model would train on that number
 as though it were a real character, learn something confident and false about
 it, and you would find out weeks later, if ever.

@@ -24,8 +24,6 @@ them.
 
 ## In the other tutorial, you were the dataset
 
-That is worth remembering, because it is the thing that cannot be repeated here.
-
 You [drew each character yourself](/neural-networks/02-your-alphabet/), and then
 you said which one it was. Every single training example cost a drawing and a
 label, both produced by a person. A few dozen examples was an afternoon.
@@ -62,8 +60,8 @@ sentence.
 
 ## Nobody wrote the answers down
 
-Stop on that, because on screen it looks exactly like labelled training data — a
-question, `the ca`, and its answer, `t`. It looks like something a person made.
+On screen that looks exactly like labelled training data — a question,
+`the ca`, and its answer, `t`. Something a person made.
 
 Nobody made it. The label was already in the sentence, and shifting by one is
 the whole of how it was extracted. There is no annotation step in this project
@@ -85,8 +83,8 @@ train on quantities nobody could have annotated in a hundred lifetimes.
 ## Why the chunk has to be a fixed size
 
 You just chose a number with that slider — how many characters to take at a
-time. The model needs that number chosen once and then frozen, and it is worth
-knowing why, because it is a constraint that never goes away.
+time. The model needs that number chosen once and then frozen — a constraint that
+never goes away.
 
 Underneath, a model is matrix arithmetic: grids of numbers multiplied together.
 Multiplying grids only works when their shapes line up — a grid 8 wide can be
@@ -121,8 +119,8 @@ is a **batch**, and the rows have nothing whatever to do with each other.
 <aside class="aside measure mt-5">
 Nothing from row 0 reaches row 3. The model would give identical answers if you
 ran the rows one at a time, and batching is a throughput trick and nothing else.
-Worth holding on to: when attention arrives and characters genuinely
-do start affecting each other, it will matter that they only ever do so *within*
+When attention arrives and characters genuinely do start affecting each other,
+it will matter that they only ever do so *within*
 a row.
 </aside>
 

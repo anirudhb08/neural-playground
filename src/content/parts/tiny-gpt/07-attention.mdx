@@ -27,7 +27,7 @@ The obvious repair. Instead of taking the last character's row, take the average
 of every row in the window so far. That is strictly more information, and it is
 three lines of code.
 
-It also nearly works, which is the interesting part. Predicting after
+It also nearly works. Predicting after
 `the cat sat on the m`, an average gives the `m` — the character that actually
 determines what comes next — a twentieth of the say. The `the` from twenty
 positions back gets exactly as much.
@@ -97,7 +97,7 @@ those scores to negative infinity *before* the softmax, because `exp(-∞)` is
 exactly zero: forbidden positions end up with no weight at all, and the permitted
 ones keep their relative sizes untouched.
 
-Two consequences worth checking, and the lab checks both:
+Two consequences, and the lab checks both:
 
 - Every row adds to 100%. Attention distributes a fixed amount of interest; it
   never creates more.
