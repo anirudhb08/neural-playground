@@ -49,16 +49,16 @@ print("vocabulary:", V, "| table:", table.shape)`,
     answers = yb.reshape(-1)
     N = len(answers)
 
-    # The whole derivative. For every prediction, each score's share of the
-    # blame is the probability it was given — except the right answer, which
-    # gets one subtracted from it. Too confident and wrong is a big number;
-    # confident and right is near zero.
+    # The whole derivative, and the same rule the page worked through:
+    # every score's slope is the percentage it was given, and the right
+    # answer gets one subtracted. Positive means lower this score,
+    # negative means raise it.
     d = flat.copy()
     d[np.arange(N), answers] -= 1
     d /= N
 
-    # Send each prediction's blame back to the row it was read from. A row
-    # used twice in one batch collects both, which is what add.at is for.
+    # Carry each prediction's slopes back to the row they were read from.
+    # A row used twice in one batch collects both, which is what add.at is for.
     grad = np.zeros_like(table)
     np.add.at(grad, xb.reshape(-1), d)
     return grad

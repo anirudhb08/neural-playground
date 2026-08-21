@@ -47,24 +47,54 @@ rule as given and does something the other one could not: for a model this
 small, the gradient is short enough to write out and check.
 </aside>
 
-## The gradient, in one line
+## Working out the slope
 
-For this model it really is one line, and it is worth seeing because it kills
-the idea that gradients are produced by magic.
+The loss looks at one number only: the percentage given to the character that
+actually came next. So the question for every score is narrow — *if this score
+goes up a little, what happens to that percentage?*
 
-Each prediction hands out blame. Every character's score gets blamed by exactly
-the probability the model gave it — **except the right answer, which gets one
-subtracted**. So a character the model was confident about and wrong collects a
-lot of blame; one it was confident about and right collects almost none.
+There are only two answers.
+
+Raise the right answer's own score and its percentage goes up, so the loss goes
+down. Raise anything else and it takes percentage away from the right answer,
+because softmax shares out a fixed 100% between the thirteen. The loss goes up.
+
+How much either way depends on how much of that 100% the character already holds.
+A character sitting on 70% is taking a great deal; one on 2% is barely
+interfering.
+
+Take three characters, where the right answer was the middle one:
+
+| character | percentage given | slope |
+|---|---|---|
+| a | 70.1% | **+0.701** |
+| b — the right answer | 20.0% | 0.200 − 1 = **−0.800** |
+| c | 9.8% | **+0.098** |
+
+A positive slope means the score is pushing the loss up, so lower it. A negative
+slope means raising it would help. The right answer is the only one with anything
+to gain, and everything else is told to get out of the way — hardest for whoever
+is taking the most.
+
+<div class="claim mt-7">
+Every score's slope is the percentage it was given. The right answer gets one
+subtracted, and that is the entire derivative.
+</div>
+
+Which is why it fits on one line. Given `probs`, the thirty-two rows of thirteen
+percentages, and `answers`, the right character for each of those rows:
 
 ```python
-d = probs.copy()
-d[range(N), answers] -= 1
+slopes = probs.copy()             # start from the percentages
+slopes[range(32), answers] -= 1   # take 1 off each row's answer
+slopes /= 32                      # the loss averages 32, so share it
 ```
 
-That is the derivative of the loss with respect to the scores. Everything after
-it is bookkeeping: send each prediction's blame back to the table row it was
-read from, and add up where a row was used more than once.
+The second line is picking one number out of each row — row 0 takes 1 off column
+`answers[0]`, row 1 off column `answers[1]`, and so on down all thirty-two.
+
+Everything after that is bookkeeping: carry each prediction's slopes back to the
+table row they were read from, and add up where a row was used more than once.
 
 <aside class="aside measure mt-5">
 This is not a simplified stand-in for the real thing. Run the same batch through
