@@ -133,17 +133,18 @@ the lines they belong to.
 
 ## The number training has to beat
 
-A loss of 2.5 means nothing by itself. It means something only beside the loss of
-a model that knows nothing, so that is the number to get first.
+A loss of 2.5 means nothing by itself. It means something only beside the loss
+of a model that knows nothing, so that is the number to get first.
 
-Take the thirteen-by-thirteen grid — the one every character's row is fetched
-from — and set every number in it to zero.
+What does knowing nothing look like? No opinion at all: whatever character it has
+just read, it says all thirteen are equally likely. One in thirteen, every time,
+regardless.
 
-Now every character in every row has the same score, and equal scores come out of
-softmax as equal percentages: one in thirteen for everything, whatever came
-before.
+A grid of zeros does exactly that. Every character in every row gets the same
+score, and softmax turns equal scores into equal percentages — so the grid is
+zeroed not as a trick, but because that is what having no opinion is.
 
-Cross-entropy then looks only at the character that actually came next — and that
+Cross-entropy then looks only at the character that actually came next, and that
 one got one in thirteen like all the rest. So every prediction in the batch costs
 `-log(1/13)`, and the average of thirty-two identical numbers is that same
 number: `ln(13)`, or **2.5649**. Exactly, not nearly, and the lab prints it.
