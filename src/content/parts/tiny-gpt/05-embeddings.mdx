@@ -141,8 +141,12 @@ from — and set every number in it to zero.
 
 Now every character in every row has the same score, and equal scores come out of
 softmax as equal percentages: one in thirteen for everything, whatever came
-before. The loss of being that unsure is `-log(1/13)`, or `ln(13)`, or
-**2.5649**. The lab prints exactly that.
+before.
+
+Cross-entropy then looks only at the character that actually came next — and that
+one got one in thirteen like all the rest. So every prediction in the batch costs
+`-log(1/13)`, and the average of thirty-two identical numbers is that same
+number: `ln(13)`, or **2.5649**. Exactly, not nearly, and the lab prints it.
 
 Random numbers do *worse* — 2.8912. That is not a bug. Zeros are merely unsure; a
 random grid is confident, and confident about the wrong things:
