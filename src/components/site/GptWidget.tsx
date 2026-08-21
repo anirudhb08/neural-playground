@@ -3,6 +3,7 @@ import { BigramTable } from "../BigramTable";
 import { ContextWindow } from "../ContextWindow";
 import { EmbeddingTable } from "../EmbeddingTable";
 import { GradientStep } from "../GradientStep";
+import { MultiHead } from "../MultiHead";
 import { Tokenizer } from "../Tokenizer";
 import { TrainBigram } from "../TrainBigram";
 import { WeightedDie } from "../WeightedDie";
@@ -10,6 +11,7 @@ import { PythonLab } from "../PythonLab";
 import { bigramLab } from "../../labs/bigram";
 import { contextWindowLab } from "../../labs/contextWindow";
 import { embeddingsLab } from "../../labs/embeddings";
+import { multiHeadLab } from "../../labs/multiHead";
 import { tokenizerLab } from "../../labs/tokenizer";
 import { attentionLab } from "../../labs/attention";
 import { trainingLab } from "../../labs/training";
@@ -46,6 +48,8 @@ export function GptWidget({ name }: Props) {
       return <TrainBigram />;
     case "attention-grid":
       return <AttentionGrid />;
+    case "multi-head":
+      return <MultiHead />;
     case "weighted-die":
       return <WeightedDie />;
     case "bigram-lab":
@@ -54,6 +58,15 @@ export function GptWidget({ name }: Props) {
           steps={bigramLab()}
           prepare={async () => {}}
           closing="That is a language model, complete. It has no parameters, learned nothing, and still produces text that is locally plausible and globally nonsense. The next part starts on why."
+        />
+      );
+    case "multi-head-lab":
+      return (
+        <PythonLab
+          steps={multiHeadLab()}
+          prepare={async () => {}}
+          library="NumPy"
+          closing="Four specialists for the price of one generalist, their answers in separate lanes. What nothing here does yet is think about what was gathered — that is the next part."
         />
       );
     case "attention-lab":

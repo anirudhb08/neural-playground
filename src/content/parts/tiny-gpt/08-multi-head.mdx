@@ -1,0 +1,116 @@
+---
+tutorial: tiny-gpt
+order: 8
+title: Many heads at once
+teaches: [multi-head attention, concatenation, head size, parameter budget]
+blurb: >-
+  A head asks one question of the past and answers with one weighted average —
+  and averaging shreds: two different pasts can leave identical blends. So run
+  several heads at once and lay their answers side by side.
+searchTitle: "Multi-head attention from scratch: why one head is not enough"
+description: "Why a single attention head loses information no matter how well it is trained, how running several heads in parallel fixes it without adding a single parameter, and the axis the glue has to go on."
+---
+
+import { GptWidget } from "../../../components/site/GptWidget";
+
+Each position now leaves attention carrying one answer, gathered from its past
+by one set of learned matrices. The question is whether one answer is enough.
+
+Take *the cat sat on the mat because it was soft*, mid-sentence. Continuing it
+well needs the recent grammar — an adjective is underway. Working out what `it`
+means needs `cat` and `mat`, much further back. Two different needs, pointing
+at different places, at the same moment.
+
+## One average can only blend
+
+A head could split its attention — half on the grammar, half on `mat`. Here is
+why that is not the same as having both.
+
+The head's answer is a weighted average of value notes. Suppose it attends
+50/50 to two positions whose notes are `[2, 0]` and `[0, 2]`. The average is
+`[1, 1]`. Now suppose the two notes had been `[1, 1]` and `[1, 1]` — the
+average is `[1, 1]` again.
+
+Two different pasts, one identical summary. Whatever runs after the head sees
+`[1, 1]` and cannot know which world it is in. The information was in hand,
+and the averaging destroyed it — no training fixes that, because it is
+arithmetic, not a bad habit.
+
+<div class="claim mt-7">
+An average can show where a head looked. It cannot keep separate what it
+found.
+</div>
+
+Kept side by side instead — `[2, 0, 0, 2]` against `[1, 1, 1, 1]` — the two
+worlds stay distinguishable. That is the whole design hint.
+
+## Several heads, side by side
+
+Run more than one complete head on the same input. Each gets its own `W_q`,
+`W_k`, `W_v`, so each has its own idea of what to look for, what to offer, and
+what to hand over. Nothing inside a head changes at all.
+
+Then glue the answers side by side: the output's first columns are head one's
+answer, the next columns head two's. Which-came-from-which survives as
+position in the vector — no blending between heads, ever.
+
+<div class="mt-7"><GptWidget name="multi-head" client:only="react" /></div>
+
+## Specialists at the price of one generalist
+
+Running four heads sounds like four times the machinery. It is not, because
+the heads are made narrower to pay for their number: with a width-8 model,
+each of four heads gets width 2, and gluing four width-2 answers rebuilds
+exactly width 8.
+
+Count the learned numbers. One full-width head is three 8×8 matrices — 192
+numbers. Four quarter-width heads are twelve 8×2 matrices — 192 numbers. The
+same budget, sliced into four independent rulebooks instead of one.
+
+<div class="claim mt-7">
+Multi-head attention adds nothing. It splits what was already there into
+several narrower questions asked at once.
+</div>
+
+Each narrow head has less room — two numbers of answer instead of eight — so
+the trade is depth of one view against number of views. Training decides how
+each head spends its slice, and trained models really do split the work:
+heads specialise, one tracking nearby grammar while another reaches back for
+references.
+
+## The axis the glue goes on
+
+The glue is one call, and it has a wrong setting that does not crash. Glued on
+the feature axis, four `(6, 2)` answers become `(6, 8)`: six positions, each
+described by all four heads. Glued on the default axis they become `(24, 2)` —
+the four answers stacked end to end as if they were twenty-four positions.
+
+Nothing complains at the glue. It complains later, wherever a `(6, 8)` was
+expected, which is the quiet kind of wrong worth having seen once. The lab
+does it deliberately.
+
+<aside class="aside measure mt-5">
+One more trap for later, when this is written with a library: PyTorch only
+tracks parameters it can see, and heads kept in a plain Python list are
+invisible to it — they would simply never train. `nn.ModuleList` exists for
+exactly this.
+</aside>
+
+## Gathering is not thinking
+
+Attention — one head or many — only ever *collects*: every output is a
+weighted average of value notes, laid side by side. Nothing yet chews on what
+was collected. A position that has just learned it sits after `the ca` still
+needs something to *conclude* `t` from that — and there is no piece in the
+model that does it.
+
+That piece, and the trick of stacking the whole arrangement into layers, is
+the next part.
+
+## Build it yourself
+
+Six cells: the head packed into a function, the blend that shreds, two heads
+disagreeing about the same input, the glue and its wrong axis, the 192 = 192
+count, and the finished multi-head in three lines.
+
+<div class="mt-8"><GptWidget name="multi-head-lab" client:only="react" /></div>
