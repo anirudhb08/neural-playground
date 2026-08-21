@@ -133,21 +133,20 @@ the lines they belong to.
 
 ## The number training has to beat
 
-A loss of 2.5 means nothing by itself. It means something only beside the loss
-of a model that knows nothing, so that is the number to get first.
+A loss of 2.5 means nothing by itself. It means something beside the loss of a
+model that knows nothing, so get that one first.
 
-What does knowing nothing look like? No opinion at all: whatever character it has
-just read, it says all thirteen are equally likely. One in thirteen, every time,
-regardless.
+Knowing nothing means having no opinion: whatever character it just read, all
+thirteen are equally likely. One in thirteen, every time.
 
-A grid of zeros does exactly that. Every character in every row gets the same
-score, and softmax turns equal scores into equal percentages — so the grid is
-zeroed not as a trick, but because that is what having no opinion is.
+A grid of zeros does that. Equal scores in every row, and softmax turns equal
+scores into equal percentages. Zeros are not a trick — they are what no opinion
+looks like.
 
-Cross-entropy then looks only at the character that actually came next, and that
-one got one in thirteen like all the rest. So every prediction in the batch costs
-`-log(1/13)`, and the average of thirty-two identical numbers is that same
-number: `ln(13)`, or **2.5649**. Exactly, not nearly, and the lab prints it.
+Cross-entropy looks only at the character that came next, and that one got one in
+thirteen like the rest. So every prediction costs `-log(1/13)`, and the average
+of thirty-two identical numbers is the same again: `ln(13)`, or **2.5649**.
+Exactly, not nearly, and the lab prints it.
 
 Random numbers do *worse* — 2.8912. That is not a bug. Zeros are merely unsure; a
 random grid is confident, and confident about the wrong things:
