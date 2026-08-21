@@ -167,8 +167,9 @@ export function GradientStep() {
         certainty — it believes the only fact it has been shown. Then reset and
         press <em>alternate</em>: h and ␣ squeeze everything else out and end up
         trading a band around 50% between them, because the pushes only balance
-        where the shares match how often each answer occurs. Nudges here use a
-        learning rate of 0.5.
+        where the shares match how often each answer occurs. The learning rate is
+        0.5, the ▲▼ figures are the nudges applied to each score, and the bars
+        are the shares softmax makes of the scores.
       </p>
     </div>
   );

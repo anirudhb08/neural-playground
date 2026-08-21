@@ -80,11 +80,15 @@ That is the entire logic, and the slopes fall straight out of it:
 Concretely: the model has just read `t`, the right answer is `h`, and the grid
 is still all zeros, so all thirteen characters hold the same 7.7%:
 
-| character | share held | what the step does |
+| character | share held | slope |
 |---|---|---|
-| `h` — the right answer | 7.7% | pulled up by 0.923 — the 92.3% it lacks |
-| `␣` | 7.7% | pushed down by 0.077 — the share it holds |
-| …every other character | 7.7% | pushed down by 0.077 |
+| `h` — the right answer | 7.7% | **−0.923** — pull up, by the 92.3% it lacks |
+| `␣` | 7.7% | **+0.077** — push down, by the share it holds |
+| …every other character | 7.7% | **+0.077** — push down |
+
+A slope is a direction and a strength, not yet a movement. The update rule
+multiplies it by the learning rate before anything moves — at a rate of 0.5,
+that first press moves `h`'s score up by 0.5 × 0.923 = **0.46**, not 0.923.
 
 The pushes balance exactly: twelve wrong characters lose 12 × 0.077 = 0.923,
 which is precisely what the right one gains. Every row's slopes sum to zero —
@@ -124,7 +128,10 @@ for models too large to do it by hand.
 
 The text contains exactly eight facts about `t`: four times it was followed by
 `h`, four times by a space. Here is the row for `t`, and the eight facts as
-buttons. Each press is one gradient step.
+buttons. Each press is one step at a learning rate of 0.5, so the first press
+shows **▲ 0.46** beside `h` — the 0.923 pull, scaled — and its bar climbs from
+7.7% to 12.1%. The arrows are nudges to the *scores*; the bars are the shares
+softmax makes of them.
 
 <div class="mt-7"><GptWidget name="gradient-step" client:only="react" /></div>
 
