@@ -25,6 +25,13 @@ The whole model is the grid: 13 rows of 13 scores, **169 numbers**, nothing
 else. The loss is computed from them, so turning any one of them moves the
 loss.
 
+The grid is not the `(4, 8, 13)` block from
+[the last part](/tiny-gpt/05-embeddings/#looking-up-a-whole-batch-at-once).
+That block was one batch passing through: thirty-two characters, each swapped
+for a *copy* of its row from this grid, rebuilt for every batch and thrown
+away. The grid is what the copies came from. Training changes the grid, and
+nothing else.
+
 Training means finding the setting of those 169 numbers where the loss is
 lowest. Trying settings is hopeless — allow each number just ten possible
 values and there are 10¹⁶⁹ combinations, against roughly 10⁸⁰ atoms in the

@@ -78,7 +78,9 @@ its row from the grid. One line of Python, no loop.
 Before: four rows of eight numbers. After: four rows of eight, where each one is
 thirteen numbers instead of one. As shapes, `(4, 8)` becomes `(4, 8, 13)`.
 
-That swap is the whole of what an embedding layer does in any library.
+That swap is the whole of what an embedding layer does in any library. And note
+what did not change: the grid still holds the same 169 numbers — the batch only
+took copies of thirteen of its rows.
 
 ## Scores, not percentages
 
