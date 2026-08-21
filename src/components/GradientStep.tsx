@@ -15,6 +15,11 @@ import { useEffect, useRef, useState } from "react";
  * between themselves — the pushes only balance where the shares match how
  * often each answer occurs, which is why training lands where counting lands.
  *
+ * The scores are displayed, not just the shares. A reader added an arrow to
+ * a percentage and asked why 12.1 + 0.44 ≠ 18.1 — the arrows land on scores
+ * the widget was keeping invisible. With the column shown, 0.46 + 0.44 = 0.90
+ * is checkable on screen, and the bars are visibly a different column.
+ *
  * The learning rate here is 0.5, not the loop's 1.0. Measured: at 1.0 a
  * single alternating example seesaws between 33% and 64%, which buries the
  * equilibrium under the oscillation. At 0.5 the band is 42–57% and the story
@@ -117,11 +122,19 @@ export function GradientStep() {
         </button>
       </div>
 
-      <ul className="mt-5 flex list-none flex-col gap-1 p-0">
+      <div className="mono-note mt-5 flex items-center gap-2 text-graphite/70">
+        <span className="w-4 shrink-0" />
+        <span className="w-12 shrink-0 text-right">score</span>
+        <span>share</span>
+      </div>
+      <ul className="mt-1 flex list-none flex-col gap-1 p-0">
         {CHARS.map((c, i) => (
           <li key={c} className="flex items-center gap-2">
             <span className="w-4 shrink-0 text-right font-mono text-[0.6875rem] text-graphite">
               {show(c)}
+            </span>
+            <span className="w-12 shrink-0 text-right font-mono text-[0.6875rem] text-ink">
+              {(scores[i] >= 0 ? "+" : "") + scores[i].toFixed(2)}
             </span>
             <span
               className={`h-3 shrink-0 ${i === lastAnswer ? "bg-riso/70" : "bg-plot/70"}`}
@@ -167,8 +180,9 @@ export function GradientStep() {
         certainty — it believes the only fact it has been shown. Then reset and
         press <em>alternate</em>: h and ␣ squeeze everything else out and end up
         trading a band around 50% between them, because the pushes only balance
-        where the shares match how often each answer occurs. Learning rate 0.5;
-        ▲▼ are the nudges to the scores, the bars the shares they produce.
+        where the shares match how often each answer occurs. Learning rate 0.5; the
+        arrows land on the score column, and the bars are softmax of all
+        thirteen scores.
       </p>
     </div>
   );
