@@ -40,9 +40,16 @@ print(np.round(avg[3], 3))
 # and a plain average cannot tell them apart.`,
   },
   {
-    title: "three questions asked of the same thing",
-    lead: "The repair is to weight the average, and to work the weights out from the content rather than fix them in advance. Every position produces three different vectors from the same input, through three different learned matrices.",
-    code: `head = C   # how wide the three vectors are
+    title: "the failure, then the three matrices that fix it",
+    lead: "Weights have to come from the content, and the obvious comparison is each row dotted with the others. Run it: matching yourself scores high, matching anyone else scores nothing, because x·x is your own length squared. The fix is to compare through two different learned matrices — and to hand over a third thing entirely.",
+    code: `# The obvious comparison: every row dotted with every row.
+self_scores = x @ x.T / np.sqrt(C)
+print("score for matching yourself:", round(float(np.diag(self_scores).mean()), 2))
+print("score for anyone else      :", round(float(self_scores[~np.eye(T, dtype=bool)].mean()), 2))
+# Positive and about the square root of the width for yourself, zero for
+# strangers — so untrained attention would mostly listen to itself.
+
+head = C   # how wide the three vectors are
 
 W_q = rng.normal(0, 1, (C, head))   # what am I looking for?
 W_k = rng.normal(0, 1, (C, head))   # what do I contain?

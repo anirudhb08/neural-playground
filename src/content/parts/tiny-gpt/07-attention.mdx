@@ -47,43 +47,64 @@ carries nothing. Any rule based on position alone gets this exactly backwards,
 which is why the weights have to be computed from the content every time.
 </aside>
 
-## Two signs and a private note
+## A weight is a comparison
 
-Here is the arrangement that makes it work. Picture a room of people, each
-holding up two signs and holding one note they do not show.
+The weights have to come out of the content, and each position's content is a
+vector — the row the embedding table gave its character. The one-number
+comparison between two vectors is the **dot product**: multiply them element by
+element, add it up. Large when they point the same way, negative when they
+oppose.
 
-- The **query** sign says *here is what I am looking for*.
-- The **key** sign says *here is what I have*.
-- The **value** note is what they hand over if somebody chooses them.
+So the obvious move: weight position *j* for position *i* by dotting their rows,
+`x[i] · x[j]`.
 
-To work out how much person A should take from person B, read A's query against
-B's key. Good match, B's note counts for a lot. Poor match, it is ignored.
+Measured over two thousand random draws, at this page's head width of sixteen:
+a position scores **+4.00** against itself and **+0.01** against everyone else,
+and after softmax the last position of a six-character window keeps **82%** of
+its attention for itself. An even split would be 17%.
 
-All three come from the same source — the row the embedding table gave that
-character — passed through three *different* sets of learned numbers. Same
-person, three different rulebooks, three genuinely different vectors.
+The failure is built in. `x · x` is the length of your own vector, squared —
+always large, always positive, and nothing about the *content* earned it. A
+model wired this way mostly listens to itself, and a position that listens to
+itself learns nothing from the window.
+
+## What you look for is not what you are
+
+The fix is to stop comparing what positions *are*. Put each row through a
+learned matrix before comparing — and use a *different* matrix on each side:
 
 ```python
-Q = x @ W_q     # what am I looking for?
-K = x @ W_k     # what do I have?
-V = x @ W_v     # what do I pass on?
+Q = x @ W_q     # query — what this position is looking for
+K = x @ W_k     # key — what it offers to be found by
+V = x @ W_v     # value — what it hands over if chosen
 ```
 
-Those three matrices are the only things here that get learned. Everything after
-them is arithmetic that could not be otherwise.
+Same row in, three different vectors out. With `W_q` and `W_k` different, the
+diagonal loses its advantage entirely — the same measurement gives a self-share
+of 17%, exactly the even split — and who matches whom is decided by the learned
+numbers, not by geometry. The value matrix is the same idea once more: what a
+position passes on need not be its raw row either.
+
+Those three matrices are the only things in attention that get learned.
+Everything after them is arithmetic that could not be otherwise.
+
+<div class="claim mt-7">
+What you look for, what you offer, and what you hand over are three different
+things. That is the entire reason there are three matrices.
+</div>
 
 ## Everything against everything
 
-Comparing one query to one key is a dot product: multiply the two vectors
-element by element and add it up. Large when they point the same way, negative
-when they oppose.
-
-Do that for every pair and the result is a square: one row per position doing the
-looking, one column per position being looked at.
+Every query dotted against every key gives a square: one row per position doing
+the looking, one column per position being looked at. Three things happen to
+that square, and the figure steps through them — press **▶** to watch one row
+make the whole journey.
 
 <div class="mt-7"><GptWidget name="attention-grid" client:only="react" /></div>
 
-Three things happen to that square, and the figure steps through them.
+The second checkbox replays the failure from above: tick *compare x with x* and
+the diagonal lights up — every row keeps at least 68% for itself, most 87% or
+more. Untick it and the advantage is gone.
 
 ## The future is off limits
 
@@ -106,15 +127,14 @@ Two consequences, and the lab checks both:
 
 ## The divisor that makes it trainable
 
-Now switch off the *divide by √16* box in the figure. With it on, the largest
-share in any row sits somewhere between 0.41 and 0.74 — genuine shares. With it
-off, almost every row puts 0.94 or more onto a single position and rounds the
-rest to zero.
+Now untick *divide by √16* in the figure. With it on, the largest share in
+each looking row sits between 0.32 and 0.75 — genuine shares. Without it every
+row sharpens, three of the six past 0.77 — and the effect grows with head
+width, which is the point:
 
-That is not a rounding artefact. A dot product adds up as many products as the
-vectors are wide, so the wider the head, the larger the scores — for reasons
-having nothing to do with the language. Measured, over twenty thousand random
-pairs:
+A dot product adds up as many products as the vectors are wide, so the wider
+the head, the larger the scores — for reasons having nothing to do with the
+language. Measured over twenty thousand random pairs:
 
 | head width | spread of raw scores | after dividing by √width |
 |---|---|---|
@@ -154,8 +174,9 @@ has ever been trained.
 
 ## Build it yourself
 
-Six cells: the average that nearly works, the three matrices, the grid of every
-query against every key, the mask and its two guarantees, the measured reason
-for the divisor, and the whole head in six lines.
+Six cells: the average that nearly works, the self-matching failure and the
+three matrices that fix it, the grid of every query against every key, the mask
+and its two guarantees, the measured reason for the divisor, and the whole head
+in six lines.
 
 <div class="mt-8"><GptWidget name="attention-lab" client:only="react" /></div>
