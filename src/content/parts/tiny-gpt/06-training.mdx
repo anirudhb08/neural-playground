@@ -8,7 +8,7 @@ blurb: >-
   are. Nothing yet changes them. Four lines fix that — and the numbers they
   arrive at turn out to be ones you have already seen.
 searchTitle: "The training loop, written out: gradients without autograd"
-description: "How a model actually improves: what a gradient is, how to compute one by hand for a small model, and the four-line loop that turns a wrongness score into a model that works."
+description: "How a model actually improves: what a gradient is, how to compute one by hand for a small model, and the four-line loop that turns a measure of wrongness into a model that works."
 ---
 
 import { GptWidget } from "../../../components/site/GptWidget";
@@ -29,7 +29,7 @@ Take a small step that way. Feel again. Repeat.
 
 That is the whole method, and the slope under your feet has a name: the
 **gradient**. It answers one question, asked of every number in the model at
-once — *if I nudge you up slightly, does the score get better or worse, and by
+once — *if I nudge you up slightly, does the loss get better or worse, and by
 how much?* The step is then always the same rule:
 
 ```
@@ -96,6 +96,16 @@ The second line is picking one number out of each row — row 0 takes 1 off colu
 Everything after that is bookkeeping: carry each prediction's slopes back to the
 table row they were read from, and add up where a row was used more than once.
 
+Notice what is missing. The loss itself is nowhere in that calculation — 2.5649
+gets worked out and printed, and then nothing reads it.
+
+What the loss supplied was the **rule**, not a number. That a score's slope is
+its percentage, and the right answer's is one less, follows from the definition
+of cross-entropy; it was worked out once, on paper, and after that the slope is
+arithmetic on percentages. You can see it in the lab below, where `gradient()`
+takes the table and a batch and never calls the loss function at all. The loss
+is computed alongside so you have something to watch.
+
 <aside class="aside measure mt-5">
 This is not a simplified stand-in for the real thing. Run the same batch through
 PyTorch's `loss.backward()` and the two gradients differ by 1.4 × 10⁻¹⁷ — the
@@ -151,7 +161,7 @@ ask [the table built by counting](/tiny-gpt/02-counting-pairs/#what-does-count-t
 | `h` | 42.7% | 50.0% |
 
 Nobody told the loop to count anything. It never saw a tally. It was shown a
-wrongness score and which way to move, six hundred times, and it arrived at
+loss and which way to move, six hundred times, and it arrived at
 approximately the table that counting produces in one pass.
 
 <div class="claim mt-8">
