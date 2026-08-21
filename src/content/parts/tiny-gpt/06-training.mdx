@@ -26,11 +26,9 @@ else. The loss is computed from them, so turning any one of them moves the
 loss.
 
 The grid is not the `(4, 8, 13)` block from
-[the last part](/tiny-gpt/05-embeddings/#looking-up-a-whole-batch-at-once).
-That block was one batch passing through: thirty-two characters, each swapped
-for a *copy* of its row from this grid, rebuilt for every batch and thrown
-away. The grid is what the copies came from. Training changes the grid, and
-nothing else.
+[the last part](/tiny-gpt/05-embeddings/#looking-up-a-whole-batch-at-once) —
+that was one batch passing through, built from copies of these rows and thrown
+away. Training changes the grid, and nothing else.
 
 Training means finding the setting of those 169 numbers where the loss is
 lowest. Trying settings is hopeless — allow each number just ten possible
@@ -157,9 +155,10 @@ elaborate in the middle.
 The chart draws two lines to judge the curve against, both computed from the
 text itself.
 
-The upper line, **2.5649**, is the loss of knowing nothing — every character
-given the same 1-in-13 chance. The grid starts at zeros, which is exactly
-that, so the curve begins on the line.
+The upper line, **2.5649**, is
+[the baseline from the last part](/tiny-gpt/05-embeddings/#the-number-training-has-to-beat)
+— the loss of knowing nothing. The grid starts at zeros, which is exactly that,
+so the curve begins on the line.
 
 The lower line, **0.7889**, is the best loss *any* model that sees one
 character can reach. It is a property of the text, not of the model: how
@@ -174,6 +173,17 @@ Six hundred steps take the loss from 2.5649 to about 0.86. The floor is
 Your run and the notebook below will not agree to the last digit — each draws
 its own random batches, so each takes a slightly different path down. They
 finish in the same place.
+
+## Why the curve wobbles
+
+Each step judges the grid on four short chunks picked at random, not on the
+whole text. Four chunks are not a fair sample, so the direction they suggest
+is roughly downhill rather than exactly. Individual steps go the wrong way;
+the trend does not.
+
+Judging on the whole text every step would smooth the curve and cost far more,
+and at real scale it is not an option at all. The noise is the price of not
+looking at everything.
 
 ## What it learned
 
@@ -196,25 +206,10 @@ the answer.
 
 Which is why any of this is worth doing for a model where counting was
 available. Counting stops working the moment several characters have to be
-weighed against each other — the next part — and nudging does not.
-
-## Why the curve wobbles
-
-Each step judges the grid on four short chunks picked at random, not on the
-whole text. Four chunks are not a fair sample, so the direction they suggest
-is roughly downhill rather than exactly. Individual steps go the wrong way;
-the trend does not.
-
-Judging on the whole text every step would smooth the curve and cost far more,
-and at real scale it is not an option at all. The noise is the price of not
-looking at everything.
-
-## It still sees one character
-
-The model is a bigram — near the best a bigram can be now, and still unable to
-remember that it wrote `sat`. What changed is *how it got there*: by being
-corrected, and correction does not care how complicated the thing in the
-middle is. The next part makes it much more complicated.
+weighed against each other, and nudging does not care — correction never asks
+how complicated the thing in the middle is. The next part makes it much more
+complicated: the model is still blind past one character, and that is the last
+wall left.
 
 ## Build it yourself
 

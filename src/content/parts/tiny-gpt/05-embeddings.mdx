@@ -120,13 +120,10 @@ You have met both in the other tutorial, and neither changes here:
   and ignoring the other twelve. The number it produces is called the **loss**,
   and shrinking it is the whole of training.
 
-What changes is how many groups there are. One drawing produced one group of
-scores; four rows of eight positions produce thirty-two groups of thirteen, each
-worked out on its own.
-
-If two positions ever shared a total, a character's chances in one place would
-depend on what was happening elsewhere in the sentence. Each position's
-percentages come from its own thirteen numbers and nothing else.
+What changes is the amount. One drawing produced one group of scores; a batch
+produces thirty-two groups of thirteen, and each is worked out from its own
+thirteen numbers alone — if two positions shared a total, a character's chances
+in one place would depend on what was happening elsewhere in the sentence.
 
 Then the loss: thirty-two predictions, thirty-two right answers, one cost each,
 averaged into one number for the batch.
@@ -174,15 +171,12 @@ Training moves fastest where the loss rises fastest. A confident mistake has to
 hurt, or nothing corrects it.
 </div>
 
-## It still only sees one character
-
-None of this bought any context. The model reads one character and predicts the
-next, exactly like the counted bigram — same window, same blindness,
+That is the whole kit: a model of 169 numbers, its percentages, and a loss —
+sitting at 2.8912, frozen, because nothing yet changes the numbers. Changing
+them is the next part. One caution to carry there: none of this bought context.
+The model still reads one character, exactly like the counted bigram —
 [same `sathe`](/tiny-gpt/02-counting-pairs/#why-is-it-nonsense-if-every-pair-is-legal).
-
-What changed is that its table can be corrected. That is the whole of the
-progress, and it is enough: next it gets trained, and after that it finally gets
-to look further back.
+What it bought is a model that can be corrected.
 
 ## Build it yourself
 
