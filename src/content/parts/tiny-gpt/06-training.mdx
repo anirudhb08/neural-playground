@@ -86,9 +86,8 @@ is still all zeros, so all thirteen characters hold the same 7.7%:
 | `␣` | 7.7% | **+0.077** — push down, by the share it holds |
 | …every other character | 7.7% | **+0.077** — push down |
 
-A slope is a direction and a strength, not yet a movement. The update rule
-multiplies it by the learning rate before anything moves — at a rate of 0.5,
-that first press moves `h`'s score up by 0.5 × 0.923 = **0.46**, not 0.923.
+A slope is not yet a movement — the step multiplies it by the learning rate.
+At 0.5, this press moves `h`'s score by 0.46, not 0.923.
 
 The pushes balance exactly: twelve wrong characters lose 12 × 0.077 = 0.923,
 which is precisely what the right one gains. Every row's slopes sum to zero —
@@ -109,8 +108,7 @@ slopes /= 32                      # the loss averages 32, so share the blame
 ```
 
 The second line picks one number out of each row — row 0 takes 1 off column
-`answers[0]`, row 1 off column `answers[1]`, and so on. The rest is
-bookkeeping: carry each prediction's slopes back to the grid row it was read
+`answers[0]`, and so on. The rest is bookkeeping: carry each prediction's slopes back to the grid row it was read
 from, adding up where a row was used more than once.
 
 Notice that the loss's *value* appears nowhere. 2.5649 is printed and nothing
@@ -128,10 +126,7 @@ for models too large to do it by hand.
 
 The text contains exactly eight facts about `t`: four times it was followed by
 `h`, four times by a space. Here is the row for `t`, and the eight facts as
-buttons. Each press is one step at a learning rate of 0.5, so the first press
-shows **▲ 0.46** beside `h` — the 0.923 pull, scaled — and its bar climbs from
-7.7% to 12.1%. The arrows are nudges to the *scores*; the bars are the shares
-softmax makes of them.
+buttons. Each press is one step at a learning rate of 0.5.
 
 <div class="mt-7"><GptWidget name="gradient-step" client:only="react" /></div>
 
