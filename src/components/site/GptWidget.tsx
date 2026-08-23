@@ -5,11 +5,13 @@ import { DeepStack } from "../DeepStack";
 import { EmbeddingTable } from "../EmbeddingTable";
 import { GradientStep } from "../GradientStep";
 import { MultiHead } from "../MultiHead";
+import { ParamCensus } from "../ParamCensus";
 import { Tokenizer } from "../Tokenizer";
 import { TrainBigram } from "../TrainBigram";
 import { WeightedDie } from "../WeightedDie";
 import { PythonLab } from "../PythonLab";
 import { bigramLab } from "../../labs/bigram";
+import { assembleLab } from "../../labs/assemble";
 import { blockLab } from "../../labs/block";
 import { contextWindowLab } from "../../labs/contextWindow";
 import { embeddingsLab } from "../../labs/embeddings";
@@ -54,6 +56,8 @@ export function GptWidget({ name }: Props) {
       return <MultiHead />;
     case "deep-stack":
       return <DeepStack />;
+    case "param-census":
+      return <ParamCensus />;
     case "weighted-die":
       return <WeightedDie />;
     case "bigram-lab":
@@ -62,6 +66,15 @@ export function GptWidget({ name }: Props) {
           steps={bigramLab()}
           prepare={async () => {}}
           closing="That is a language model, complete. It has no parameters, learned nothing, and still produces text that is locally plausible and globally nonsense. The next part starts on why."
+        />
+      );
+    case "assemble-lab":
+      return (
+        <PythonLab
+          steps={assembleLab()}
+          prepare={async () => {}}
+          library="NumPy"
+          closing="Assembled, counted, and honestly ignorant. Everything it needs to learn exists; what it has never had is enough text to learn from — that is the next part."
         />
       );
     case "block-lab":

@@ -1,0 +1,107 @@
+---
+tutorial: tiny-gpt
+order: 10
+title: Assembling the model
+teaches: [positional embeddings, lm head, model assembly, parameter count]
+blurb: >-
+  The stack of blocks treats its window as a bag — shuffle everything before
+  the last character and it concludes the same thing. One more table fixes
+  that, one more matrix turns descriptions back into scores, and the model is
+  whole: 12,800 numbers, every one already met.
+searchTitle: "Assembling a tiny GPT: positional embeddings and the lm head"
+description: "Proof that a transformer block cannot see the order of its input, the position table that fixes it, the final matrix that turns descriptions into vocabulary scores, and a census of the assembled model's 12,800 parameters."
+---
+
+import { GptWidget } from "../../../components/site/GptWidget";
+
+The block stacks, and a signal survives the stack. Two things are still
+missing, and the first is easier to prove than to believe.
+
+## The stack cannot see order
+
+Run a block on the window `the cat `, and again on `he tcat ` — the same
+characters with everything before the last one shuffled. The last position
+concludes *exactly the same thing*, to the last digit. The lab prints the
+check.
+
+Nothing in the machinery ever asks where a character sits. Attention computes
+a share for each pair and sums the blend — shuffle the prefix and the same
+pairs are summed in a different order. The feed-forward and the tidies work on
+each position alone. To all of it, the window is a bag of characters.
+
+<div class="claim mt-7">
+To everything built so far, “the cat” and “t aceth” are the same input. For a
+language, that difference is the whole difference.
+</div>
+
+## A second table, read by seat
+
+The fix costs one table. Alongside the character table — one row per
+*character* — add a position table: one row per *seat*, sixteen rows for a
+sixteen-character window, looked up by slot number and added on.
+
+```python
+x = tok[idx] + pos[:t]     # who each character is, plus where it sits
+```
+
+A `t` at seat 0 and a `t` at seat 2 use the same character row and different
+seat rows, so they arrive as different vectors — checked in the lab, along
+with the blindness test again: gone. Added, not glued side by side, because
+every block expects width 32 and adding keeps it.
+
+## The last bridge
+
+Blocks take width 32 in and give width 32 out — each position leaves as a
+32-number *description* of what it has seen and thought. A prediction needs
+13 numbers: one score per character in the vocabulary. One final matrix, the
+**lm head**, converts.
+
+Back in the grid days no bridge was needed, because the grid was built with
+its rows exactly vocabulary-wide — the row *was* the scores. That was a
+convenience with a short life. Now that a position's description is free to be
+any width, the conversion has to be its own, learned, step.
+
+## The whole model
+
+```python
+def forward(idx):
+    z = tok[idx] + pos[:t]      # who, plus where
+    z = block(z)                # gather, think — stack more to go deeper
+    z = layer_norm(z)           # final tidy
+    return z @ head             # description → scores
+```
+
+Score it with the same loss as ever, train it with the same loop as ever.
+Here is everything training will be allowed to touch:
+
+<div class="mt-7"><GptWidget name="param-census" client:only="react" /></div>
+
+<div class="claim mt-7">
+Twelve thousand eight hundred numbers, and you have met every one: two lookup
+tables, three question-matrices per head, two thinking matrices, three tidies,
+and a bridge.
+</div>
+
+## It starts honestly ignorant
+
+One check before training: the output head is born near zero, so every score
+is near zero, so softmax hands out nearly even shares. The assembled,
+untrained model scores **2.5774** on the sentence — next to the
+knowing-nothing baseline of `ln(13)` = 2.5649. All that machinery, and it
+opens by admitting it knows nothing, which is exactly right.
+
+## One sentence is not enough
+
+The model is whole. It is also still looking at the same forty-nine
+characters everything so far was demonstrated on — and a model with twelve
+thousand adjustable numbers, pointed at one sentence, will not learn the
+language of it. It will learn the sentence. What happens then, and what it
+takes to train this properly, is the next part.
+
+## Build it yourself
+
+Six cells: the pieces on the bench, the order-blindness proof, the seat
+table, the assembled forward pass, the census, and the honest-ignorance
+check.
+
+<div class="mt-8"><GptWidget name="assemble-lab" client:only="react" /></div>
