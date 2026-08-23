@@ -36,10 +36,10 @@ loss goes to nearly zero while doing it, because as far as the network is
 concerned it is getting every answer right. It has no way to tell a wrong label
 from a right one, and no notion that a label could be wrong at all.
 
-<p class="claim mt-7">
+<div class="claim mt-7">
 A network that scores perfectly on what it studied and badly on everything else
 has not learned. It has memorised.
-</p>
+</div>
 
 That gap has a name — **overfitting** — and it is the single most useful
 diagnostic in the subject, because it is the only warning you get. It is also
@@ -58,10 +58,10 @@ Small steps fail exactly as promised — the loss barely moves. But the other en
 refuses to break. A step size of ten million ought to be catastrophic, and it
 trains perfectly well.
 
-<p class="claim mt-7">
+<div class="claim mt-7">
 You cannot break this one by pushing too hard, and the reason is worth more
 than the breakage would have been.
-</p>
+</div>
 
 The nudge is made of how wrong the network is. Once it is confidently right,
 that error is nearly zero, so the nudge is nearly zero, so a huge step size
@@ -86,10 +86,10 @@ Almost nothing happens. There is no square holding the answer, no single number
 you can pull out to break it — the decision is smeared across all of them, and
 each one contributes a sliver.
 
-<p class="claim mt-7">
+<div class="claim mt-7">
 That smearing is why these systems are hard to explain, and why they keep
 working when parts of them are damaged.
-</p>
+</div>
 
 ## How many parameters do real models have?
 
@@ -99,7 +99,7 @@ the same word covers: roughly 100,000 for a network that reads handwritten
 digits, 25 million for one that recognises objects in photographs, and hundreds
 of billions for one that writes essays.
 
-<p class="claim mt-7">
+<div class="claim mt-7">
 Not one of them does anything yours do not. There are simply more, arranged in
 more layers, nudged for far longer, by far more examples.
-</p>
+</div>

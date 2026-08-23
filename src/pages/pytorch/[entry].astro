@@ -1,0 +1,187 @@
+---
+import { getCollection, render } from "astro:content";
+import Shell from "../../layouts/Shell.astro";
+import { SITE } from "../../site";
+import { fileDates } from "../../lib/dates";
+import Subscribe from "../../components/site/Subscribe.astro";
+import Byline from "../../components/site/Byline.astro";
+import Share from "../../components/site/Share.astro";
+
+/**
+ * One PyTorch call, explained in plain words.
+ *
+ * Deliberately not a part page, despite looking like one. A part is read in
+ * sequence and earns a previous/next pair; an entry here is arrived at
+ * sideways, from a tutorial that just used the call, and read on its own. So
+ * there is no sibling navigation and no position — leaving them off is what
+ * tells a reader this is reference rather than something they are behind on.
+ *
+ * The reading order the page does care about is stated in the collection
+ * schema: mechanism in runnable Python first, the library call second. That is
+ * a property of the prose, not of this template.
+ */
+export async function getStaticPaths() {
+  const entries = await getCollection("pytorch");
+  return entries.map((entry) => ({ params: { entry: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+
+/*
+ * Where the tutorials use this call, resolved from part ids rather than
+ * written as prose links in the mdx.
+ *
+ * Throwing rather than filtering is the point. A part that gets renamed — and
+ * one already has, when counting pairs moved from 01 to 02 — would otherwise
+ * leave this list quietly one item shorter, on a page nobody thinks to reread.
+ * Failing the build is the only version of this that stays true.
+ */
+const parts = await getCollection("parts");
+const met = entry.data.metIn.map((id) => {
+  const part = parts.find((p) => p.id === id);
+  if (!part) throw new Error(`${entry.id}.mdx lists metIn "${id}", which is not a part`);
+  return { part, href: `/${part.data.tutorial}/${part.id.split("/").pop()}/` };
+});
+
+const canonical = `/pytorch/${entry.id}/`;
+const url = new URL(canonical, Astro.site).href;
+// Parts fall back to their tutorial's published date when git has nothing to
+// say. An entry belongs to no tutorial, so the fallback is today — which is
+// only ever reached in a build from a tarball, where every date is a guess.
+const dates = fileDates(`src/content/pytorch/${entry.id}.mdx`, new Date());
+const description = entry.data.description ?? entry.data.summary;
+const sections = headings.filter((h) => h.depth === 2);
+
+/*
+ * TechArticle alone, where a part carries LearningResource and TechArticle and
+ * declares itself part of a Course. This page teaches nothing on its own and
+ * belongs to no sequence — claiming otherwise would describe a curriculum that
+ * does not exist. `about` names the call so a search engine has the symbol
+ * itself, not just the sentence it appears in.
+ */
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    name: entry.data.call,
+    headline: `${entry.data.call} — ${entry.data.summary}`,
+    description,
+    url,
+    mainEntityOfPage: url,
+    isAccessibleForFree: true,
+    inLanguage: "en",
+    proficiencyLevel: "Beginner",
+    datePublished: dates.published,
+    dateModified: dates.modified,
+    author: { "@type": "Person", name: SITE.author.name, url: SITE.author.url },
+    publisher: { "@type": "Organization", name: SITE.org.name, url: SITE.org.url },
+    about: { "@type": "SoftwareSourceCode", name: entry.data.call, programmingLanguage: "Python" },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Tutorials", item: Astro.site?.href },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "PyTorch, in plain words",
+        item: new URL("/pytorch/", Astro.site).href,
+      },
+      { "@type": "ListItem", position: 3, name: entry.data.call, item: url },
+    ],
+  },
+];
+---
+
+<Shell
+  title={`${entry.data.call} explained — ${SITE.name}`}
+  description={description}
+  canonical={canonical}
+  published={dates.published}
+  modified={dates.modified}
+  reference
+  jsonLd={jsonLd}
+>
+  <article class="pb-24">
+    <nav class="mono-note flex flex-wrap gap-x-2 pt-10 text-graphite" aria-label="Breadcrumb">
+      <a href="/" class="underline underline-offset-4 hover:text-plot">Tutorials</a>
+      <span aria-hidden="true">/</span>
+      <a href="/pytorch/" class="underline underline-offset-4 hover:text-plot">PyTorch</a>
+    </nav>
+
+    <header class="mt-8 border-b pb-8 hairline">
+      <p class="plate-no">PyTorch, in plain words</p>
+      <h1 class="mt-2 font-display text-3xl leading-[1.12] font-extrabold tracking-[-0.02em] sm:text-4xl">
+        {/* The global `code` rule paints a plot-green chip behind every span of
+            code, which is right at 14px inside a sentence and a solid slab at
+            36px in a heading. Overridden here rather than narrowed there,
+            because a heading is the only place it goes wrong. */}
+        <code class="!bg-transparent !p-0 !text-[0.85em] !text-ink">{entry.data.call}</code>
+      </h1>
+      <p class="lede measure mt-5">{entry.data.summary}</p>
+      {/* Above the fold, not buried in the prose: someone who already knows
+          what the call does and came only for the argument order should not
+          have to read a word to find it. Scrolls on its own on narrow screens
+          rather than wrapping, since a broken signature reads as two. */}
+      <p class="mono-note mt-5 overflow-x-auto border-l-2 pl-3 text-graphite hairline">
+        {entry.data.signature}
+      </p>
+      <Byline modified={dates.modified} />
+    </header>
+
+    <div class="prose mt-12">
+      <Content />
+    </div>
+
+    <div class="mt-16 border-t pt-8 hairline">
+      <Share title={`${entry.data.call} explained`} url={url} />
+    </div>
+
+    <Subscribe />
+  </article>
+
+  <Fragment slot="toc">
+    {
+      (sections.length > 0 || met.length > 0) && (
+        <nav aria-labelledby="toc-heading">
+          {sections.length > 0 && (
+            <>
+              <p id="toc-heading" class="eyebrow pb-3">
+                On this page
+              </p>
+              <ul class="flex list-none flex-col p-0">
+                {sections.map((h) => (
+                  <li>
+                    <a href={`#${h.slug}`} class="rail-link">
+                      {h.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          {/* The way back. A reader who arrived from a search result has no
+              idea this call belongs to a tutorial, and the prose only says so
+              in its last paragraph — which is exactly the paragraph someone
+              looking up an argument will never reach. */}
+          {met.length > 0 && (
+            <>
+              <p class="eyebrow pt-7 pb-3">Met in</p>
+              <ul class="flex list-none flex-col p-0">
+                {met.map((m) => (
+                  <li>
+                    <a href={m.href} class="rail-link">
+                      {m.part.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </nav>
+      )
+    }
+  </Fragment>
+</Shell>

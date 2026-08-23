@@ -1,0 +1,182 @@
+---
+tutorial: tiny-gpt
+order: 7
+title: Self-attention
+teaches: [self-attention, query key value, causal masking, scaled dot product]
+blurb: >-
+  The model has a window full of characters and reads only the last one. Letting
+  it read all of them is easy; letting it decide which ones were worth reading is
+  the idea the whole architecture is built on.
+searchTitle: "Self-attention from scratch: query, key, value, and the mask"
+description: "How self-attention works, built one step at a time: why averaging the window is not enough, what query, key and value actually are, why the future must be masked out, and why the scores are divided by the square root of the head size."
+---
+
+import { GptWidget } from "../../../components/site/GptWidget";
+
+The model can be trained now, and it is about as good as a model that sees one
+character can be. That ceiling is the problem. It wrote `sathe` — every pair
+legal, the word nonsense — because after producing `sat` it had already
+forgotten `sa`.
+
+Meanwhile there is a window of characters sitting right there, cut and batched
+and encoded, and the model reads exactly one of them.
+
+## Just average them, then
+
+The obvious repair. Instead of taking the last character's row, take the average
+of every row in the window so far. That is strictly more information, and it is
+three lines of code.
+
+It also nearly works. Predicting after
+`the cat sat on the m`, an average gives the `m` — the character that actually
+determines what comes next — a twentieth of the say. The `the` from twenty
+positions back gets exactly as much.
+
+<div class="claim mt-7">
+Everything in the window matters, and almost none of it matters equally.
+</div>
+
+So the average has to be **weighted**. And the weights cannot be fixed in
+advance — not "always favour the recent", because which positions matter depends
+entirely on what they contain.
+
+<aside class="aside measure mt-5">
+In *the cat sat on the mat because it was soft*, working out what `it` refers to
+means looking at `cat` and `mat`. Neither is adjacent. `was` is adjacent and
+carries nothing. Any rule based on position alone gets this exactly backwards,
+which is why the weights have to be computed from the content every time.
+</aside>
+
+## A weight is a comparison
+
+The weights have to come out of the content, and each position's content is a
+vector — the row the embedding table gave its character. The one-number
+comparison between two vectors is the **dot product**: multiply them element by
+element, add it up. Large when they point the same way, negative when they
+oppose.
+
+So the obvious move: weight position *j* for position *i* by dotting their rows,
+`x[i] · x[j]`.
+
+Measured over two thousand random draws, at this page's head width of sixteen:
+a position scores **+4.00** against itself and **+0.01** against everyone else,
+and after softmax the last position of a six-character window keeps **82%** of
+its attention for itself. An even split would be 17%.
+
+The failure is built in. `x · x` is the length of your own vector, squared —
+always large, always positive, and nothing about the *content* earned it. A
+model wired this way mostly listens to itself, and a position that listens to
+itself learns nothing from the window.
+
+## What you look for is not what you are
+
+The fix is to stop comparing what positions *are*. Put each row through a
+learned matrix before comparing — and use a *different* matrix on each side:
+
+```python
+Q = x @ W_q     # query — what this position is looking for
+K = x @ W_k     # key — what it offers to be found by
+V = x @ W_v     # value — what it hands over if chosen
+```
+
+Same row in, three different vectors out. With `W_q` and `W_k` different, the
+diagonal loses its advantage entirely — the same measurement gives a self-share
+of 17%, exactly the even split — and who matches whom is decided by the learned
+numbers, not by geometry. The value matrix is the same idea once more: what a
+position passes on need not be its raw row either.
+
+Those three matrices are the only things in attention that get learned.
+Everything after them is arithmetic that could not be otherwise.
+
+<div class="claim mt-7">
+What you look for, what you offer, and what you hand over are three different
+things. That is the entire reason there are three matrices.
+</div>
+
+## Everything against everything
+
+Every query dotted against every key gives a square: one row per position doing
+the looking, one column per position being looked at. Three things happen to
+that square, and the figure steps through them — press **▶** to watch one row
+make the whole journey.
+
+<div class="mt-7"><GptWidget name="attention-grid" client:only="react" /></div>
+
+The second checkbox replays the failure from above: tick *compare x with x* and
+the diagonal lights up — every row keeps at least 68% for itself, most 87% or
+more. Untick it and the advantage is gone.
+
+## The future is off limits
+
+Position four is being asked what comes after position four. If it is allowed to
+look at position five, it can simply read the answer — and it will, because
+copying is easier than predicting, and the loss cannot tell the difference until
+you try to generate anything.
+
+So everything above the diagonal is forbidden. In code that is done by setting
+those scores to negative infinity *before* the softmax, because `exp(-∞)` is
+exactly zero: forbidden positions end up with no weight at all, and the permitted
+ones keep their relative sizes untouched.
+
+Two consequences, and the lab checks both:
+
+- Every row adds to 100%. Attention distributes a fixed amount of interest; it
+  never creates more.
+- The first position can only see itself, so its output is exactly its own value
+  note, unchanged.
+
+## The divisor that makes it trainable
+
+Now untick *divide by √16* in the figure. With it on, the largest share in
+each looking row sits between 0.32 and 0.75 — genuine shares. Without it every
+row sharpens, three of the six past 0.77 — and the effect grows with head
+width, which is the point:
+
+A dot product adds up as many products as the vectors are wide, so the wider
+the head, the larger the scores — for reasons having nothing to do with the
+language. Measured over twenty thousand random pairs:
+
+| head width | spread of raw scores | after dividing by √width |
+|---|---|---|
+| 2 | 1.42 | 1.00 |
+| 8 | 2.84 | 1.00 |
+| 32 | 5.62 | 0.99 |
+| 128 | 11.25 | 0.99 |
+
+The spread grows exactly like the square root of the width, so dividing by
+exactly that cancels it.
+
+Skip it and the scores get big, softmax turns big scores into a spike, and a
+spike is flat — nudge any of those numbers and almost nothing changes, so almost
+no gradient comes back. The head stops learning before it has learned anything.
+
+<div class="claim mt-8">
+One divisor separates a head that trains from one that sits still.
+</div>
+
+## What comes out
+
+The weighted average of the value notes, one per position. Same shape as went
+in, entirely different content: position four no longer holds *the character
+`t`*, it holds *the character `t`, having read `the ca` behind it*.
+
+That is the thing that was missing. Whether the model uses it well is a matter
+of training, but for the first time in this tutorial the information is at least
+in the room.
+
+<aside class="aside measure mt-5">
+Nothing in the figure or the lab is trained, so which position attends to which
+is arbitrary and reading meaning into it would be a mistake. What the untrained
+version does show — the triangle, the rows summing to one, position zero
+returning its own value, and what the divisor does — is true of every head that
+has ever been trained.
+</aside>
+
+## Build it yourself
+
+Six cells: the average that nearly works, the self-matching failure and the
+three matrices that fix it, the grid of every query against every key, the mask
+and its two guarantees, the measured reason for the divisor, and the whole head
+in six lines.
+
+<div class="mt-8"><GptWidget name="attention-lab" client:only="react" /></div>

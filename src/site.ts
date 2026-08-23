@@ -95,6 +95,26 @@ export const SITE = {
      * because the wrong one accepts the request and drops the event. */
     host: import.meta.env.PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com",
   },
+
+  /**
+   * Where "deploy a runner" points, for readers who cannot install PyTorch
+   * locally.
+   *
+   * Set PUBLIC_RAILWAY_REF to a referral URL and the site starts earning from
+   * signups — and, in the same breath, starts saying so. The disclosure is
+   * derived from this rather than written by hand, so the two can never drift
+   * apart and there is no way to ship the paid link with the admission
+   * missing. That is worth more than the commission: this site's only asset is
+   * that a reader can check everything, and an undisclosed affiliate link is
+   * the cheapest possible way to spend it.
+   *
+   * Unset, the plain URL is used and no disclosure is shown, because none is
+   * owed.
+   */
+  railway: {
+    url: import.meta.env.PUBLIC_RAILWAY_REF ?? "https://railway.com",
+    paid: Boolean(import.meta.env.PUBLIC_RAILWAY_REF),
+  },
 } as const;
 
 /** Everything the site claims as the same author, for `sameAs`. */

@@ -1,0 +1,128 @@
+---
+tutorial: tiny-gpt
+order: 2
+title: Counting pairs
+teaches: [language model, distribution, sampling, bigram]
+blurb: >-
+  A language model with no parameters, no training and no neural network —
+  built by tallying which character follows which, and generating from it.
+searchTitle: "What a language model actually is, in one table"
+description: "Before embeddings or attention: count which character follows which, divide by the total, and you have a working language model you could compute with a pencil."
+---
+
+import { GptWidget } from "../../../components/site/GptWidget";
+
+Every language model answers the same question — *given the text so far, what
+comes next?* The smallest thing that answers it at all is a table of tallies
+you could work out on paper; GPT-4 differs in how much text it sees and how
+cleverly it weighs it.
+
+So start where nothing is hidden. A bigram model has
+**no parameters, no training and no network**. You read a text once, count which
+character follows which, and the counts are the model.
+
+## What does "count the pairs" mean?
+
+Walk through the text one position at a time and tally every adjacent pair. In
+`the cat sat on the mat`, `t` is followed by `h` twice and by a space twice; `a`
+is followed by `t` every time.
+
+Type into the box and the table rebuilds itself. It is not a summary of the
+model — it *is* the model.
+
+<div class="mt-7"><GptWidget name="bigram-table" client:only="react" /></div>
+
+Press the button and each row is divided by its own total. Counts become
+fractions, every row sums to 1, and the table now says something like: *after
+`t`, half the time comes `h` and half the time a space.*
+
+## Why does the model give a distribution instead of an answer?
+
+This idea survives unchanged all the way up to GPT-4.
+
+After `t`, the text has `h` twice and a space twice. Asked what follows `t`, the
+honest answer is not `h` and not a space — it is **both, equally**. The model's
+job is to report `{h: 0.5, ␣: 0.5}` and stop there.
+
+<div class="claim mt-7">
+A model outputs a distribution. Choosing one answer from it is a separate act,
+and it happens afterwards.
+</div>
+
+That separation is why the same prompt gives different text each time you run
+it. Nothing about the model changed between runs; only the draw did.
+
+## How do you pick one, then?
+
+By rolling a weighted die.
+
+Lay the probabilities end to end along a ruler from 0 to 1, so each character
+occupies a span as wide as its probability. Draw a random number, see which span
+it lands in, take that character. A character with probability 0.5 occupies half
+the ruler and so comes up about half the time.
+
+<div class="mt-7"><GptWidget name="weighted-die" client:only="react" /></div>
+
+Roll it two hundred times and the observed percentages settle towards the
+model's. They will not match exactly, and that is not a flaw — it is what
+sampling is.
+
+That ruler is the entire mechanism, done once by hand; from here on it is one
+line of somebody else's code. **PyTorch** is the library
+almost everyone builds these models with, and it has a call named
+`torch.multinomial`: you give it the probabilities, it lays out the ruler,
+drops the pin, and tells you which character it landed on. Same ruler, same
+pin — you just stop writing it out.
+
+<p class="mt-2"><a href="/pytorch/multinomial/">What <code>torch.multinomial</code> does, in plain words →</a></p>
+
+## What happens when you feed it back in?
+
+Sample a character, append it, then use *that* character as the next input.
+Repeat. That loop is generation, and every model in this tutorial will use it —
+only the thing being sampled from gets cleverer.
+
+Running it from `t` gives five samples. Here is the third of them, exactly as
+the cell prints it:
+
+```
+'the mat sat sathe on '
+```
+
+The failure is precise, and it is the reason the rest of this tutorial exists.
+
+Every single transition is **legal**. `s` really is followed by `a` in the
+source; `a` really is followed by `t`; `t` really is followed by `h`. There is
+no pair in that output the model has not seen. And yet `sathe` is not a word.
+
+## Why is it nonsense if every pair is legal?
+
+Because after emitting `sat`, the model has forgotten it wrote `sat`.
+
+The only thing it knows is *the last character was `t`*. Not that a word is in
+progress, not that `sa` came before, not that it has produced `the` already. One
+character of memory, and everything before it is gone.
+
+<div class="claim mt-7">
+It is not choosing badly. It is choosing well, with almost nothing to go on.
+</div>
+
+That is the shape of the whole problem. Every piece added from here — embeddings,
+context windows, attention, a stack of transformer blocks — is a way of letting
+the model look at more of what it has already written, and of deciding which
+parts of it matter.
+
+## One habit worth taking forward
+
+The counting happens once; the sampling happens per character. That split —
+expensive work done once, each individual prediction made cheap — is the same
+division as training and inference in every model that follows. Here it is just
+visible enough to point at.
+
+## Build it yourself
+
+Four cells and you will have written the whole model: count, normalise, sample,
+loop. No libraries beyond the standard one, because at this size there is
+nothing for a library to do.
+
+<div class="mt-8"><GptWidget name="bigram-lab" client:only="react" /></div>

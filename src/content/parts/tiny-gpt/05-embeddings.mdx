@@ -1,0 +1,187 @@
+---
+tutorial: tiny-gpt
+order: 5
+title: Embeddings, softmax and the loss
+teaches: [embedding table, logits, softmax over a batch, cross-entropy]
+blurb: >-
+  A network can only multiply and add. Hand it the number 9 for “t” and it works
+  out that t is nine times a, which is nonsense. So each character gets a whole
+  row of numbers instead, and training corrects them.
+searchTitle: "Embeddings explained: why you cannot feed a character's number to a network"
+description: "Why giving a network the number that stands for a character makes it believe things that are not true, how a table of rows fixes it, and how that table produces scores, percentages and a loss."
+---
+
+import { GptWidget } from "../../../components/site/GptWidget";
+
+There is a dataset now — questions, answers, and a way to make more. What there
+is not is a model that can improve. Counting produced a tally, and a tally has
+nothing in it to adjust.
+
+So: a model that can be corrected. It fails on the first step, on something
+[noticed and walked past](/tiny-gpt/03-into-numbers/#the-numbers-are-labels-not-quantities)
+when characters became numbers.
+
+## The numbers were never quantities
+
+The vocabulary gave `t` the number 9 and `a` the number 1. Those numbers are name
+tags, handed out in alphabetical order, and they mean nothing else.
+
+A network cannot treat them as name tags, because multiplying and adding is all
+it does. Give it 9 and 1 and it works out that 9 is nine times 1 — correctly, as
+arithmetic. It sees that 9 and 8 sit next to each other and concludes `t` and `s`
+are nearly the same thing. It sees that 3 is midway between 2 and 4 and concludes
+`d` is midway between `c` and `e`.
+
+None of that is true about language. All of it is true about alphabetical order,
+which is the only reason the numbers came out that way.
+
+<div class="claim mt-7">
+The numbers say which character. They say nothing about it. Arithmetic cannot
+tell the difference.
+</div>
+
+## Give each character a row instead
+
+Stop handing over one number for `t`. Hand over thirteen.
+
+One for each character that might come next, saying how strongly `t` expects it.
+Do that for every character and you have a grid: thirteen rows, thirteen
+columns, one row each. Thirteen because the lab's sentence uses thirteen
+different characters.
+
+You have seen that grid before. It is the shape of
+[the table you built by counting](/tiny-gpt/02-counting-pairs/#what-does-count-the-pairs-mean)
+— same size, same job. The difference is where the numbers came from.
+
+<div class="mt-7"><GptWidget name="embedding-table" client:only="react" /></div>
+
+Counting gave a table that is right about one sentence and can never become
+anything else. This one starts as noise — press *roll it again* and it is
+different noise, exactly as useless. But every number in it can be moved a little
+at a time until it is right, and the counted one could not.
+
+Mark this moment: the model now exists. This grid is the model — its 169 numbers
+are all there is to it — and the values it starts from are called its
+**initialization**. Noise is one choice of start, all zeros is another — this
+page uses both below — and either is nothing more than where the nudging begins.
+
+<aside class="aside measure mt-5">
+The grid is called an **embedding table**, and looking a character up in it is an
+*embedding*. The word sounds grander than fetching a row from a table. It is not.
+Later the rows grow wider than the vocabulary and carry more than next-character
+scores, which is when it starts to earn itself.
+</aside>
+
+## Looking up a whole batch at once
+
+The batching function produces four rows of eight characters at a time — four
+because that is the batch size, eight because that is the window.
+
+Each of those thirty-two characters is a number, and each number is swapped for
+its row from the grid. One line of Python, no loop.
+
+Before: four rows of eight numbers. After: four rows of eight, where each one is
+thirteen numbers instead of one. As shapes, `(4, 8)` becomes `(4, 8, 13)`.
+
+That swap is the whole of what an embedding layer does in any library. And note
+what did not change: the grid still holds the same 169 numbers — the batch only
+took copies of thirteen of its rows.
+
+## Scores, not percentages
+
+Those thirteen numbers per character are called **logits**. Read the shape one
+index at a time:
+
+| ask for | and you get |
+|---|---|
+| `logits[0]` | the first of the four rows — eight positions, thirteen numbers each |
+| `logits[0][3]` | one position: the thirteen scores given after reading four characters of that row |
+| `logits[0][3][6]` | one number: how strongly `h` is expected there, `h` being number 6 in the vocabulary |
+
+So the last number in the shape always counts across the alphabet. Each group of
+thirteen is one complete opinion, about one place, in one row.
+
+A logit can be any number at all, negative included, and thirteen of them add up
+to nothing in particular. A score of 4.2 does not mean 420%. It means *more than
+1.7*.
+
+They are left raw for two reasons: percentages get very small very quickly and
+lose accuracy when they do, and the next step takes raw scores anyway.
+
+## Turning them into percentages, and measuring the damage
+
+You have met both in the other tutorial, and neither changes here:
+
+- **[Softmax](/neural-networks/05-how-wrong/)** turns one group of scores into
+  percentages. Make every score positive, then divide each by the group's total.
+  Order is preserved and the results add up to 100%.
+- **[Cross-entropy](/neural-networks/05-how-wrong/)** says how bad that was,
+  looking only at the percentage given to the character that actually came next
+  and ignoring the other twelve. The number it produces is called the **loss**,
+  and shrinking it is the whole of training.
+
+What changes is the amount. One drawing produced one group of scores; a batch
+produces thirty-two groups of thirteen, and each is worked out from its own
+thirteen numbers alone — if two positions shared a total, a character's chances
+in one place would depend on what was happening elsewhere in the sentence.
+
+Then the loss: thirty-two predictions, thirty-two right answers, one cost each,
+averaged into one number for the batch.
+
+<aside class="aside measure mt-5">
+Both steps have a detail that only makes sense with the code in front of you —
+which direction the totals are added up in, and why they have to keep their shape
+when they are divided back out. The cells at the foot of the page have both, on
+the lines they belong to.
+</aside>
+
+## The number training has to beat
+
+A loss of 2.5 means nothing by itself. It means something beside the loss of a
+model that knows nothing, so get that one first.
+
+Knowing nothing means having no opinion: whatever character it just read, all
+thirteen are equally likely. One in thirteen, every time.
+
+A grid of zeros does that. Equal scores in every row, and softmax turns equal
+scores into equal percentages. Zeros are not a trick — they are what no opinion
+looks like.
+
+Cross-entropy looks only at the character that came next, and that one got one in
+thirteen like the rest. So every prediction costs `-log(1/13)`, and the average
+of thirty-two identical numbers is the same again: `ln(13)`, or **2.5649**.
+Exactly, not nearly, and the lab prints it.
+
+Random numbers do *worse* — 2.8912. That is not a bug. Zeros are merely unsure; a
+random grid is confident, and confident about the wrong things:
+
+| chance given to the right answer | `1 - p` | `-log p` |
+|---|---|---|
+| 0.9 — nearly right | 0.10 | 0.11 |
+| 0.4 — unsure | 0.60 | 0.92 |
+| 0.01 — confidently wrong | 0.99 | 4.61 |
+
+Both columns are zero for a perfect answer, so why the logarithm? The bottom two
+rows. Going from unsure to confidently wrong, `1 - p` grows 1.65 times and
+`-log p` grows 5.03 times. `1 - p` can never rise above 1 however bad the answer,
+so a disaster barely registers. `-log p` has no ceiling.
+
+<div class="claim mt-8">
+Training moves fastest where the loss rises fastest. A confident mistake has to
+hurt, or nothing corrects it.
+</div>
+
+That is the whole kit: a model of 169 numbers, its percentages, and a loss —
+sitting at 2.8912, frozen, because nothing yet changes the numbers. Changing
+them is the next part. One caution to carry there: none of this bought context.
+The model still reads one character, exactly like the counted bigram —
+[same `sathe`](/tiny-gpt/02-counting-pairs/#why-is-it-nonsense-if-every-pair-is-legal).
+What it bought is a model that can be corrected.
+
+## Build it yourself
+
+Five cells: the grid, swapping a whole batch for rows in one line, softmax done
+group by group, the loss of a zero grid against a random one, and the three rows
+of the comparison above.
+
+<div class="mt-8"><GptWidget name="embeddings-lab" client:only="react" /></div>

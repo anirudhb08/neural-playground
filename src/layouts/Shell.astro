@@ -22,6 +22,8 @@ interface Props {
   wide?: boolean;
   /** Part number, so events can be grouped by how deep into a tutorial it is. */
   order?: number;
+  /** True on the PyTorch reference pages, so the rail can mark them current. */
+  reference?: boolean;
   /** Keeps a page out of the index. Error pages, chiefly. */
   noindex?: boolean;
   /** Path under /og/, without extension. Falls back to the site card. */
@@ -40,6 +42,7 @@ const {
   part,
   wide = false,
   order,
+  reference = false,
   noindex = false,
   ogImage,
   published,
@@ -163,14 +166,14 @@ const image = new URL(`/og/${ogImage ?? "index"}.png`, Astro.site).href;
           <span class="group-open:hidden">Tutorials ▸</span>
           <span class="hidden group-open:inline">Tutorials ▾</span>
         </summary>
-        <div class="px-5 pb-6"><Rail tutorial={tutorial} part={part} /></div>
+        <div class="px-5 pb-6"><Rail tutorial={tutorial} part={part} reference={reference} /></div>
       </details>
 
       <div
         class="rail-column sticky top-0 hidden h-screen shrink-0 overflow-y-auto border-r bg-paper-deep/40 px-6 py-10 hairline lg:block"
         style="width: var(--rail-width)"
       >
-        <Rail tutorial={tutorial} part={part} />
+        <Rail tutorial={tutorial} part={part} reference={reference} />
       </div>
 
       {/* The only way back once the rail is hidden, short of the [ key. */}

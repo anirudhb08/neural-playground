@@ -202,7 +202,12 @@
     padding-left: 1rem;
   }
 
-  /* A single sentence the section rests on. */
+  /* A single sentence the section rests on.
+     Must be a <div> in MDX, never a <p>: markdown re-parses the contents of a
+     multi-line HTML block, so the sentence comes back wrapped in its own <p>,
+     and the parser splits <p><p> into an empty element plus loose text. The
+     computed styles still look correct on the empty one, so this fails
+     silently — check textContent, or look at the page. */
   .claim {
     font-family: var(--font-display);
     font-weight: 700;
@@ -268,6 +273,60 @@
   :where(.prose) > ul { list-style: disc; }
   :where(.prose) > ol { list-style: decimal; }
   :where(.prose) li::marker { color: var(--color-plot-soft); }
+
+  /* Tables written in markdown, for the small comparative ones prose wants. */
+  :where(.prose) table {
+    width: 100%;
+    max-width: 40rem;
+    margin-block: 1.75rem 0;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  :where(.prose) th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-graphite);
+    padding-block: 0 0.5rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-plot) 22%, transparent);
+  }
+
+  :where(.prose) td {
+    padding-block: 0.6rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-plot) 14%, transparent);
+    vertical-align: top;
+  }
+
+  :where(.prose) tbody tr:last-child td { border-bottom: 0; }
+
+  /*
+   * Fenced code blocks. Shiki emits a bare <pre> carrying only its own colours
+   * and overflow, and Tailwind's reset has already taken the margin and padding
+   * off, so without this the block is a full-bleed slab with the text against
+   * its edges and set larger than any other mono on the page — 16px against the
+   * 14.6px of inline code and the 11px of a label.
+   *
+   * 40rem matches the tables rather than the 34rem reading column: prose wants
+   * a short line, code wants about eighty characters.
+   */
+  :where(.prose) pre {
+    /* Shiki paints its own background with an inline style, which beats this.
+       So it only lands on blocks with no language on the fence — shell
+       commands, sample output — which would otherwise be unbordered text
+       floating in the page. */
+    background-color: var(--color-paper-deep);
+    max-width: 40rem;
+    margin-block: 1.5rem 0;
+    padding: 1.125rem 1.25rem;
+    border-radius: 2px;
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    tab-size: 4;
+  }
 
   :where(.prose) a {
     color: inherit;

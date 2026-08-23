@@ -1,0 +1,149 @@
+---
+tutorial: tiny-gpt
+order: 4
+title: Context windows, and where the answers come from
+teaches: [training data, context window, block size, shift-by-one targets, batching]
+blurb: >-
+  Everything from here on has to be trained, and training needs a dataset. In
+  the other tutorial you made one by hand, a drawing at a time. Here there is
+  nobody to do that — so the dataset has to come out of the text itself.
+searchTitle: "Context windows and self-supervised targets, from scratch"
+description: "Where a language model's training data comes from: how shifting text one place along turns any text at all into labelled examples, why the model reads a fixed number of characters at a time, and what a batch is for."
+---
+
+import { GptWidget } from "../../../components/site/GptWidget";
+
+The model built by counting could not learn. It was a tally — there was nothing in it
+to adjust, and nothing that got better with practice. Everything built from here
+on **trains**, in the same loop as the network in the other tutorial: show it an
+example, let it answer, tell it what the answer should have been, repeat.
+
+Before any of that can start, there has to be something to show it. A
+**dataset** — questions paired with their right answers, and not a handful of
+them.
+
+## In the other tutorial, you were the dataset
+
+You [drew each character yourself](/neural-networks/02-your-alphabet/), and then
+you said which one it was. Every single training example cost a drawing and a
+label, both produced by a person. A few dozen examples was an afternoon.
+
+A language model needs more examples than that by a factor of many thousands.
+Nobody is going to sit and produce them, and there is nothing to draw. All there
+is is text — a wall of it, containing no questions, no answers, and no marks
+saying where anything begins.
+
+<div class="claim mt-7">
+So the dataset has to come out of the text. Not alongside it — out of it.
+</div>
+
+## Where does a dataset come from, then?
+
+Look at what is actually being asked. Given `the ca`, what comes next?
+
+The text already says. It says `t`, by having a `t` sitting in the very next
+position — because somebody wrote the sentence and that is how the sentence
+goes. The answer was never missing. It was one place to the right of the
+question the whole time.
+
+So take a run of characters and write it out twice, the second copy shifted one
+place along. Call the first `x` and the second `y`. Now `y[0]` is what followed
+`x[0]`; `y[1]` is what followed `x[0]` and `x[1]` together; and so on down the
+run. One chunk of text is not one training example — it is as many as the chunk
+is long.
+
+<div class="mt-7"><GptWidget name="context-window" client:only="react" /></div>
+
+Move the chunk and it is a different set of examples out of the same sentence.
+Take more characters at a time and there are more of them, again out of the same
+sentence.
+
+## Nobody wrote the answers down
+
+On screen that looks exactly like labelled training data — a question,
+`the ca`, and its answer, `t`. Something a person made.
+
+Nobody made it. The label was already in the sentence, and shifting by one is
+the whole of how it was extracted. There is no annotation step in this project
+and there never will be.
+
+<div class="claim mt-8">
+The text is its own answer key.
+</div>
+
+Learning this way — where the answers are recovered from the data rather than
+supplied alongside it — is called **self-supervised** learning. The name makes
+it sound like a technique. It is really just this: shift by one.
+
+And it is the reason these models got as large as they did. Labelling is usually
+what runs out first, before compute and before money. Remove it and any text at
+all becomes training data the moment you have it, which is how anyone came to
+train on quantities nobody could have annotated in a hundred lifetimes.
+
+## Why the chunk has to be a fixed size
+
+You just chose a number with that slider — how many characters to take at a
+time. The model needs that number chosen once and then frozen — a constraint that
+never goes away.
+
+Underneath, a model is matrix arithmetic: grids of numbers multiplied together.
+Multiplying grids only works when their shapes line up — a grid 8 wide can be
+multiplied by one 8 tall, and by nothing else. Those shapes are fixed when the
+model is built, long before it sees any text.
+
+So the input cannot be *everything written so far*. That is one character at the
+start of a book and three hundred thousand by the end, and no fixed grid is
+both. Instead a size is chosen in advance and never changes: the model reads
+that many characters and not one more. It is called the **context window**, and
+in code it is usually `block_size`.
+
+<div class="claim mt-7">
+Everything before the window may as well not exist. The model cannot see it, and
+has no way of knowing it is there.
+</div>
+
+That is the bigram's problem again, moved rather than solved. A bigram's window
+is one character wide. Nothing in this tutorial ever removes the wall — the rest
+of it is about pushing it further back and using what is inside it better.
+
+## And several chunks at once
+
+One more piece before the code. Training on a single chunk at a time works and
+wastes the machine: the arithmetic for eight characters does not come close to
+occupying a processor built to do thousands of such things at once.
+
+So chunks are stacked. Pick several random starting points, cut a chunk at each,
+and put them in a rectangle — `x` and `y` both come out as *rows × window*. That
+is a **batch**, and the rows have nothing whatever to do with each other.
+
+<aside class="aside measure mt-5">
+Nothing from row 0 reaches row 3. The model would give identical answers if you
+ran the rows one at a time, and batching is a throughput trick and nothing else.
+When attention arrives and characters genuinely do start affecting each other,
+it will matter that they only ever do so *within*
+a row.
+</aside>
+
+## Two ways to get this wrong quietly
+
+Both are off-by-ones, and neither crashes.
+
+**The shift.** `y[3]` is the answer after seeing **four** characters, not three
+— it follows `x[0]` through `x[3]` inclusive. Forget the shift entirely and
+`y[i]` becomes `x[i]`, so the answer is the character the model was just shown.
+It learns to copy its own input, which it can do perfectly. Every measurement
+says training is going beautifully. The model is useless.
+
+**The last chunk.** `y` reaches one character further than `x`, so the final
+legal starting point is one earlier than you would guess. With 49 characters and
+a window of 8, the largest start is 40 — because `y` for that row has to reach
+index 48, and 48 is the last index there is. One too generous and the last row
+runs off the end.
+
+## Build it yourself
+
+Five cells: the text as one flat run of integers, one chunk cut into `x` and
+`y`, the eight examples hiding inside it, a batch of four, and the boundary
+arithmetic — including what it looks like when you get it wrong by one.
+
+<div class="mt-8"><GptWidget name="context-window-lab" client:only="react" /></div>

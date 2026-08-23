@@ -1,0 +1,157 @@
+---
+tutorial: tiny-gpt
+order: 3
+title: Turning characters into numbers
+teaches: [tokenization, vocabulary, encode and decode, round-trip check]
+blurb: >-
+  A neural network cannot read a letter. Two small lookup tables turn text into
+  numbers and back, and getting them wrong corrupts everything downstream
+  quietly.
+searchTitle: "Character tokenization: turning text into numbers a model can read"
+description: "How a character-level tokenizer works: build a sorted vocabulary, map each character to an integer and back, and check the round trip. Why the order must be fixed, and why an unknown character should crash rather than default."
+---
+
+import { GptWidget } from "../../../components/site/GptWidget";
+
+The bigram never needed numbers. Its model was a table indexed by characters,
+and a Python lookup table will happily take `'t'` as a key and hand you back
+what followed it.
+
+Nothing after this part can do that. So before any of the promised context can
+be added, the text has to stop being text.
+
+## Why does anything need to be a number?
+
+Because of what a neural network physically is. Underneath the diagrams it is a
+long chain of multiplications and additions, run over lists of numbers. There
+is no step in it that could take `'t'` and do something with it — not because
+nobody has written that step, but because multiplying by a letter is not an
+operation.
+
+This is the same wall the [other tutorial hit with
+handwriting](/neural-networks/03-into-numbers/), where drawings had to become
+lists of ink values first. Text has it worse in one way: a drawing is *already*
+numbers, and only needs rearranging. A letter is not a number at all, so
+somebody has to decide what number it will be.
+
+The thing that decides is called a **tokenizer**, and ours is about as simple
+as one can be: it gives every distinct character its own number.
+
+## Two tables that must agree
+
+First, list every distinct character in the text and put the list in order.
+That list is the **vocabulary** — the complete set of symbols the model will
+ever be able to read or produce. Then build two lookup tables from it: one from
+character to number, one from number back to character.
+
+That is the entire tokenizer. Type into the box and watch a string make the
+round trip.
+
+<div class="mt-7"><GptWidget name="tokenizer" client:only="react" /></div>
+
+The two tables are mirrors, and the only property that matters is that they
+stay mirrors. Encode a string, decode the result, and you must get exactly what
+you started with. Write that check the same day you write the pair:
+
+```python
+decode(encode(text)) == text
+```
+
+It costs one line and it catches the mistake everyone makes here, which is
+`decode` returning `['c', 'a', 't']` instead of `"cat"` — a missing `"".join`
+that looks fine in a print statement and is wrong.
+
+## The numbers are labels, not quantities
+
+In the vocabulary above, `t` gets 9 and `a` gets 1 — and that says nothing
+about `t` or `a`.
+
+`t` is not nine times anything, not larger, not more important. The numbers are
+seat numbers: they identify, nothing more. Sorting the characters gave us a *repeatable* set of
+seat numbers, not a meaningful one. Had we ordered them some other way, every
+number would change and nothing about the model would.
+
+<div class="claim mt-7">
+The tokenizer assigns identity, not meaning. Where meaning comes from is a
+later problem, and it has a name.
+</div>
+
+That problem is real, and you can see it from here: a network doing arithmetic
+on these numbers will happily conclude that `t` and `s` are close, because 9 and
+8 are close, when nothing about the language says so. Fixing that is what
+embeddings do, a few parts from here. For now the numbers only have to be
+consistent.
+
+## What happens to a character it has never seen?
+
+The vocabulary above was built from one short sentence, so most of the alphabet
+is missing from it. Type a `z` into the box and encoding stops with a
+`KeyError` — Python's way of saying the key you asked for is not in the table.
+
+That is the correct behaviour. The obvious alternative is worse. A tokenizer could quietly map anything unrecognised to a
+single spare number. Nothing would crash. The model would train on that number
+as though it were a real character, learn something confident and false about
+it, and you would find out weeks later, if ever.
+
+<div class="claim mt-8">
+A loud crash beats silently corrupted data.
+</div>
+
+The cost is a rule to remember: the model can only ever be given text made of
+characters it was trained on. Anything you prompt it with later has to live
+inside this vocabulary.
+
+## Why the order has to be fixed
+
+Sorting looks like tidiness. It is not.
+
+The numbers a model learns from are meaningless except against the table that
+produced them. Train a model with one ordering, then rebuild the vocabulary a
+different way and decode with the new table, and every number now points at the
+wrong character. The model has not changed and is not broken — it is being read
+with the wrong key.
+
+The last cell below does exactly this on purpose. Encoding `cat sat` with a
+reversed ordering and decoding it with the original gives:
+
+```
+'os tas '
+```
+
+Not an error, not a warning. Just quietly the wrong text. Sorting is what makes
+the vocabulary something anyone can rebuild identically, on any machine, in any
+run.
+
+## How big does a vocabulary get?
+
+Ten, for the sentence above. For real text, count what is actually available:
+twenty-six letters, twenty-six more if you keep capitals, ten digits, a space,
+a newline, and a dozen or so marks of punctuation. That lands under a hundred —
+and then it stops, however much more text you add, because English has no
+further characters to find.
+
+That ceiling is the whole argument for working one character at a time. Compare
+it with splitting text into words, where the vocabulary never stops growing:
+every name, every typo, every coined word is a new entry, and anything you
+failed to see during training arrives later as a word you have no number for.
+
+<aside class="aside measure mt-5">
+Real models split the difference, into the **tokens**
+[described earlier](/tiny-gpt/01-the-problem/) — chunks of roughly three or four
+characters, chosen so common words stay whole and rare ones break into pieces.
+That keeps the vocabulary finite, at tens of thousands rather than under a
+hundred, and the sequences shorter. The mechanism in this part is unchanged:
+build a vocabulary, map both ways, never lose the table.
+</aside>
+
+The price of characters is length. `hello` is one word but five characters, so
+every sentence the model reads is several times longer, and it has to hold more
+of it in view to see the same amount of language. That bill comes due next.
+
+## Build it yourself
+
+Five cells: the vocabulary, the two tables, encode and decode, the crash, and a
+demonstration of what a wrong ordering costs. No libraries at all — the whole
+tokenizer is two dictionaries.
+
+<div class="mt-8"><GptWidget name="tokenizer-lab" client:only="react" /></div>

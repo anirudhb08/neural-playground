@@ -28,10 +28,10 @@ network lean towards a character on its own — worth having if one of yours
 turns up more often than the rest. Yours all begin at `0`, and training moves
 them like everything else. Libraries call it the *bias*.
 
-<p class="claim mt-7">
+<div class="claim mt-7">
 That is the whole network. One scorecard of 256 numbers per character, plus one
 head start each.
-</p>
+</div>
 
 ## What does a single weight do?
 
@@ -74,9 +74,9 @@ because they are everywhere.
 `layer(drawing)` is the multiply-and-add you stepped through square by square.
 And `layer.weight` is an `nn.Parameter`, which means exactly one thing:
 
-<p class="claim mt-7">
+<div class="claim mt-7">
 A number the network owns, and is allowed to change while it learns.
-</p>
+</div>
 
 Everything else in your program stays put; parameters are the parts that move.
 When somebody says a model has eight billion parameters, these are what they

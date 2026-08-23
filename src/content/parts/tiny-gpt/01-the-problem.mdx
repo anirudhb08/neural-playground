@@ -1,0 +1,101 @@
+---
+tutorial: tiny-gpt
+order: 1
+title: The problem
+teaches: [next-token prediction, autoregressive generation, model scale]
+blurb: >-
+  Every language model does one thing: guess the next symbol, then do it again.
+  What the task is, how far the big models take it, and what a small one is
+  genuinely good for.
+searchTitle: "How language models work: predicting the next character"
+description: "Every language model does one thing — predict the next symbol, append it, and predict again. What that task is, how it scales from a phone keyboard to GPT-3, and what you can build with a small one."
+---
+
+Start typing a message on your phone and a few suggested words appear above the
+keyboard. Type into a search box and it completes the query before you have.
+Ask ChatGPT anything and it writes back.
+
+Those three feel like different sizes of thing. They are the same thing, and it
+is smaller than it looks:
+
+<div class="claim mt-7">
+Given the text so far, what comes next?
+</div>
+
+That is the entire task. Not "understand this sentence", not "answer this
+question" — just *what is the next symbol likely to be*, asked over and over,
+each answer becoming part of the text for the next question.
+
+It sounds trivial. The difficulty is that the answer can depend on anything:
+the letter just typed, the word before it, or something written a paragraph
+ago — and nothing announces in advance which one matters this time.
+
+## Is this really what the big models do?
+
+Yes — and the answer surprises people.
+A model that writes essays is running the same loop as your phone's keyboard:
+predict the next symbol, append it, predict again. Nothing else is happening.
+
+What separates them is how far back they can look, and how well they judge which
+of the things they can see actually matters. The second of those is bought with
+**parameters** — the individual numbers inside a model that get adjusted while
+it learns. They are the whole of what a model knows, and counting them is the
+usual way of saying how big one is.
+
+| | how far back it sees | parameters |
+|---|---|---|
+| The counting model here | 1 character | none at all |
+| The model this tutorial builds | tens of characters | tens of thousands |
+| GPT-2, 2019 | 1,024 tokens | 124 million |
+| GPT-3, 2020 | 2,048 tokens | 175 billion |
+| Current frontier models | hundreds of thousands of tokens | not published |
+
+<aside class="aside measure mt-5">
+The units in that column are not the same, which flatters the larger models
+slightly. This tutorial works one character at a time, because a character is
+the simplest symbol there is. Bigger models group characters into **tokens** —
+roughly a common word or a chunk of one, three or four characters on average —
+so a thousand tokens is a few thousand characters. The comparison is rough, and
+rough is enough: the gap is factors of a thousand, not of four.
+</aside>
+
+The arc of this tutorial is that first column. You will start with one character
+of memory, and every part after adds a way of using more of what came before.
+
+## What can you actually make with a small one?
+
+Not an essay-writer. The gap between this and GPT-4 is real, and no amount of
+enthusiasm closes it.
+
+The model this tutorial builds works one character at a time. Nobody tells it
+what a word is, or a sentence — it sees letters and spaces and punctuation, and
+nothing else. Show it a few megabytes of text, a few novels' worth, and
+leave it running on a laptop for a few minutes. People have built all of the
+following that way:
+
+- **Writing in the style of whatever it was shown.** Give it Shakespeare and it
+  returns lines with the rhythm of Shakespeare, spoken by characters who never
+  existed, using words that do not exist either.
+- **Names** — for babies, bands, towns, invented species. What you want here is
+  *plausible and new* rather than correct, which is exactly what a model that
+  knows nothing about the world is good at.
+- **Music.** Tunes can be written down as ordinary text. In a format called ABC
+  notation a letter stands for a note and the punctuation marks the rhythm, so a
+  whole folk tune fits on one line of typing. Predicting the next character in
+  that line is composing.
+- **Molecules.** Chemists write structures as text too. In a format called
+  SMILES, ethanol is `CCO` — each letter an atom, the punctuation saying how
+  they connect — so a model that predicts characters can propose compounds.
+- **Small, strict languages.** Configuration files, or any language built from a
+  handful of keywords and rigid punctuation.
+
+What all of these share is that the next symbol is mostly settled by the few
+symbols just before it. That is the kind of pattern a small model picks up, and
+why the list runs past text: the model has no idea whether it is producing
+music or chemistry.
+
+<div class="claim mt-8">
+The task never changes. Only how much you can see, and how well you weigh it.
+</div>
+
+Next: the smallest model that answers the question at all, built by counting.

@@ -13,8 +13,10 @@ import Controls from "./Controls.astro";
 interface Props {
   tutorial?: string;
   part?: string;
+  /** True on the PyTorch reference, which sits outside the tutorial tree. */
+  reference?: boolean;
 }
-const { tutorial, part } = Astro.props;
+const { tutorial, part, reference = false } = Astro.props;
 
 const tutorials = (await getCollection("tutorials"))
   .filter((t) => t.data.status === "published")
@@ -75,6 +77,17 @@ const partsOf = (slug: string) =>
                     </a>
                   </li>
                 ))}
+                {t.data.planned.map((title, i) => (
+                  <li
+                    class="mono-note border-l-2 border-transparent py-1.5 pl-3.5 text-graphite/55"
+                    title="Not written yet"
+                  >
+                    <span class="pr-2">
+                      {String(parts.length + i + 1).padStart(2, "0")}
+                    </span>
+                    {title}
+                  </li>
+                ))}
               </ol>
             )}
           </li>
@@ -82,6 +95,16 @@ const partsOf = (slug: string) =>
       })
     }
   </ul>
+
+  {/* One link, never the entries. A glossary that grows to thirty calls would
+      turn the rail into the wall of links the tree above exists to avoid. */}
+  <a href="/pytorch/" class="block border-t pt-4 no-underline hairline">
+    <span
+      class={`text-sm leading-snug ${reference ? "font-semibold text-ink" : "text-graphite hover:text-plot"}`}
+      >PyTorch, in plain words</span
+    >
+    <span class="mono-note mt-0.5 block text-graphite/70">reference</span>
+  </a>
 
   <p class="mono-note flex flex-wrap gap-x-4 gap-y-1 border-t pt-4 text-graphite hairline">
     <a

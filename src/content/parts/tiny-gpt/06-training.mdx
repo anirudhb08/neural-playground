@@ -1,0 +1,224 @@
+---
+tutorial: tiny-gpt
+order: 6
+title: The training loop
+teaches: [gradient, gradient descent, training loop, mini-batch noise]
+blurb: >-
+  The model is 169 numbers and a loss saying how bad they are. Training is
+  turning each number the right way, a little at a time — and the rule for
+  which way turns out to be readable straight off the percentages.
+searchTitle: "The training loop, written out: gradients without autograd"
+description: "How a model actually improves: what a gradient is, how to read one off the model's own percentages, and the four-line loop that turns a measure of wrongness into a model that works."
+---
+
+import { GptWidget } from "../../../components/site/GptWidget";
+
+The model can now say how wrong it is — that is the loss. It cannot make itself
+less wrong. The grid scored 2.8912 and will score 2.8912 forever, because
+nothing changes its numbers.
+
+This part is the thing that changes them.
+
+## What training has to find
+
+The whole model is the grid: 13 rows of 13 scores, **169 numbers**, nothing
+else. The loss is computed from them, so turning any one of them moves the
+loss.
+
+The grid is not the `(4, 8, 13)` block from
+[the last part](/tiny-gpt/05-embeddings/#looking-up-a-whole-batch-at-once) —
+that was one batch passing through, built from copies of these rows and thrown
+away. Training changes the grid, and nothing else.
+
+Training means finding the setting of those 169 numbers where the loss is
+lowest. Trying settings is hopeless — allow each number just ten possible
+values and there are 10¹⁶⁹ combinations, against roughly 10⁸⁰ atoms in the
+observable universe. What is needed is not a faster search. It is a
+*direction*: for each number, from right where it stands, which way to turn it.
+
+## Which way is downhill?
+
+Ask one question of each number: **if this goes up a little, does the loss go
+up or down, and how fast?** The answer is that number's *slope*. The list of
+all 169 answers at once is called the **gradient**.
+
+Downhill just means the direction that lowers the loss. Every number takes one
+small step that way:
+
+```
+new value = old value − learning rate × slope
+```
+
+The minus sign moves each number against its slope — down if raising it would
+raise the loss, up if raising it would lower the loss. The **learning rate**
+sets the size of the step: too small and training crawls, too large and every
+step strides past the point it was aiming for.
+
+<aside class="aside measure mt-5">
+The [other tutorial](/neural-networks/06-learning/) works through why repeating
+that rule finds a minimum, on a network you can push around by hand. This part
+does something that one could not: the model is small enough to write the
+whole gradient out and check it.
+</aside>
+
+## Push down what took, pull up what lacked
+
+The loss cares about one number: the percentage given to the character that
+actually came next. And softmax hands out a fixed 100% between the thirteen
+characters, so this is a fight over shares. Raise the right answer's score and
+its share grows; raise any other score and it *takes* share from the right
+answer.
+
+That is the entire logic, and the slopes fall straight out of it:
+
+- every wrong character's score is **pushed down by exactly the share it
+  holds** — a character taking 40% of the percentage is doing real damage, a
+  character taking 1% is nearly harmless;
+- the right character's score is **pulled up by exactly the share it lacks** —
+  at 90% it barely needs help, at 8% it needs a lot.
+
+Concretely: the model has just read `t`, the right answer is `h`, and the grid
+is still all zeros, so all thirteen characters hold the same 7.7%:
+
+| character | share held | slope |
+|---|---|---|
+| `h` — the right answer | 7.7% | **−0.923** — pull up, by the 92.3% it lacks |
+| `␣` | 7.7% | **+0.077** — push down, by the share it holds |
+| …every other character | 7.7% | **+0.077** — push down |
+
+A slope is not yet a movement — the step multiplies it by the learning rate.
+At 0.5, this press moves `h`'s score by 0.46, not 0.923.
+
+The pushes balance exactly: twelve wrong characters lose 12 × 0.077 = 0.923,
+which is precisely what the right one gains. Every row's slopes sum to zero —
+share taken from the wrong answers is share handed to the right one.
+
+<div class="claim mt-7">
+Wrong answers are pushed down by the share they hold. The right answer is
+pulled up by the share it lacks. That is the entire derivative.
+</div>
+
+In code, with `probs` holding the thirty-two rows of thirteen percentages from
+a batch and `answers` holding each row's right character:
+
+```python
+slopes = probs.copy()             # wrong answers: the share they hold
+slopes[range(32), answers] -= 1   # right answers: share minus 100%
+slopes /= 32                      # the loss averages 32, so share the blame
+```
+
+The second line picks one number out of each row — row 0 takes 1 off column
+`answers[0]`, and so on. The rest is bookkeeping: carry each prediction's slopes back to the grid row it was read
+from, adding up where a row was used more than once.
+
+Notice that the loss's *value* appears nowhere. 2.5649 is printed and nothing
+reads it. The loss contributed the rule — worked out once from the definition
+of cross-entropy — and after that, the slopes are arithmetic on percentages.
+
+<aside class="aside measure mt-5">
+This is not a simplified stand-in. Run the same batch through PyTorch's
+`loss.backward()` and the two gradients differ by 1.4 × 10⁻¹⁷ — the smallest
+gap two 64-bit numbers can have. The library computes exactly this, faster,
+for models too large to do it by hand.
+</aside>
+
+## Watch one row learn
+
+The text contains exactly eight facts about `t`: four times it was followed by
+`h`, four times by a space. Here is the row for `t`, and the eight facts as
+buttons. Each press is one step at a learning rate of 0.5.
+
+<div class="mt-7"><GptWidget name="gradient-step" client:only="react" /></div>
+
+In the second experiment neither `h` nor `␣` can win,
+because whichever is ahead gets pushed down harder on the other's turn — the
+pushes only balance where the shares match how often each answer actually
+occurs. The row is being herded toward 50/50, which is the number
+[counting](/tiny-gpt/02-counting-pairs/#what-does-count-the-pairs-mean) read
+off the text directly.
+
+## The loop
+
+```python
+for step in range(600):
+    xb, yb = get_batch()
+    table -= learning_rate * gradient(table, xb, yb)
+```
+
+The same thing, for all thirteen rows at once, on random batches. Take a
+batch, work out the slopes, step downhill, repeat. Every model in this
+tutorial — and every model anywhere — is this loop with something more
+elaborate in the middle.
+
+<div class="mt-7"><GptWidget name="train-bigram" client:only="react" /></div>
+
+## The two dashed lines
+
+The chart draws two lines to judge the curve against, both computed from the
+text itself.
+
+The upper line, **2.5649**, is
+[the baseline from the last part](/tiny-gpt/05-embeddings/#the-number-training-has-to-beat)
+— the loss of knowing nothing. The grid starts at zeros, which is exactly that,
+so the curve begins on the line.
+
+The lower line, **0.7889**, is the counted table's own loss — the true shares,
+scored on every position of the text. Even they cannot reach zero, because the
+text itself is uncertain: after `t` the answer really is 50/50, so the best
+possible call still pays −log ½ ≈ 0.69 there. Fourteen of the 48 positions have
+only one possible follower and cost nothing; the other 34 pay, and the average
+is 0.7889. Nothing that sees one character does better than the true shares —
+you watched why: a row that leans away from them gets pushed straight back.
+
+<div class="claim mt-7">
+Six hundred steps take the loss from 2.5649 to about 0.86. The floor is
+0.7889.
+</div>
+
+Your run and the notebook below will not agree to the last digit — each draws
+its own random batches, so each takes a slightly different path down. They
+finish in the same place.
+
+## Why the curve wobbles
+
+Each step judges the grid on four short chunks picked at random, not on the
+whole text. Four chunks are not a fair sample, so the direction they suggest
+is roughly downhill rather than exactly. Individual steps go the wrong way;
+the trend does not.
+
+Judging on the whole text every step would smooth the curve and cost far more,
+and at real scale it is not an option at all. The noise is the price of not
+looking at everything.
+
+## What it learned
+
+Ask the trained grid what follows `t`, and ask the counted table the same:
+
+| after `t` | learned by training | counted directly |
+|---|---|---|
+| space | 55.4% | 50.0% |
+| `h` | 42.7% | 50.0% |
+
+You watched the mechanism that makes this inevitable: the pushes settle where
+shares match frequencies. The loop was never told to count — it saw a loss and
+a direction, six hundred times, and landed next to the table counting produces
+in one pass.
+
+<div class="claim mt-8">
+Gradient descent rediscovered counting, without being told that counting was
+the answer.
+</div>
+
+Which is why any of this is worth doing for a model where counting was
+available. Counting stops working the moment several characters have to be
+weighed against each other, and nudging does not care — correction never asks
+how complicated the thing in the middle is. The next part makes it much more
+complicated: the model is still blind past one character, and that is the last
+wall left.
+
+## Build it yourself
+
+Five cells: the pieces gathered, the slopes written out, the loop, the two
+dashed lines, and the trained row set beside the counted one.
+
+<div class="mt-8"><GptWidget name="training-lab" client:only="react" /></div>
