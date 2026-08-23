@@ -3,10 +3,12 @@ import { BigramTable } from "../BigramTable";
 import { ContextWindow } from "../ContextWindow";
 import { DeepStack } from "../DeepStack";
 import { EmbeddingTable } from "../EmbeddingTable";
+import { GenerateGPT } from "../GenerateGPT";
 import { GradientStep } from "../GradientStep";
 import { MultiHead } from "../MultiHead";
 import { ParamCensus } from "../ParamCensus";
 import { Tokenizer } from "../Tokenizer";
+import { TrainGPT } from "../TrainGPT";
 import { TrainBigram } from "../TrainBigram";
 import { WeightedDie } from "../WeightedDie";
 import { PythonLab } from "../PythonLab";
@@ -17,6 +19,9 @@ import { contextWindowLab } from "../../labs/contextWindow";
 import { embeddingsLab } from "../../labs/embeddings";
 import { multiHeadLab } from "../../labs/multiHead";
 import { tokenizerLab } from "../../labs/tokenizer";
+import { trainGptLab } from "../../labs/trainGpt";
+import { prepareGpt, prepareGptTrained } from "../../labs/gptSetup";
+import { generateGptLab } from "../../labs/generateGpt";
 import { attentionLab } from "../../labs/attention";
 import { trainingLab } from "../../labs/training";
 
@@ -58,6 +63,10 @@ export function GptWidget({ name }: Props) {
       return <DeepStack />;
     case "param-census":
       return <ParamCensus />;
+    case "train-gpt":
+      return <TrainGPT />;
+    case "generate-gpt":
+      return <GenerateGPT />;
     case "weighted-die":
       return <WeightedDie />;
     case "bigram-lab":
@@ -66,6 +75,24 @@ export function GptWidget({ name }: Props) {
           steps={bigramLab()}
           prepare={async () => {}}
           closing="That is a language model, complete. It has no parameters, learned nothing, and still produces text that is locally plausible and globally nonsense. The next part starts on why."
+        />
+      );
+    case "generate-gpt-lab":
+      return (
+        <PythonLab
+          steps={generateGptLab()}
+          prepare={prepareGptTrained}
+          library="NumPy"
+          closing="A language model, from a tally of pairs to a transformer that speaks - every number met, every claim run. What it says is still nonsense; how it says it is entirely yours."
+        />
+      );
+    case "train-gpt-lab":
+      return (
+        <PythonLab
+          steps={trainGptLab()}
+          prepare={prepareGpt}
+          library="NumPy"
+          closing="A model that beats the best memory-free predictor on text it has never seen, and a sample that is starting to speak. Turning those weights into text on demand is the last part."
         />
       );
     case "assemble-lab":

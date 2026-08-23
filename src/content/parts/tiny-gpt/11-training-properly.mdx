@@ -1,0 +1,128 @@
+---
+tutorial: tiny-gpt
+order: 11
+title: Training it properly
+teaches: [validation split, overfitting, early stopping, gradient checking]
+blurb: >-
+  The model trains with the same loop as ever. What "properly" adds is a
+  number that cannot flatter — a held-back slice the model never trains on —
+  and enough text that the score on it means something.
+searchTitle: "Training a tiny GPT properly: validation, overfitting, and beating the bigram"
+description: "Training the assembled model with a held-out split: watching it memorise a small corpus, beat every possible one-character predictor on a bigger one, and how to know when to stop."
+---
+
+import { GptWidget } from "../../../components/site/GptWidget";
+
+The model is assembled and the loop that trains it has existed since the grid
+days: batch, slopes, step, repeat. Nothing about that changes here.
+
+What changes is the measurement. Every loss so far was computed on the same
+text the model trains on, and that number has a flaw with teeth: a model can
+make it excellent by *memorising*, and memorising is the one thing a big
+enough model can always do.
+
+## Hold a tenth back
+
+The repair costs one line: cut the last tenth of the text off, and never train
+on it. The loss on the training slice says how well the model has learned what
+it was shown. The loss on the held-back slice says how well that learning
+transfers to text it has never seen — which is the only thing anyone actually
+wants.
+
+You have met this idea [with drawings](/neural-networks/09-break-it/): a
+network that aces what it studied and fails everything else has not learned,
+it has memorised. Here the same test is two numbers printed side by side.
+
+<div class="claim mt-7">
+The training loss is a mirror. The held-back loss is a window.
+</div>
+
+## The slopes, provided and checked twice
+
+One honesty note before training. The slopes for all fourteen-odd thousand
+numbers follow the same push-pull recipe worked out for the grid — applied
+piece by piece back through the head, the tidies, the thinking layer, the
+heads and both tables. Writing that out is bookkeeping, not new ideas, so the
+lab loads it from one file, `gptModel.py`, sitting in this site's repository.
+
+The file is not asked to be trusted. Against PyTorch's autograd, its slopes
+agree to 5.6 × 10⁻¹⁷ — the smallest gap 64-bit numbers allow. And the lab's
+second cell hands you a check of your own: nudge one weight up and down by a
+whisker and measure how the loss moves. The file claims a slope of
+`0.0010346274`; the nudge measures `0.0010346274`.
+
+## Act one: too little text
+
+Train on the little corpus — 1,396 characters, the one the figures have used
+since the context-window part. A counted bigram scores **2.495** on its
+held-back tenth. The model, every few hundred steps:
+
+| step | training slice | held-back slice |
+|---|---|---|
+| 200 | 2.212 | 2.472 |
+| 600 | 1.796 | **2.639** |
+| 1000 | 1.291 | **3.024** |
+
+The mirror says the model is becoming an expert. The window says it is getting
+*worse than counting pairs* — because fourteen thousand adjustable numbers
+pointed at fourteen hundred characters do not learn the language of the text.
+They learn the text. Every step past 200 made the memorisation crisper and
+the transfer poorer.
+
+## Act two: ten times the text
+
+Same model, same loop, same learning rate. The only change is the corpus:
+sixteen thousand characters — of this tutorial's own prose, flattened. The
+model you have been building learns to predict the words you have been
+reading.
+
+A counted bigram scores **2.323** on the held-back tenth. The model:
+
+| step | training slice | held-back slice |
+|---|---|---|
+| 250 | 2.352 | **2.317** |
+| 500 | 2.120 | 2.105 |
+| 1000 | 1.943 | 2.001 |
+| 1500 | 1.808 | 1.925 |
+
+By step 250 it is already under the bigram. And the two columns now fall
+*together* — with enough text, what the model learns from the training slice
+keeps being true on the slice it never saw.
+
+<div class="mt-7"><GptWidget name="train-gpt" client:only="react" /></div>
+
+## What crossing the line means
+
+That dashed line is not an arbitrary benchmark. It is the score of the
+perfect one-character predictor — the counted table, the best that *any*
+model without context can reach, the wall the training-loop part ran into.
+
+Everything since — embeddings wider than the vocabulary, sixteen characters
+of window, heads, blocks, seat numbers — existed on the promise that context
+would pay. This is the receipt:
+
+<div class="claim mt-7">
+On text it has never seen, the model now beats every possible one-character
+predictor. The wall is behind it.
+</div>
+
+## When to stop
+
+The two acts answer this between them. On too little text the window turned
+at step 200 and training longer only made things worse. On enough text it
+kept improving for eleven and a half thousand steps, bottomed out at
+**1.667**, and bounced without improving for the next two and a half
+thousand. The rule is the same in both cases and everywhere else:
+
+Watch the window, not the mirror. Stop when the held-back loss stops
+improving, and keep the weights from that moment — those are the ones the
+last part will speak with.
+
+## Build it yourself
+
+Five cells: the two corpora and the split, the nudge test on a provided
+slope, the small-text disaster, the crossing of the bigram floor, and the
+first sample. The two training cells run for real — half a minute and a
+minute or two — and say so.
+
+<div class="mt-8"><GptWidget name="train-gpt-lab" client:only="react" /></div>
