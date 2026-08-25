@@ -25,7 +25,7 @@ chars = sorted(set(text)); V = len(chars)
 stoi = {ch: i for i, ch in enumerate(chars)}
 data = np.array([stoi[ch] for ch in text])
 
-T, C, HEADS = 16, 32, 4          # window, lane width, heads
+T, C, HEADS = 16, 32, 4          # window, model width, heads
 HS, F = C // HEADS, 4 * C        # head width, thinking width
 
 def softmax(z, axis=-1):
@@ -60,7 +60,7 @@ params = {
     "gf": np.ones(C), "bf": np.zeros(C),
     "head": n(0, 0.02, (C, V)),      # near zero, for the last cell
 }
-print("pieces ready — vocabulary", V, "| window", T, "| lane width", C)`,
+print("pieces ready — vocabulary", V, "| window", T, "| model width", C)`,
   },
   {
     title: "the stack cannot see order",

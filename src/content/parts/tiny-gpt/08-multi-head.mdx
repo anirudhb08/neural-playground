@@ -70,9 +70,13 @@ deferred to a trainable layer instead of settled by a fixed rule.
 ## Specialists at the price of one generalist
 
 Running four heads sounds like four times the machinery. It is not, because
-the heads are made narrower to pay for their number: with a width-8 model,
-each of four heads gets width 2, and gluing four width-2 answers rebuilds
-exactly width 8.
+the heads are made narrower to pay for their number.
+
+Every position's description is a row of numbers — eight of them, in the lab
+below — and that length is the model's **width**: the width every head reads,
+and the width the glued answer must rebuild so it can stand where the old row
+stood. So a width-8 model runs four heads of width 2, and gluing four width-2
+answers lands exactly back on 8.
 
 Count the learned numbers. One full-width head is three 8×8 matrices — 192
 numbers. Four quarter-width heads are twelve 8×2 matrices — 192 numbers. The

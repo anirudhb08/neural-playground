@@ -48,7 +48,7 @@ def bigram_floor(train_d, val_d, V):
     P = pairs / pairs.sum(1, keepdims=True)
     return float(-np.log(P[val_d[:-1], val_d[1:]]).mean())
 
-print("model file loaded:", callable(loss_and_grads), "| window", T, "| lane", C)`,
+print("model file loaded:", callable(loss_and_grads), "| window", T, "| width", C)`,
   },
   {
     title: "trust, then verify",
