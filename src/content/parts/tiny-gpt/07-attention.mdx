@@ -114,10 +114,18 @@ things. That is the entire reason there are three matrices.
 
 ## Everything against everything
 
-Every query dotted against every key gives a square: one row per position doing
-the looking, one column per position being looked at. Three things happen to
-that square, and the figure steps through them — press **▶** to watch one row
-make the whole journey.
+One cell first. To fill row *i*, column *j* of the grid, take position *i*'s
+query and position *j*'s key and dot them — entry by entry, multiplied and
+added, the same comparison as before. One number: how strongly what *i* is
+looking for matches what *j* offers.
+
+Do that for every pair and the result is a square: one row per position doing
+the looking, one column per position being looked at. In code the whole square
+is a single multiplication, `scores = Q @ K.T` — the `.T` lays the keys on
+their side so every query-row meets every key-row.
+
+Three things happen to that square, and the figure steps through them — press
+**▶** to watch one row make the whole journey.
 
 <div class="mt-7"><GptWidget name="attention-grid" client:only="react" /></div>
 
