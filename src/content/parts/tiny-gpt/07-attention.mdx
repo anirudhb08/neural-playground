@@ -56,30 +56,35 @@ jointly, and the only material either one has is its content: the row of
 numbers the embedding table handed its character.
 
 Two rows in, one number out. The standard arithmetic for that is the **dot
-product**: multiply the rows entry by entry and add everything up. Entries
-that are large together add strongly; entries with opposite signs subtract.
-The total comes out big for rows that agree, near zero for strangers,
-negative for opposites — a score for how well two rows go together.
+product**: multiply the rows entry by entry, add everything up — big for rows
+that agree, near zero for rows with nothing in common. A score for how well
+two rows go together.
 
 So the obvious move: weight position *j* for position *i* by dotting their
 rows, `x[i] · x[j]`.
 
-It has a flaw you can find without running anything. Dot two *strangers'*
-rows and the products have no reason to agree — positive here, negative
-there, mostly cancelling toward zero. Now dot a row *with itself*: every
-entry is multiplied by itself, so every product is a square, and a square is
-never negative. Nothing cancels. For a row of sixteen everyday-sized numbers
-that adds up to a score around **+16** — one per entry — for any row,
-whatever it contains, before anything has been learned.
+It has a flaw you can find with a pencil. Dot two *strangers'* rows and the
+products have no reason to agree — positive here, negative there, mostly
+cancelling. Dot a row *with itself* and every product is a square: never
+negative, nothing cancels. Four entries are enough to see it:
 
-So in the contest for each position's attention, the position itself starts
-with a sixteen-point lead over every stranger, and softmax turns big leads
-into near-certainty. Wire this in and every position spends almost all of its
-attention on itself — and a position that listens to itself learns nothing
-from the window. The lab runs this check on its own rows and the numbers come
-out just as the squares say they must. A
-model wired this way mostly listens to itself, and a position that listens to
-itself learns nothing from the window.
+| entry | row `a` | row `b` | `a` × `b` | `a` × `a` |
+|---|---|---|---|---|
+| 1 | 0.9 | −0.4 | −0.36 | 0.81 |
+| 2 | −0.5 | 0.7 | −0.35 | 0.25 |
+| 3 | 0.3 | 0.8 | 0.24 | 0.09 |
+| 4 | −0.8 | −0.2 | 0.16 | 0.64 |
+| | | **sum** | **−0.31** | **1.79** |
+
+Stranger against stranger wobbles near zero. Self against self piles up — and
+a row of sixteen everyday-sized entries piles to around **+16**, one per
+entry, for any row, before anything has been learned.
+
+So every position starts the contest for its own attention with a
+sixteen-point lead over every stranger, and softmax turns big leads into
+near-certainty: wired this way, each position spends almost all of its
+attention on itself and learns nothing from the window. The lab runs the
+check, and the numbers land where the squares say they must.
 
 ## What you look for is not what you are
 
@@ -101,8 +106,8 @@ Same row in, three different vectors out. And the guaranteed squares are
 gone: a query dotted with a key multiplies two *different* rows, so matching
 yourself is no easier than matching a stranger — the self-share falls back to
 an even split — and who matches whom is decided entirely by the learned
-numbers. The value matrix is the same idea once more: what a
-position passes on need not be its raw row either.
+numbers. The value matrix is the same idea once more: what a position passes
+on need not be its raw row either.
 
 Those three matrices are the only things in attention that get learned.
 Everything after them is arithmetic that could not be otherwise.
@@ -114,10 +119,9 @@ things. That is the entire reason there are three matrices.
 
 ## Everything against everything
 
-One cell first. To fill row *i*, column *j* of the grid, take position *i*'s
-query and position *j*'s key and dot them — entry by entry, multiplied and
-added, the same comparison as before. One number: how strongly what *i* is
-looking for matches what *j* offers.
+One cell first: row *i*, column *j* holds position *i*'s query dotted with
+position *j*'s key — one number for how strongly what *i* is looking for
+matches what *j* offers.
 
 Do that for every pair and the result is a square: one row per position doing
 the looking, one column per position being looked at. In code the whole square
@@ -149,19 +153,16 @@ Two consequences, and the lab checks both:
 
 - Every row adds to 100%. Attention distributes a fixed amount of interest; it
   never creates more.
-- The first position can only see itself, so its output is exactly its own value
-  note, unchanged.
+- The first position can only see itself, so its output is exactly its own
+  value, unchanged.
 
 ## The divisor that makes it trainable
 
-Now untick *divide by √16* in the figure. With it on, the largest share in
-each looking row sits between 0.32 and 0.75 — genuine shares. Without it every
-row sharpens, three of the six past 0.77 — and the effect grows with head
-width, which is the point:
-
-A dot product adds up as many products as the vectors are wide, so the wider
-the head, the larger the scores — for reasons having nothing to do with the
-language. Measured over twenty thousand random pairs:
+Now untick *divide by √16* in the figure: every looking row sharpens, the
+largest shares jumping from the 0.32–0.75 range to past 0.77. The cause has
+nothing to do with language. A dot product adds up as many products as the
+vectors are wide, so wider heads mean bigger scores — measured over twenty
+thousand random pairs:
 
 | head width | spread of raw scores | after dividing by √width |
 |---|---|---|
@@ -183,8 +184,9 @@ One divisor separates a head that trains from one that sits still.
 
 ## What comes out
 
-The weighted average of the value notes, one per position. Same shape as went
-in, entirely different content: position four no longer holds *the character
+Each row of shares buys a blend: the output is the share-weighted average of
+the values, one new vector per position. Same shape as went in, entirely
+different content: position four no longer holds *the character
 `t`*, it holds *the character `t`, having read `the ca` behind it*.
 
 That is the thing that was missing. Whether the model uses it well is a matter
