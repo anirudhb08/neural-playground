@@ -26,10 +26,12 @@ at different places, at the same moment.
 A head could split its attention — half on the grammar, half on `mat`. Here is
 why that is not the same as having both.
 
-The head's answer is a weighted average of value notes. Suppose it attends
-50/50 to two positions whose notes are `[2, 0]` and `[0, 2]`. The average is
-`[1, 1]`. Now suppose the two notes had been `[1, 1]` and `[1, 1]` — the
-average is `[1, 1]` again.
+A head's answer is a weighted average of **values** — the vectors each chosen
+position hands over, from the third matrix of the last part. Shrink them to
+two entries each so the arithmetic stays visible. Suppose a head attends
+50/50 to two positions whose values are `[2, 0]` and `[0, 2]`: the average is
+`[1, 1]`. Now suppose the values had been `[1, 1]` and `[1, 1]` — the average
+is `[1, 1]` again.
 
 Two different pasts, one identical summary. Whatever runs after the head sees
 `[1, 1]` and cannot know which world it is in. The information was in hand,

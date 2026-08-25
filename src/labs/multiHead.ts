@@ -44,7 +44,7 @@ print("one full-width head:", head(x, *W).shape)`,
   },
   {
     title: "why one head is not enough",
-    lead: "A head's answer is a weighted average of value notes, and averaging shreds. Two completely different pairs of notes, same blend — whatever runs afterwards cannot tell the two worlds apart.",
+    lead: "A head's answer is a weighted average of values, and averaging shreds. Two completely different pairs of values, same blend — whatever runs afterwards cannot tell the two worlds apart.",
     code: `shares = np.array([0.5, 0.5])     # a head attending equally to two positions
 
 blend = lambda a, b: shares @ np.stack([a, b])
