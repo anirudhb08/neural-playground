@@ -56,7 +56,13 @@ what to hand over. Nothing inside a head changes at all.
 
 Then glue the answers side by side: the output's first columns are head one's
 answer, the next columns head two's. Which-came-from-which survives as
-position in the vector — no blending between heads, ever.
+position in the vector.
+
+And that is the result — nothing combines the heads. No average, no picking
+the larger; either would just be a different shredder. The glued vector is
+the position's new description, and whatever reads it next takes the whole
+width and *learns* how much weight each head's lane deserves. Combining is
+deferred to a trainable layer instead of settled by a fixed rule.
 
 <div class="mt-7"><GptWidget name="multi-head" client:only="react" /></div>
 
