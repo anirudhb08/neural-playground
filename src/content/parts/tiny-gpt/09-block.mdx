@@ -22,9 +22,10 @@ enough, and makes the answer to that — stacking — survivable.
 
 ## Think alone
 
-The thinking piece is built from one small idea. Take a single row of learned
-numbers `w`, dot it against a position's gathered vector, and clip the result
-at zero:
+The thinking piece is built from one small idea. Take a row of numbers `w`
+that belongs to the model — weights, adjusted by training like every matrix
+so far, not anything computed from the input. Dot it against a position's
+gathered vector and clip the result at zero:
 
 ```python
 fires = max(w · gathered, 0)
