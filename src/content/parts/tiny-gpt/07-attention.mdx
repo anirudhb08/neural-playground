@@ -156,6 +156,12 @@ Two consequences, and the lab checks both:
 - The first position can only see itself, so its output is exactly its own
   value, unchanged.
 
+And with that, the machine has all its parts: three learned matrices, the
+score grid, the mask, and the shares about to buy their blend. One complete
+unit of this is called a **head** of attention, and the width of its query,
+key and value vectors is the head's width. The name describes nothing — it is
+simply what everyone calls it — and the next part runs several at once.
+
 ## The divisor that makes it trainable
 
 Now untick *divide by √16* in the figure: every looking row sharpens, the
