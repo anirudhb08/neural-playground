@@ -70,7 +70,7 @@ print("  value:", np.round(V[0][:4], 2), "...")
   },
   {
     title: "every query against every key",
-    lead: "How much should position i take from position j? Compare i's query with j's key. A dot product is the whole comparison — large when the two point the same way, negative when they oppose.",
+    lead: "How much should position i take from position j? Dot i's query with j's key — entry by entry, multiplied and added, big where they agree and negative where they clash.",
     code: `scores = Q @ K.T          # (T, T): row i, column j = how much i wants j
 
 print("the grid, rounded:")

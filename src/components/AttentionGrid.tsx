@@ -238,10 +238,10 @@ export function AttentionGrid() {
       <p className="caption mt-4 max-w-[34rem]">
         {rawXX ? (
           <>
-            With rows compared directly, watch the diagonal: x·x is the length
-            of your own vector squared, always large and always positive, so
-            every position mostly matches <em>itself</em>. Q and K exist to
-            take that advantage away.
+            With rows compared directly, watch the diagonal: x·x adds up
+            squares, so it is large and positive whatever the row contains,
+            and every position mostly matches <em>itself</em>. Q and K exist
+            to take that advantage away.
           </>
         ) : scaled ? (
           <>

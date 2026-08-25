@@ -47,24 +47,31 @@ carries nothing. Any rule based on position alone gets this exactly backwards,
 which is why the weights have to be computed from the content every time.
 </aside>
 
-## A weight is a comparison
+## One number for every pair
 
-The weights have to come out of the content, and each position's content is a
-vector — the row the embedding table gave its character. The one-number
-comparison between two vectors is the **dot product**: multiply them element by
-element, add it up. Large when they point the same way, negative when they
-oppose.
+Look at what a weight actually is. It belongs to a *pair* — a position doing
+the looking and a position being looked at — and it says how much the first
+should take from the second. So it has to be computed from the two of them
+jointly, and the only material either one has is its content: the row of
+numbers the embedding table handed its character.
 
-So the obvious move: weight position *j* for position *i* by dotting their rows,
-`x[i] · x[j]`.
+Two rows in, one number out. The standard arithmetic for that is the **dot
+product**: multiply the rows entry by entry and add everything up. Entries
+that are large together add strongly; entries with opposite signs subtract.
+The total comes out big for rows that agree, near zero for strangers,
+negative for opposites — a score for how well two rows go together.
+
+So the obvious move: weight position *j* for position *i* by dotting their
+rows, `x[i] · x[j]`.
 
 Measured over two thousand random draws, at this page's head width of sixteen:
 a position scores **+4.00** against itself and **+0.01** against everyone else,
 and after softmax the last position of a six-character window keeps **82%** of
 its attention for itself. An even split would be 17%.
 
-The failure is built in. `x · x` is the length of your own vector, squared —
-always large, always positive, and nothing about the *content* earned it. A
+The failure is built in. `x · x` multiplies every entry by itself and adds:
+every term is a square, nothing can cancel, so matching *yourself* scores
+large and positive whatever the row contains. A
 model wired this way mostly listens to itself, and a position that listens to
 itself learns nothing from the window.
 
