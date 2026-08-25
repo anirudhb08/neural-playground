@@ -14,8 +14,9 @@ description: "Why a single attention head loses information no matter how well i
 import { GptWidget } from "../../../components/site/GptWidget";
 
 Each position now leaves attention carrying one answer, gathered from its past
-by one **head** — the name the last part gave the complete machine: three
-matrices, the score grid, the mask, the blend. The question is whether one
+by one **head** — the last part's whole machine: three learned matrices asking
+who matches whom, a mask vetoing the future, and a blend of what the chosen
+positions hand over, weighted by the shares. The question is whether one
 answer is enough.
 
 Take *the cat sat on the mat because it was soft*, mid-sentence. Continuing it

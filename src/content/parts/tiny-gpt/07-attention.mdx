@@ -144,8 +144,9 @@ look at position five, it can simply read the answer — and it will, because
 copying is easier than predicting, and the loss cannot tell the difference until
 you try to generate anything.
 
-So everything above the diagonal is forbidden. In code that is done by setting
-those scores to negative infinity *before* the softmax, because `exp(-∞)` is
+So everything above the diagonal is forbidden — **masked**, in the standard
+word. In code the mask sets those scores to negative infinity *before* the
+softmax, because `exp(-∞)` is
 exactly zero: forbidden positions end up with no weight at all, and the permitted
 ones keep their relative sizes untouched.
 
