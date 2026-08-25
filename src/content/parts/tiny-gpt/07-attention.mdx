@@ -64,14 +64,18 @@ negative for opposites — a score for how well two rows go together.
 So the obvious move: weight position *j* for position *i* by dotting their
 rows, `x[i] · x[j]`.
 
-Measured over two thousand random draws, at this page's head width of sixteen:
-a position scores **+4.00** against itself and **+0.01** against everyone else,
-and after softmax the last position of a six-character window keeps **82%** of
-its attention for itself. An even split would be 17%.
+Run the experiment before trusting the move. Give six positions random rows —
+sixteen numbers each, untrained on purpose, so anything that happens is baked
+into the arithmetic rather than learned — and score every pair with the dot
+product. Repeat two thousand times, average: a position scores **+16.0**
+against itself and **+0.02** against everyone else. Turn the last position's
+six scores into shares with softmax and it keeps **99%** of its attention for
+itself, where an even split across the six it can see is 17%.
 
 The failure is built in. `x · x` multiplies every entry by itself and adds:
-every term is a square, nothing can cancel, so matching *yourself* scores
-large and positive whatever the row contains. A
+every term is a square, nothing can cancel — sixteen squares averaging about
+one each is the +16. Matching *yourself* scores large and positive whatever
+the row contains. A
 model wired this way mostly listens to itself, and a position that listens to
 itself learns nothing from the window.
 

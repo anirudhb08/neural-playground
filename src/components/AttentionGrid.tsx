@@ -9,9 +9,11 @@ import { mulberry32 } from "../lib/bigram";
  * content-based weights is to dot each row against the others directly, and
  * that attempt fails in a way worth seeing: x·x is the length of your own
  * vector squared, always large and always positive, so the diagonal dominates
- * and every position mostly listens to itself (measured over 2,000 draws:
- * self-score +4.00 against +0.01 for others; the last position keeps 82% of
- * its attention where fair would be 17%). Flip the toggle and watch the
+ * and every position mostly listens to itself (measured over 2,000 draws of
+ * raw dot products: self +16.0 against +0.02 for strangers; the last position
+ * keeps 99% of its attention where fair would be 17%; the page quotes these,
+ * while this widget's toggle shows the milder scaled version because the
+ * divisor checkbox defaults on). Flip the toggle and watch the
  * diagonal light up; flip it back and the advantage vanishes, because with
  * two different learned matrices the diagonal is nothing special.
  *
