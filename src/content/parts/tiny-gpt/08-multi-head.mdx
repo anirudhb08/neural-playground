@@ -75,8 +75,22 @@ the heads are made narrower to pay for their number.
 Every position's description is a row of numbers — eight of them, in the lab
 below — and that length is the model's **width**: the width every head reads,
 and the width the glued answer must rebuild so it can stand where the old row
-stood. So a width-8 model runs four heads of width 2, and gluing four width-2
-answers lands exactly back on 8.
+stood.
+
+Two widths are in play now, so keep them apart. A head's answer is as long as
+its value vectors — its *head width*, from the attention page. Cut each of
+four heads down to head width 2 and each answers with two numbers per
+position. Glued side by side, lengths add:
+
+```
+head 1    head 2    head 3    head 4
+[a  b]    [c  d]    [e  f]    [g  h]
+        ↓  glued side by side  ↓
+[a  b  c  d  e  f  g  h]              ← eight: the model width again
+```
+
+Four twos make eight, so the glued answer is exactly the size of the row it
+replaces.
 
 Count the learned numbers. One full-width head is three 8×8 matrices — 192
 numbers. Four quarter-width heads are twelve 8×2 matrices — 192 numbers. The
