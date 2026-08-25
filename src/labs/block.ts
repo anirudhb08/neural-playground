@@ -45,15 +45,20 @@ heads = [make_head(C // HEADS) for _ in range(HEADS)]
 print("gathered:", multi_head(x, heads).shape)`,
   },
   {
-    title: "think alone",
-    lead: "Each position, alone at its desk, working out what its gathered vector means. No position sees another here — that is attention's job, exclusively.",
-    code: `H = 4 * C     # the middle is conventionally four times wider
+    title: "one if, then a bank of them",
+    lead: "A single middle unit is an if: it fires in proportion to how well the gathered vector matches its pattern, and stays silent otherwise. The feed-forward is 128 of these asking at once, each adding its contribution if it fired. No position sees another here — that is attention's job, exclusively.",
+    code: `w = np.array([1.0, -1.0])                  # one learned pattern
+for probe in ([0.8, -0.6], [-0.8, 0.6], [0.5, 0.5]):
+    z = float(np.dot(probe, w))
+    print(f"{str(probe):>13}  raw {z:+.1f}   after the bend {max(z, 0.0):.1f}")
 
-W1 = rng.normal(0, 1/np.sqrt(C), (C, H))
-W2 = rng.normal(0, 1/np.sqrt(H), (H, C))   # opposite direction: back down
+H = 4 * C     # the bank: conventionally four times the model width
+
+W1 = rng.normal(0, 1/np.sqrt(C), (C, H))   # 128 patterns, one per column
+W2 = rng.normal(0, 1/np.sqrt(H), (H, C))   # each unit's contribution if it fires
 
 def feed_forward(z):
-    return np.maximum(z @ W1, 0) @ W2      # widen, bend, narrow back
+    return np.maximum(z @ W1, 0) @ W2
 
 print("in :", x.shape, " out:", feed_forward(x).shape)
 

@@ -4,58 +4,92 @@ order: 9
 title: The transformer block
 teaches: [feed-forward, residual connections, layer norm, transformer block]
 blurb: >-
-  Attention gathers and never thinks; a feed-forward thinks and never gathers.
-  Wrap the pair so a signal can survive twenty-four layers of them, and you have
-  the unit the whole architecture is stacked from.
+  Attention gathers and never thinks. The thinking layer is a bank of learned
+  if-questions — and once you see why one round of gather-and-think cannot be
+  enough, stacking becomes a survival problem with a two-part fix.
 searchTitle: "The transformer block from scratch: feed-forward, residuals, layer norm"
-description: "Why attention needs a feed-forward after it, why two linear layers collapse into one without a bend, and how residual connections and layer norm let the pair stack twenty-four layers deep."
+description: "What the feed-forward layer actually computes — a bank of learned if-questions — why one round of attention and thinking cannot be enough, and how residual connections and layer norm let the pair stack twenty-four layers deep."
 ---
 
 import { GptWidget } from "../../../components/site/GptWidget";
 
-Attention — one head or many — only ever gathers. Every output is a weighted
-blend of value notes, laid side by side. Nothing yet works out what the
-gathered material *means*, and a model that only collects is a filing cabinet.
+Attention — one head or many — only ever gathers. Every position ends up
+holding a blend of what it chose to read, and nothing so far does anything
+*with* it. A model that only collects is a filing cabinet.
 
-Two problems, then. Give each position something that thinks. And make the
-result stackable, because one round of gather-and-think is not going to be
-enough.
+This part builds the piece that thinks, finds out why thinking once is not
+enough, and makes the answer to that — stacking — survivable.
 
 ## Think alone
 
-The thinking piece is small: two matrices with a bend between them, applied to
-each position separately.
+The thinking piece is built from one small idea. Take a single row of learned
+numbers `w`, dot it against a position's gathered vector, and clip the result
+at zero:
+
+```python
+fires = max(w · gathered, 0)
+```
+
+That is an **if**. The unit fires when the gathered vector matches its
+pattern, in proportion to the match, and stays silent otherwise. With
+`w = [1, −1]`:
+
+| gathered vector | `w · gathered` | after the bend |
+|---|---|---|
+| `[0.8, −0.6]` — the pattern | +1.4 | **1.4** |
+| `[−0.8, 0.6]` — its opposite | −1.4 | 0 |
+| `[0.5, 0.5]` — unrelated | 0.0 | 0 |
+
+The **feed-forward** layer is a bank of these. `W1` holds 128 such patterns —
+four times the model's width, by convention — each asking its own *if* of the
+same gathered vector. `W2` then lets every unit that fired add its own
+learned contribution back into the position's description:
 
 ```python
 def feed_forward(z):
-    return np.maximum(z @ W1, 0) @ W2   # widen, bend, narrow back
+    return np.maximum(z @ W1, 0) @ W2   # 128 ifs, then their contributions
 ```
 
-`W1` widens each position's vector — conventionally to four times its width —
-and `W2` brings it back down. No position sees another anywhere in this;
-mixing between positions is attention's job, exclusively. The division of
-labour is total:
+The bend is what makes them ifs at all. Delete it and every "if" becomes
+"always" — and 128 always-on contributions collapse into a single matrix:
+`(x @ W1) @ W2` equals `x @ (W1 @ W2)`, checked to the digit in the lab. A
+hundred linear layers are one matrix wearing costumes. One kink breaks the
+collapse, and depth starts buying something.
+
+No position sees another anywhere in this — mixing is attention's job,
+exclusively:
 
 <div class="claim mt-7">
 Attention is the only place positions meet. The feed-forward is each position
 alone at its desk, thinking about what it gathered.
 </div>
 
-## The bend is not decoration
+## Why once is not enough
 
-`maximum(z, 0)` clips negatives to zero. It looks like a detail and it is the
-entire reason depth exists, because two purely linear layers collapse:
-`(x @ W1) @ W2` equals `x @ (W1 @ W2)` — one matrix wearing two layers'
-clothes. The lab checks both: without the bend, equal to the digit; with it,
-not. A hundred linear layers would still be one matrix. One kink breaks the
-collapse, and suddenly stacking buys something.
+One round of gather-and-think lets every position collect facts and draw a
+conclusion. What it cannot do is collect anyone else's *conclusions* — they
+did not exist until the round was over.
+
+Take the sentence from the attention part: *the cat sat on the mat because it
+was soft*. In one round, the position holding `it` can gather `cat` and `mat`
+and think its way to a suspicion about which one is meant. Acting on that
+suspicion — going back for what was said *about the mat* — needs a second
+round of gathering, because only now is there a suspicion to act on.
+
+<div class="claim mt-7">
+One round collects facts. Only the next round can collect conclusions.
+</div>
+
+So the gather-and-think pair gets stacked, conclusions building on
+conclusions, one round per storey. And stacking is where the trouble starts.
 
 ## Add, never replace
 
-Now the survival problem. Blocks are going to be stacked, and if each layer
-*replaces* what it was given, every layer's imperfection compounds. Make each
-of twenty-four layers just slightly timid — scale by 0.7 — and the signal
-arrives at size **0.0001**: nothing survives, because 0.7²⁴ is 0.000192.
+A learned layer has no reason to come out exactly signal-preserving. Suppose
+each of twenty-four storeys is merely a little timid — passing on about 0.7 of
+what it receives. If every storey *replaces* what it was given, the signal
+arrives at size **0.0001**, because 0.7²⁴ is 0.000192. Nothing survives;
+one dud storey anywhere would have the same effect.
 
 So a block never replaces. It **adds** what it computed to what it received:
 
@@ -72,9 +106,9 @@ however unhelpful the notes were.
 ## Tidy after every addition
 
 Adding has its own failure: the numbers only ever accumulate. The same
-twenty-four layers, adding instead of replacing, deliver a signal of size
-**108** — nothing was lost, but the scale has drifted far from anything the
-next layer expects. Same family of trouble as the √width divisor in attention.
+twenty-four storeys, adding instead of replacing, deliver a signal of size
+**108** — nothing lost, but far from any scale the next storey expects. Same
+family of trouble as the √width divisor in attention.
 
 The repair is to rewrite each position to a standard size after every
 addition: subtract its mean, divide by its spread. Mean 0, spread 1, same
@@ -92,7 +126,7 @@ out.
 
 ## The block
 
-All four ideas, in the order tidy → gather → add, tidy → think → add:
+All of it, in the order tidy → gather → add, tidy → think → add:
 
 ```python
 def block(z):
@@ -107,23 +141,23 @@ keeps its shape can be stacked as deep as the budget allows, and the depth of
 a model is just how many of these sit in a pile.
 
 <aside class="aside measure mt-5">
-Real blocks add one more linear layer after the heads are glued; ours
+Real blocks add one more learned matrix after the heads are glued; ours
 concatenates straight into the addition. Worth adding when this is rebuilt
 with a library — not needed to understand the idea.
 </aside>
 
 ## What the stack still cannot know
 
-A signal can now cross twenty-four layers and arrive intact, gathered and
-thought about at every step. But nothing in any of it — not the heads, not the
-feed-forward — ever asks *where* a character sits. The next part proves that
-blindness with one experiment, fixes it with one table, and assembles the
-whole model.
+A signal can now cross twenty-four storeys and arrive intact, gathered and
+thought about at every one. But nothing in any of it — not the heads, not the
+ifs — ever asks *where* a character sits. The next part proves that blindness
+with one experiment, fixes it with one table, and assembles the whole model.
 
 ## Build it yourself
 
-Six cells: the gathering packed into functions, the feed-forward, the collapse
-the bend prevents, the stack that dies by replacing, the drift that tidying
-holds at 1.00, and the block — three deep, shape unchanged.
+Six cells: the gathering packed into functions, one if-unit and then the bank
+of them, the collapse the bend prevents, the stack that dies by replacing,
+the drift that tidying holds at 1.00, and the block — three deep, shape
+unchanged.
 
 <div class="mt-8"><GptWidget name="block-lab" client:only="react" /></div>
