@@ -64,13 +64,13 @@ negative for opposites — a score for how well two rows go together.
 So the obvious move: weight position *j* for position *i* by dotting their
 rows, `x[i] · x[j]`.
 
-Run the experiment before trusting the move. Give six positions random rows —
-sixteen numbers each, untrained on purpose, so anything that happens is baked
-into the arithmetic rather than learned — and score every pair with the dot
-product. Repeat two thousand times, average: a position scores **+16.0**
-against itself and **+0.02** against everyone else. Turn the last position's
-six scores into shares with softmax and it keeps **99%** of its attention for
-itself, where an even split across the six it can see is 17%.
+It looks finished. Before wiring it in, try it: six positions, each handed a
+made-up row of sixteen numbers — made up, so whatever happens next is the
+arithmetic's doing, nothing learned. Score every pair. Averaged over two
+thousand such tries, a position scores **+16.0** against itself and **+0.02**
+against anyone else — and once softmax turns the last position's six scores
+into shares, it keeps **99%** for itself. An even split across the six it can
+see would be 17%.
 
 The failure is built in. `x · x` multiplies every entry by itself and adds:
 every term is a square, nothing can cancel — sixteen squares averaging about
