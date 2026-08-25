@@ -87,10 +87,15 @@ The fix is to stop comparing what positions *are*. Put each row through a
 learned matrix before comparing — and use a *different* matrix on each side:
 
 ```python
-Q = x @ W_q     # query — what this position is looking for
-K = x @ W_k     # key — what it offers to be found by
-V = x @ W_v     # value — what it hands over if chosen
+Q = x @ W_q     # queries — what each position is looking for
+K = x @ W_k     # keys — what each offers to be found by
+V = x @ W_v     # values — what each hands over if chosen
 ```
+
+`x` is the window itself: one row per position, each row the embedding of that
+position's character. So each multiplication makes every position's vector at
+once — and each from its own row alone. Positions still have not met; the
+meeting is the dot products, next.
 
 Same row in, three different vectors out. And the guaranteed squares are
 gone: a query dotted with a key multiplies two *different* rows, so matching
