@@ -3,6 +3,7 @@ import { BigramTable } from "../BigramTable";
 import { ContextWindow } from "../ContextWindow";
 import { DeepStack } from "../DeepStack";
 import { EmbeddingTable } from "../EmbeddingTable";
+import { FfnUnits } from "../FfnUnits";
 import { GenerateGPT } from "../GenerateGPT";
 import { GradientStep } from "../GradientStep";
 import { MultiHead } from "../MultiHead";
@@ -59,6 +60,8 @@ export function GptWidget({ name }: Props) {
       return <AttentionGrid />;
     case "multi-head":
       return <MultiHead />;
+    case "ffn-units":
+      return <FfnUnits />;
     case "deep-stack":
       return <DeepStack />;
     case "param-census":

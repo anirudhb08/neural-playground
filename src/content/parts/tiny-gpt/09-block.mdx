@@ -4,66 +4,82 @@ order: 9
 title: The transformer block
 teaches: [feed-forward, residual connections, layer norm, transformer block]
 blurb: >-
-  Attention gathers and never thinks. The thinking layer is a bank of learned
-  if-questions — and once you see why one round of gather-and-think cannot be
+  Attention gathers and never thinks. Thinking turns out to be a bank of
+  if-then rules you can watch fire — and once one round is visibly not
   enough, stacking becomes a survival problem with a two-part fix.
 searchTitle: "The transformer block from scratch: feed-forward, residuals, layer norm"
-description: "What the feed-forward layer actually computes — a bank of learned if-questions — why one round of attention and thinking cannot be enough, and how residual connections and layer norm let the pair stack twenty-four layers deep."
+description: "The feed-forward layer as if-then rules — a pattern to match, a contribution to add, a bend that keeps poor matches silent. Why one round of gather-and-think cannot be enough, and how residual connections and layer norm let blocks stack twenty-four deep."
 ---
 
 import { GptWidget } from "../../../components/site/GptWidget";
 
-Attention — one head or many — only ever gathers. Every position ends up
-holding a blend of what it chose to read, and nothing so far does anything
-*with* it. A model that only collects is a filing cabinet.
+Keep one picture in mind for this whole part. The model's working material is
+**one row of numbers per position** — that position's description. Attention
+just rewrote every row as a blend of the rows it chose to read; that was the
+gathering. From here on nothing looks at two positions at once. Everything
+below happens to each row on its own: it arrives holding gathered evidence,
+and it has to leave holding more than evidence.
+
+Because gathering is not thinking. A position that ends the attention layer
+holding *"an `a`, shortly after `cat` and `sat`"* has collected the facts and
+done nothing with them. A model that only collects is a filing cabinet.
 
 This part builds the piece that thinks, finds out why thinking once is not
 enough, and makes the answer to that — stacking — survivable.
 
-## Think alone
+## One if at a time
 
-The thinking piece is built from one small idea. Take a row of numbers `w`
-that belongs to the model — weights, adjusted by training like every matrix
-so far, not anything computed from the input. Dot it against a position's
-gathered vector and clip the result at zero:
+Thinking, at its smallest, is a rule: *if the evidence looks like this, then
+conclude that.* The thinking piece is built from exactly that shape.
+
+One **unit** owns two rows of weights — the model's own numbers, shaped by
+training like every matrix so far:
+
+- a **pattern**: the evidence it looks for,
+- a **contribution**: what it adds to the position's description when it
+  finds it.
+
+How well the evidence matches the pattern is their dot product — the same
+measuring stick attention scored with. The match is then clipped at zero:
 
 ```python
-fires = max(w · gathered, 0)
+fires = max(pattern · evidence, 0)
 ```
 
-That is an **if**. The unit fires when the gathered vector matches its
-pattern, in proportion to the match, and stays silent otherwise. The clip is
-the **bend**: plot `fires` against `w · gathered` and you get a straight line
-bent flat at zero — a poor match does not fire a little, it does not fire at
-all. (The standard name for the bend is **ReLU**.) With `w = [1, −1]`:
+The clip is the **bend** (its standard name is **ReLU**): plotted, a straight
+line bent flat at zero. A poor match does not fire a little — it does not
+fire at all, and the unit stays out of the way. With pattern `[1, −1]`:
 
-| gathered vector | `w · gathered` | after the bend |
+| evidence | `pattern · evidence` | after the bend |
 |---|---|---|
 | `[0.8, −0.6]` — the pattern | +1.4 | **1.4** |
 | `[−0.8, 0.6]` — its opposite | −1.4 | 0 |
 | `[0.5, 0.5]` — unrelated | 0.0 | 0 |
 
-Firing alone changes nothing — a unit must *do* something when it fires. So
-each unit also owns a second row of weights, its **contribution**: what gets
-added into the position's description, in proportion to how hard the unit
-fired. The whole unit reads: *if the gathered evidence looks like my pattern,
-add my contribution.*
+And whatever fires, the unit acts on: it adds `fires × contribution` to the
+description. An if, followed by its then. Here are three units under your
+hand — the first one is the table's:
 
-The **feed-forward** layer is 128 such units — four times the model's width,
-by convention — all reading the same gathered vector. Their patterns, stacked
-as the columns of one matrix, are `W1`; their contributions, stacked as the
-rows of another, are `W2`. One line asks every if and adds up what fired:
+<div class="mt-7"><GptWidget name="ffn-units" client:only="react" /></div>
+
+## A bank of ifs
+
+One rule is not thinking. The **feed-forward** layer is 128 of these units —
+four times the model's width, by convention — all reading the same evidence,
+each with its own pattern and its own contribution. Stack the 128 patterns as
+the columns of one matrix, `W1`, and the 128 contributions as the rows of
+another, `W2`, and the whole bank runs in one line:
 
 ```python
 def feed_forward(z):
-    return np.maximum(z @ W1, 0) @ W2   # 128 ifs, then their contributions
+    return np.maximum(z @ W1, 0) @ W2   # every if, then every fired then
 ```
 
-The bend is what makes them ifs at all. Delete it and every "if" becomes
-"always" — and 128 always-on contributions collapse into a single matrix:
-`(x @ W1) @ W2` equals `x @ (W1 @ W2)`, checked to the digit in the lab. A
-hundred linear layers are one matrix wearing costumes. One kink breaks the
-collapse, and depth starts buying something.
+The bend is what makes the bank worth having. Delete it and every "if"
+becomes "always" — and 128 always-on contributions collapse into a single
+matrix: `(x @ W1) @ W2` equals `x @ (W1 @ W2)`, checked to the digit in the
+lab. However many linear layers you stack, they are one matrix wearing
+costumes. One kink breaks the collapse, and depth starts buying something.
 
 No position sees another anywhere in this — mixing is attention's job,
 exclusively:
@@ -157,7 +173,7 @@ with a library — not needed to understand the idea.
 
 ## What the stack still cannot know
 
-A signal can now cross twenty-four storeys and arrive intact, gathered and
+A row can now cross twenty-four storeys and arrive intact, gathered and
 thought about at every one. But nothing in any of it — not the heads, not the
 ifs — ever asks *where* a character sits. The next part proves that blindness
 with one experiment, fixes it with one table, and assembles the whole model.

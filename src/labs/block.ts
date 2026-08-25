@@ -46,7 +46,7 @@ print("gathered:", multi_head(x, heads).shape)`,
   },
   {
     title: "one if, then a bank of them",
-    lead: "A single middle unit is an if: it fires in proportion to how well the gathered vector matches its pattern, and stays silent otherwise. The feed-forward is 128 of these asking at once, each adding its contribution if it fired. No position sees another here — that is attention's job, exclusively.",
+    lead: "A single unit is an if: it fires in proportion to how well the evidence matches its pattern, and stays silent otherwise. The feed-forward is 128 of these reading the same evidence at once — patterns in the columns of W1, contributions in the rows of W2. No position sees another here; that is attention's job, exclusively.",
     code: `w = np.array([1.0, -1.0])                  # one learned pattern
 for probe in ([0.8, -0.6], [-0.8, 0.6], [0.5, 0.5]):
     z = float(np.dot(probe, w))
