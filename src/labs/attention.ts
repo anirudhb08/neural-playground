@@ -41,13 +41,13 @@ print(np.round(avg[3], 3))
   },
   {
     title: "the failure, then the three matrices that fix it",
-    lead: "Weights have to come from the content, and the obvious comparison is each row dotted with the others. Run it: matching yourself scores high, matching anyone else scores nothing, because x·x is your own length squared. The fix is to compare through two different learned matrices — and to hand over a third thing entirely.",
-    code: `# The obvious comparison: every row dotted with every row.
-self_scores = x @ x.T / np.sqrt(C)
-print("score for matching yourself:", round(float(np.diag(self_scores).mean()), 2))
-print("score for anyone else      :", round(float(self_scores[~np.eye(T, dtype=bool)].mean()), 2))
-# Positive and about the square root of the width for yourself, zero for
-# strangers — so untrained attention would mostly listen to itself.
+    lead: "The page argued the failure from the arithmetic: strangers' products cancel, your own are squares and cannot. Run the check, then build the two matrices that break the self-match — and the third that hands over something else entirely.",
+    code: `# The obvious comparison first: every row dotted with every row.
+self_scores = x @ x.T
+print("score for matching yourself:", round(float(np.diag(self_scores).mean()), 1))
+print("score for anyone else      :", round(float(self_scores[~np.eye(T, dtype=bool)].mean()), 1))
+# Squares cannot cancel, so matching yourself lands near the width of the
+# row (8, here) while strangers hover near zero - before anything is learned.
 
 head = C   # how wide the three vectors are
 

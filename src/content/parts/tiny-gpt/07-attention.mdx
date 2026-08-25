@@ -64,18 +64,20 @@ negative for opposites — a score for how well two rows go together.
 So the obvious move: weight position *j* for position *i* by dotting their
 rows, `x[i] · x[j]`.
 
-It looks finished. Before wiring it in, try it: six positions, each handed a
-made-up row of sixteen numbers — made up, so whatever happens next is the
-arithmetic's doing, nothing learned. Score every pair. Averaged over two
-thousand such tries, a position scores **+16.0** against itself and **+0.02**
-against anyone else — and once softmax turns the last position's six scores
-into shares, it keeps **99%** for itself. An even split across the six it can
-see would be 17%.
+It has a flaw you can find without running anything. Dot two *strangers'*
+rows and the products have no reason to agree — positive here, negative
+there, mostly cancelling toward zero. Now dot a row *with itself*: every
+entry is multiplied by itself, so every product is a square, and a square is
+never negative. Nothing cancels. For a row of sixteen everyday-sized numbers
+that adds up to a score around **+16** — one per entry — for any row,
+whatever it contains, before anything has been learned.
 
-The failure is built in. `x · x` multiplies every entry by itself and adds:
-every term is a square, nothing can cancel — sixteen squares averaging about
-one each is the +16. Matching *yourself* scores large and positive whatever
-the row contains. A
+So in the contest for each position's attention, the position itself starts
+with a sixteen-point lead over every stranger, and softmax turns big leads
+into near-certainty. Wire this in and every position spends almost all of its
+attention on itself — and a position that listens to itself learns nothing
+from the window. The lab runs this check on its own rows and the numbers come
+out just as the squares say they must. A
 model wired this way mostly listens to itself, and a position that listens to
 itself learns nothing from the window.
 
@@ -90,10 +92,11 @@ K = x @ W_k     # key — what it offers to be found by
 V = x @ W_v     # value — what it hands over if chosen
 ```
 
-Same row in, three different vectors out. With `W_q` and `W_k` different, the
-diagonal loses its advantage entirely — the same measurement gives a self-share
-of 17%, exactly the even split — and who matches whom is decided by the learned
-numbers, not by geometry. The value matrix is the same idea once more: what a
+Same row in, three different vectors out. And the guaranteed squares are
+gone: a query dotted with a key multiplies two *different* rows, so matching
+yourself is no easier than matching a stranger — the self-share falls back to
+an even split — and who matches whom is decided entirely by the learned
+numbers. The value matrix is the same idea once more: what a
 position passes on need not be its raw row either.
 
 Those three matrices are the only things in attention that get learned.
