@@ -45,8 +45,15 @@ x = tok[idx] + pos[:t]     # who each character is, plus where it sits
 ```
 
 A `t` at seat 0 and a `t` at seat 2 use the same character row and different
-seat rows, so they arrive as different vectors — checked in the lab, along
-with the blindness test again: gone. Added, not glued side by side, because
+seat rows, so they arrive as different vectors. In width-2 numbers:
+
+```
+tok['t'] = [0.5, -1.0]     pos[0] = [ 0.1, 0.2]   →  t at seat 0: [0.6, -0.8]
+                           pos[2] = [-0.4, 0.5]   →  t at seat 2: [0.1, -0.5]
+```
+
+Same character, two different arrivals — checked at full size in the lab,
+along with the blindness test again: gone. Added, not glued side by side, because
 every block expects width 32 and adding keeps it.
 
 ## The last bridge
@@ -55,6 +62,17 @@ Blocks take width 32 in and give width 32 out — each position leaves as a
 32-number *description* of what it has seen and thought. A prediction needs
 13 numbers: one score per character in the vocabulary. One final matrix, the
 **lm head**, converts.
+
+The conversion is the usual one, a dot product per output column. A width-2
+description against a made-up three-character vocabulary:
+
+```
+z = [0.55, -0.90]     head = [[ 1.0,  0.0, -1.0],      z @ head =
+                              [ 0.0,  1.0,  1.0]]      [0.55, -0.90, -1.45]
+```
+
+Three scores, one per character, a softmax away from being probabilities —
+the shape the loss has scored since the grid.
 
 Back in the grid days no bridge was needed, because the grid was built with
 its rows exactly vocabulary-wide — the row *was* the scores. That was a

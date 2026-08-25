@@ -102,6 +102,25 @@ position's character. So each multiplication makes every position's vector at
 once — and each from its own row alone. Positions still have not met; the
 meeting is the dot products, next.
 
+Small enough to do by hand: a width-2 head and a two-position window. Make up
+the rows and two of the matrices —
+
+```
+x1 = [0.8, -0.6]        W_q = [[ 1.0,  0.0],      W_k = [[ 0.0,  1.0],
+x2 = [0.2,  1.0]               [-1.0,  1.0]]             [ 1.0,  0.0]]
+```
+
+A row times a matrix is one dot product per column. The first position's
+query:
+
+```
+q1 = [ 0.8*1.0 + (-0.6)*(-1.0),   0.8*0.0 + (-0.6)*1.0 ]  =  [1.4, -0.6]
+```
+
+Its key, through the other matrix the same way, is `k1 = [-0.6, 0.8]`; the
+second position's key is `k2 = [1.0, 0.2]`. Keep these — they meet in the
+next section.
+
 Same row in, three different vectors out. And the guaranteed squares are
 gone: a query dotted with a key multiplies two *different* rows, so matching
 yourself is no easier than matching a stranger — the self-share falls back to
@@ -122,6 +141,17 @@ things. That is the entire reason there are three matrices.
 One cell first: row *i*, column *j* holds position *i*'s query dotted with
 position *j*'s key — one number for how strongly what *i* is looking for
 matches what *j* offers.
+
+With the hand-built numbers, the first position looking at the second:
+
+```
+q1 · k2 = 1.4*1.0 + (-0.6)*0.2 = 1.28
+```
+
+and looking at itself, `q1 · k1 = 1.4*(-0.6) + (-0.6)*0.8 = -1.32`. Set that
+against the raw rows: `x1 · x1 = 1.00`, `x1 · x2 = -0.44`. Raw, the self-match
+wins, as the squares said it must. Through the two matrices, the stranger
+wins. Who matches whom is now the learned numbers' decision and nothing else.
 
 Do that for every pair and the result is a square: one row per position doing
 the looking, one column per position being looked at. In code the whole square
@@ -192,7 +222,18 @@ One divisor separates a head that trains from one that sits still.
 ## What comes out
 
 Each row of shares buys a blend: the output is the share-weighted average of
-the values, one new vector per position. Same shape as went in, entirely
+the values, one new vector per position. In numbers: suppose the second
+position's shares came out `[0.9, 0.1]` — nine tenths on the first position, a
+tenth on itself — and the value matrix handed over `v1 = [0.5, -1.0]` and
+`v2 = [1.0, 0.0]`. Its output is
+
+```
+0.9*[0.5, -1.0] + 0.1*[1.0, 0.0] = [0.55, -0.90]
+```
+
+— one new width-2 vector, mostly what its neighbour handed over.
+
+Same shape as went in, entirely
 different content: position four no longer holds *the character
 `t`*, it holds *the character `t`, having read `the ca` behind it*.
 

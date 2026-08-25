@@ -70,6 +70,19 @@ each with its own pattern and its own contribution. Stack the 128 patterns as
 the columns of one matrix, `W1`, and the 128 contributions as the rows of
 another, `W2`, and the whole bank runs in one line:
 
+The widget's three units, written that way:
+
+```
+W1 = [[ 1.0,  0.0, -1.0],        W2 = [[ 1.0,  0.5],
+      [-1.0,  1.0, -1.0]]              [-0.5,  1.0],
+                                       [ 0.5, -1.0]]
+```
+
+Walk the table's evidence through. `[0.8, -0.6] @ W1` asks all three ifs at
+once: `[1.4, -0.6, -0.2]`. The bend silences the two poor matches,
+`[1.4, 0, 0]`, and `@ W2` sums what fired: `1.4 * [1.0, 0.5] = [1.4, 0.7]` —
+the widget's own output. At full size the only change is the count:
+
 ```python
 def feed_forward(z):
     return np.maximum(z @ W1, 0) @ W2   # every if, then every fired then
