@@ -32,8 +32,10 @@ fires = max(w · gathered, 0)
 ```
 
 That is an **if**. The unit fires when the gathered vector matches its
-pattern, in proportion to the match, and stays silent otherwise. With
-`w = [1, −1]`:
+pattern, in proportion to the match, and stays silent otherwise. The clip is
+the **bend**: plot `fires` against `w · gathered` and you get a straight line
+bent flat at zero — a poor match does not fire a little, it does not fire at
+all. (The standard name for the bend is **ReLU**.) With `w = [1, −1]`:
 
 | gathered vector | `w · gathered` | after the bend |
 |---|---|---|
@@ -41,10 +43,16 @@ pattern, in proportion to the match, and stays silent otherwise. With
 | `[−0.8, 0.6]` — its opposite | −1.4 | 0 |
 | `[0.5, 0.5]` — unrelated | 0.0 | 0 |
 
-The **feed-forward** layer is a bank of these. `W1` holds 128 such patterns —
-four times the model's width, by convention — each asking its own *if* of the
-same gathered vector. `W2` then lets every unit that fired add its own
-learned contribution back into the position's description:
+Firing alone changes nothing — a unit must *do* something when it fires. So
+each unit also owns a second row of weights, its **contribution**: what gets
+added into the position's description, in proportion to how hard the unit
+fired. The whole unit reads: *if the gathered evidence looks like my pattern,
+add my contribution.*
+
+The **feed-forward** layer is 128 such units — four times the model's width,
+by convention — all reading the same gathered vector. Their patterns, stacked
+as the columns of one matrix, are `W1`; their contributions, stacked as the
+rows of another, are `W2`. One line asks every if and adds up what fired:
 
 ```python
 def feed_forward(z):
